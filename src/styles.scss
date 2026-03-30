@@ -57,6 +57,10 @@ html[data-color-scheme="dark"] {
   // Typography
   --font-ui:     'Inter', system-ui, sans-serif;
   --font-editor: 'JetBrains Mono', 'Fira Code', monospace;
+
+  // Editor — slide separator bar (light mode defaults)
+  --cm-separator-bg:    rgba(124, 77, 255, 0.1);
+  --cm-separator-color: #7C4DFF;
 }
 
 // System preference: dark
@@ -66,6 +70,8 @@ html[data-color-scheme="dark"] {
     --surface-container: #1C1C24;
     --on-surface:        #E8E8F2;
     --outline:           #2E2E3E;
+    --cm-separator-bg:    #1C1C24;
+    --cm-separator-color: #C8FF00;
   }
 }
 
@@ -75,6 +81,8 @@ html[data-color-scheme="dark"] {
   --surface-container: #1C1C24;
   --on-surface:        #E8E8F2;
   --outline:           #2E2E3E;
+  --cm-separator-bg:    #1C1C24;
+  --cm-separator-color: #C8FF00;
 }
 
 // Forced light — also resets back to light even when system is dark

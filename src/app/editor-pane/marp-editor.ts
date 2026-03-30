@@ -104,10 +104,10 @@ const marpBaseTheme = EditorView.theme({
   },
   // Hide gutter for a clean prose feel
   '.cm-gutters': { display: 'none' },
-  // Full-width Volt bar for --- separators
+  // Full-width bar for --- separators — colors switch with the theme via CSS vars
   '.cm-marp-separator': {
-    background: '#1C1C24 !important',
-    color: '#C8FF00 !important',
+    background: 'var(--cm-separator-bg) !important',
+    color: 'var(--cm-separator-color) !important',
     fontWeight: 'bold',
   },
   // Placeholder text

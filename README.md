@@ -1,59 +1,59 @@
 # Folio
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+A local-first, offline-capable PWA for creating and presenting Markdown slides using [Marp Core](https://github.com/marp-team/marp-core). Write Markdown, see slides rendered in real time, present full-screen — no server, no account, no data leaving the device.
 
-## Development server
+Built with Angular 21, Angular Material 3 (M3 Expressive), and a Signal-based architecture.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting started
 
 ```bash
-ng generate component component-name
+npm install
+npm start        # dev server → http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Commands
 
-```bash
-ng generate --help
-```
+| Command | Description |
+|---|---|
+| `npm start` | Dev server at `http://localhost:4200` (HMR enabled) |
+| `npm run build` | Production build → `dist/` |
+| `npm run watch` | Build in watch mode (development config) |
+| `npm test` | Run unit tests with Vitest |
+| `npx prettier --write .` | Format all files |
 
-## Building
+## Stack
 
-To build the project run:
+| Concern | Library |
+|---|---|
+| Framework | Angular 21 — standalone components, Signals, no NgModules |
+| Slides engine | `@marp-team/marp-core` — Markdown → HTML |
+| Editor | CodeMirror 6 with custom Marp syntax theme |
+| Filesystem | `lightning-fs` — IndexedDB-backed POSIX fs |
+| Preferences | Raw IndexedDB — single JSON value |
+| UI | Angular Material 3 (M3 Expressive) + Angular CDK |
+| Styles | SCSS + CSS custom properties (M3 tokens) |
+| PWA | `@angular/pwa` (Workbox service worker) |
+| Tests | Vitest + jsdom |
 
-```bash
-ng build
-```
+## Status
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+| Milestone | Status |
+|---|---|
+| **M1** Shell layout — split-pane (wide) / tabbed (narrow), toolbar | ✅ Done |
+| **M2** Marp rendering — live Markdown → iframe preview | Planned |
+| **M3** CodeMirror editor — syntax theme, `---` bar decoration, cheat bar | Planned |
+| **M4** Storage — lightning-fs persistence, file list, create/rename/delete | Planned |
+| **M5** Presentation mode — fullscreen, slide nav, theme switcher | Planned |
+| **M6** PWA — offline install, service worker, bundled fonts | Planned |
+| **M7** Export — download `.md`, self-contained HTML, print-to-PDF | Planned |
+| **M8** Polish — dark mode, micro-interactions, M3 Expressive theming | Planned |
 
-## Running unit tests
+## Design principles
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Folio follows **Quiet Tech** constraints — every feature must satisfy:
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **No data, just art** — zero network calls at runtime after install; no analytics or telemetry
+- **Digital respect** — no background processes, no battery-draining workers
+- **Minimum permissions** — no camera, mic, contacts, or location access

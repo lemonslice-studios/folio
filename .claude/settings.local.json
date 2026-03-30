@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm list:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(node -e \"const sass = require\\(''''sass''''\\); const r = sass.renderSync\\({data: \"\"@use ''''@angular/material'''' as mat; $x: mat.$yellow-palette;\"\"}\\); console.log\\(''''ok''''\\)\")"
+    ]
+  }
+}

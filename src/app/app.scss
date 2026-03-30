@@ -1,0 +1,80 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+// ── Toolbar ─────────────────────────────────────────────────────────────────
+
+.toolbar {
+  flex-shrink: 0;
+  gap: 0.5rem;
+  background: var(--surface-container);
+  border-bottom: 1px solid var(--outline);
+  min-height: 56px;
+  padding: 0 0.75rem;
+}
+
+.toolbar__logo {
+  color: var(--color-plasma);
+  font-size: 1.125rem;
+  line-height: 1;
+  margin-right: 0.125rem;
+}
+
+.toolbar__brand {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  color: var(--on-surface);
+  margin-right: 0.5rem;
+}
+
+.toolbar__file-chip {
+  border: 1px solid var(--outline) !important;
+  border-radius: 6px !important;
+  font-size: 0.8125rem;
+  height: 32px;
+  line-height: 32px;
+  color: var(--on-surface) !important;
+}
+
+.toolbar__spacer {
+  flex: 1;
+}
+
+// ── Wide layout: split pane ──────────────────────────────────────────────────
+
+.split-pane {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+
+  &__editor {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__divider {
+    width: 1px;
+    flex-shrink: 0;
+    background: var(--outline);
+    cursor: col-resize;
+  }
+
+  &__preview {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// ── Narrow layout: tabs ──────────────────────────────────────────────────────
+
+.tab-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}

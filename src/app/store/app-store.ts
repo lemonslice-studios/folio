@@ -1,5 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 
+export type ColorScheme = 'system' | 'light' | 'dark';
+
+const COLOR_SCHEME_CYCLE: ColorScheme[] = ['system', 'light', 'dark'];
+
 const SAMPLE_MARKDOWN = `---
 marp: true
 ---
@@ -38,6 +42,7 @@ export class AppStore {
   readonly currentSlideIndex = signal(0);
   readonly slideCount = signal(1);
   readonly isDirty = signal(false);
+  readonly colorScheme = signal<ColorScheme>('system');
 
   setMarkdown(value: string): void {
     this.currentMarkdown.set(value);
@@ -46,6 +51,12 @@ export class AppStore {
 
   setSlideCount(count: number): void {
     this.slideCount.set(count);
+  }
+
+  cycleColorScheme(): void {
+    const current = this.colorScheme();
+    const next = COLOR_SCHEME_CYCLE[(COLOR_SCHEME_CYCLE.indexOf(current) + 1) % COLOR_SCHEME_CYCLE.length];
+    this.colorScheme.set(next);
   }
 
   goToSlide(index: number): void {

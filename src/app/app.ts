@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
@@ -6,8 +6,22 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { EditorPaneComponent } from './editor-pane/editor-pane';
 import { PreviewPaneComponent } from './preview-pane/preview-pane';
+import { AppStore } from './store/app-store';
+
+const COLOR_SCHEME_ICON: Record<string, string> = {
+  system: 'brightness_auto',
+  light:  'light_mode',
+  dark:   'dark_mode',
+};
+
+const COLOR_SCHEME_LABEL: Record<string, string> = {
+  system: 'Color scheme: automatic (click to switch)',
+  light:  'Color scheme: light (click to switch)',
+  dark:   'Color scheme: dark (click to switch)',
+};
 
 @Component({
   selector: 'app-root',
@@ -16,6 +30,7 @@ import { PreviewPaneComponent } from './preview-pane/preview-pane';
     MatTabsModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     EditorPaneComponent,
     PreviewPaneComponent,
   ],
@@ -25,6 +40,8 @@ import { PreviewPaneComponent } from './preview-pane/preview-pane';
   host: { class: 'app-root' },
 })
 export class App {
+  protected readonly store = inject(AppStore);
+
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   readonly isWide = toSignal(
@@ -33,4 +50,26 @@ export class App {
     ),
     { initialValue: false },
   );
+
+  protected readonly colorSchemeIcon = computed(
+    () => COLOR_SCHEME_ICON[this.store.colorScheme()],
+  );
+
+  protected readonly colorSchemeLabel = computed(
+    () => COLOR_SCHEME_LABEL[this.store.colorScheme()],
+  );
+
+  constructor() {
+    // Reflect the chosen color scheme on <html> so CSS selectors and Material
+    // theme rules can respond without a page reload.
+    effect(() => {
+      const scheme = this.store.colorScheme();
+      const html = document.documentElement;
+      if (scheme === 'system') {
+        html.removeAttribute('data-color-scheme');
+      } else {
+        html.setAttribute('data-color-scheme', scheme);
+      }
+    });
+  }
 }

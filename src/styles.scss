@@ -1,5 +1,8 @@
 @use '@angular/material' as mat;
 
+// ── Angular Material theme ───────────────────────────────────────────────────
+
+// Default: light
 html {
   @include mat.theme((
     color: (
@@ -12,14 +15,40 @@ html {
   ));
 }
 
-// Folio design tokens — never hardcode hex values in component SCSS
+// Explicit dark override ([data-color-scheme="dark"] set by AppComponent)
+html[data-color-scheme="dark"] {
+  @include mat.theme((
+    color: (
+      primary: mat.$violet-palette,
+      tertiary: mat.$chartreuse-palette,
+      theme-type: dark,
+    ),
+  ));
+}
+
+// System dark — only when the user hasn't forced light
+@media (prefers-color-scheme: dark) {
+  html:not([data-color-scheme="light"]) {
+    @include mat.theme((
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$chartreuse-palette,
+        theme-type: dark,
+      ),
+    ));
+  }
+}
+
+// ── Folio design tokens ──────────────────────────────────────────────────────
+// Never hardcode these hex values in component SCSS — always reference the var.
+
 :root {
-  // Brand accents
+  // Brand accents (same in both modes)
   --color-volt:       #C8FF00;
   --color-plasma:     #7C4DFF;
   --color-neon-coral: #FF4D6D;
 
-  // Light-mode surfaces
+  // Light-mode surfaces (default)
   --surface:           #F8F8FC;
   --surface-container: #EFEFF5;
   --on-surface:        #18181F;
@@ -30,9 +59,9 @@ html {
   --font-editor: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-// Dark-mode surface overrides
+// System preference: dark
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-color-scheme="light"]) {
     --surface:           #111116;
     --surface-container: #1C1C24;
     --on-surface:        #E8E8F2;
@@ -40,7 +69,24 @@ html {
   }
 }
 
-// Global base
+// Forced dark
+[data-color-scheme="dark"] {
+  --surface:           #111116;
+  --surface-container: #1C1C24;
+  --on-surface:        #E8E8F2;
+  --outline:           #2E2E3E;
+}
+
+// Forced light — also resets back to light even when system is dark
+[data-color-scheme="light"] {
+  --surface:           #F8F8FC;
+  --surface-container: #EFEFF5;
+  --on-surface:        #18181F;
+  --outline:           #C8C8D8;
+}
+
+// ── Global base ──────────────────────────────────────────────────────────────
+
 *,
 *::before,
 *::after {

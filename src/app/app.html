@@ -9,8 +9,13 @@
 
   <span class="toolbar__spacer"></span>
 
-  <button mat-icon-button aria-label="Toggle dark mode">
-    <mat-icon>contrast</mat-icon>
+  <button
+    mat-icon-button
+    [attr.aria-label]="colorSchemeLabel()"
+    [matTooltip]="colorSchemeLabel()"
+    (click)="store.cycleColorScheme()"
+  >
+    <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
   </button>
   <button mat-icon-button aria-label="Open settings">
     <mat-icon>settings</mat-icon>

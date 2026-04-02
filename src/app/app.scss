@@ -48,25 +48,39 @@
 // ── Wide layout: split pane ──────────────────────────────────────────────────
 
 .split-pane {
-  display: flex;
+  display: grid;
   flex: 1;
   overflow: hidden;
+  position: relative;
 
   &__editor {
-    flex: 1;
     min-width: 0;
   }
 
   &__divider {
-    width: 1px;
-    flex-shrink: 0;
+    width: 6px; // Wider hit area for better UX
+    margin: 0 -2.5px; // Keep it visually 1px
     background: var(--outline);
     cursor: col-resize;
+    z-index: 10;
+    transition: background 0.2s;
+
+    &:hover,
+    &.cdk-drag-dragging {
+      background: var(--color-plasma);
+    }
   }
 
   &__preview {
-    flex: 1;
     min-width: 0;
+  }
+
+  &__shield {
+    position: absolute;
+    inset: 0;
+    z-index: 5; // Above preview, below divider (10)
+    background: transparent;
+    cursor: col-resize;
   }
 }
 

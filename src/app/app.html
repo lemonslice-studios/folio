@@ -23,10 +23,25 @@
 </mat-toolbar>
 
 @if (isWide()) {
-  <div class="split-pane" role="main">
+  <div #splitPane class="split-pane" role="main" 
+    [class.is-dragging]="isDragging()"
+    [style.grid-template-columns]="store.editorWidth() + 'px 1px 1fr'">
     <app-editor-pane class="split-pane__editor" />
-    <div class="split-pane__divider" role="separator" aria-orientation="vertical"></div>
+    <div
+      class="split-pane__divider"
+      role="separator"
+      aria-orientation="vertical"
+      cdkDrag
+      cdkDragLockAxis="x"
+      (cdkDragStarted)="onDragStart()"
+      (cdkDragEnded)="onDragEnd()"
+      (cdkDragMoved)="onResize($event)"
+    ></div>
     <app-preview-pane class="split-pane__preview" />
+
+    @if (isDragging()) {
+      <div class="split-pane__shield"></div>
+    }
   </div>
 } @else {
   <mat-tab-group class="tab-group" animationDuration="200ms" role="main"

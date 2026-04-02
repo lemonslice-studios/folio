@@ -43,10 +43,17 @@ export class AppStore {
   readonly slideCount = signal(1);
   readonly isDirty = signal(false);
   readonly colorScheme = signal<ColorScheme>('system');
+  readonly editorWidth = signal(500);
 
   setMarkdown(value: string): void {
     this.currentMarkdown.set(value);
     this.isDirty.set(true);
+  }
+
+  setEditorWidth(width: number): void {
+    const minWidth = 200;
+    const maxWidth = window.innerWidth - 200;
+    this.editorWidth.set(Math.max(minWidth, Math.min(width, maxWidth)));
   }
 
   setSlideCount(count: number): void {

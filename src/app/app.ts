@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditorPaneComponent } from './editor-pane/editor-pane';
 import { PreviewPaneComponent } from './preview-pane/preview-pane';
 import { PresentationListDrawerComponent } from './presentation-list-drawer/presentation-list-drawer';
@@ -35,6 +36,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
     MatButtonModule,
     MatTooltipModule,
     MatSidenavModule,
+    MatSnackBarModule,
     CdkDrag,
     EditorPaneComponent,
     PreviewPaneComponent,
@@ -48,8 +50,10 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
 export class App {
   protected readonly store = inject(AppStore);
   private readonly splitPane = viewChild<ElementRef<HTMLDivElement>>('splitPane');
+  private readonly titleInput = viewChild<ElementRef<HTMLInputElement>>('titleInput');
 
   private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly isWide = toSignal(
     this.breakpointObserver.observe('(min-width: 840px)').pipe(
@@ -67,6 +71,50 @@ export class App {
   );
 
   protected readonly isDragging = signal(false);
+
+  protected readonly isEditingTitle = signal(false);
+  protected readonly editValue = signal('');
+
+  protected onTitleClick(): void {
+    const current = this.store.currentFile();
+    if (!current) return;
+    
+    // Show without extension for editing
+    this.editValue.set(current.replace('.md', ''));
+    this.isEditingTitle.set(true);
+  }
+
+  protected async finishRename(): Promise<void> {
+    if (!this.isEditingTitle()) return;
+    
+    const oldName = this.store.currentFile();
+    let newName = this.editValue().trim();
+    
+    if (!newName) {
+      this.isEditingTitle.set(false);
+      return;
+    }
+
+    if (!newName.endsWith('.md')) newName += '.md';
+    
+    if (oldName && oldName !== newName) {
+      try {
+        await this.store.renameFile(oldName, newName);
+      } catch (e: any) {
+        this.snackBar.open(e.message || 'Failed to rename file', 'Dismiss', { duration: 3000 });
+      }
+    }
+    
+    this.isEditingTitle.set(false);
+  }
+
+  protected onTitleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.finishRename();
+    } else if (event.key === 'Escape') {
+      this.isEditingTitle.set(false);
+    }
+  }
 
   protected onDragStart(): void {
     this.isDragging.set(true);
@@ -90,6 +138,13 @@ export class App {
 
   constructor() {
     this.store.init();
+
+    // Focus input when editing starts
+    effect(() => {
+      if (this.isEditingTitle()) {
+        setTimeout(() => this.titleInput()?.nativeElement.focus(), 0);
+      }
+    });
 
     // Reflect the chosen color scheme on <html> so CSS selectors and Material
     // theme rules can respond without a page reload.

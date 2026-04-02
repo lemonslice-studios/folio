@@ -43,6 +43,12 @@
   margin-right: 0.5rem;
 }
 
+.toolbar__title-container {
+  display: flex;
+  align-items: center;
+  min-width: 100px;
+}
+
 .toolbar__file-chip {
   border: 1px solid var(--outline) !important;
   border-radius: 6px !important;
@@ -50,6 +56,28 @@
   height: 32px;
   line-height: 32px;
   color: var(--on-surface) !important;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.toolbar__title-input {
+  background: var(--surface);
+  border: 2px solid var(--color-plasma);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  height: 32px;
+  padding: 0 8px;
+  color: var(--on-surface);
+  font-family: inherit;
+  width: 100%;
+  max-width: 300px;
+  outline: none;
 }
 
 .toolbar__dirty-indicator {

@@ -132,6 +132,8 @@ export class AppStore {
     let finalNewName = newName;
     if (!finalNewName.endsWith('.md')) finalNewName += '.md';
     
+    if (oldName === finalNewName) return;
+
     if (await this.fs.exists(finalNewName)) {
       throw new Error('A file with that name already exists');
     }

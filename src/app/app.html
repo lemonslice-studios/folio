@@ -10,10 +10,30 @@
       </button>
       <span class="toolbar__brand">Folio</span>
 
-      <button mat-button class="toolbar__file-chip" (click)="drawer.toggle()" aria-label="Current file">
-        {{ store.currentFile() || 'New Presentation' }}
-        <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
-      </button>
+      <div class="toolbar__title-container">
+        @if (isEditingTitle()) {
+          <input 
+            #titleInput
+            type="text" 
+            class="toolbar__title-input"
+            [value]="editValue()"
+            (input)="editValue.set(titleInput.value)"
+            (blur)="finishRename()"
+            (keydown)="onTitleKeydown($event)"
+            aria-label="Rename presentation"
+          >
+        } @else {
+          <button 
+            mat-button 
+            class="toolbar__file-chip" 
+            (click)="onTitleClick()" 
+            aria-label="Rename presentation"
+            matTooltip="Rename presentation"
+          >
+            {{ store.currentFile()?.replace('.md', '') || 'New Presentation' }}
+          </button>
+        }
+      </div>
 
       @if (store.isDirty()) {
         <div class="toolbar__dirty-indicator" matTooltip="Unsaved changes"></div>

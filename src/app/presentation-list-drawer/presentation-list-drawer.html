@@ -1,0 +1,48 @@
+<div class="drawer-header">
+  <h2 class="mat-title-medium">My Presentations</h2>
+  <button mat-icon-button (click)="onNewPresentation()" matTooltip="New presentation">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<div class="presentation-list">
+  @for (file of store.presentationList(); track file) {
+    <div class="presentation-card"
+         [class.active]="store.currentFile() === file"
+         (click)="onFileClick(file)">
+      
+      @if (store.currentFile() === file) {
+        <div class="active-indicator"></div>
+      }
+      
+      <mat-icon class="file-icon">description</mat-icon>
+      <span class="filename">{{ file }}</span>
+      
+      <div class="actions">
+        @if (store.currentFile() === file && store.isDirty()) {
+          <div class="dirty-indicator" matTooltip="Unsaved changes"></div>
+        }
+        
+        <button mat-icon-button class="delete-button" 
+                (click)="onDelete($event, file)" 
+                matTooltip="Delete deck">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  } @empty {
+    <div class="empty-state">
+      <p>No presentations yet.</p>
+      <button mat-flat-button (click)="onNewPresentation()">
+        Create your first deck
+      </button>
+    </div>
+  }
+</div>
+
+<div class="drawer-footer">
+  <button mat-fab extended color="tertiary" (click)="onNewPresentation()" class="new-fab">
+    <mat-icon>add</mat-icon>
+    New deck
+  </button>
+</div>

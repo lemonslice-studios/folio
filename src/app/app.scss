@@ -6,6 +6,24 @@
   overflow: hidden;
 }
 
+.app-container {
+  flex: 1;
+  background: var(--surface);
+}
+
+.file-drawer {
+  width: 320px;
+  background-color: var(--surface);
+  border-right: 1px solid var(--outline);
+  box-shadow: none !important;
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 // ── Toolbar ─────────────────────────────────────────────────────────────────
 
 .toolbar {
@@ -15,13 +33,6 @@
   border-bottom: 1px solid var(--outline);
   min-height: 56px;
   padding: 0 0.75rem;
-}
-
-.toolbar__logo {
-  color: var(--color-plasma);
-  font-size: 1.125rem;
-  line-height: 1;
-  margin-right: 0.125rem;
 }
 
 .toolbar__brand {
@@ -39,6 +50,14 @@
   height: 32px;
   line-height: 32px;
   color: var(--on-surface) !important;
+}
+
+.toolbar__dirty-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-neon-coral);
+  margin-left: -4px;
 }
 
 .toolbar__spacer {

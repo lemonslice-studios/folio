@@ -8,8 +8,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { EditorPaneComponent } from './editor-pane/editor-pane';
 import { PreviewPaneComponent } from './preview-pane/preview-pane';
+import { PresentationListDrawerComponent } from './presentation-list-drawer/presentation-list-drawer';
 import { AppStore } from './store/app-store';
 
 const COLOR_SCHEME_ICON: Record<string, string> = {
@@ -32,9 +34,11 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
+    MatSidenavModule,
     CdkDrag,
     EditorPaneComponent,
     PreviewPaneComponent,
+    PresentationListDrawerComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -85,6 +89,8 @@ export class App {
   }
 
   constructor() {
+    this.store.init();
+
     // Reflect the chosen color scheme on <html> so CSS selectors and Material
     // theme rules can respond without a page reload.
     effect(() => {

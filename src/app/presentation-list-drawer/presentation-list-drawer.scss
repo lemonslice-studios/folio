@@ -1,0 +1,160 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.drawer-header {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--outline);
+
+  h2 {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.presentation-list {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px; // Tighter gap for M3
+  overflow-y: auto;
+}
+
+.presentation-card {
+  position: relative;
+  background-color: transparent;
+  border-radius: 12px; // Slightly tighter radius for items
+  padding: 8px 12px 8px 20px; // More compact padding
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  user-select: none;
+  min-height: 48px;
+
+  &:hover {
+    background-color: var(--surface-container);
+    
+    .delete-button {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.active {
+    background-color: var(--surface-container-high);
+    
+    .file-icon {
+      color: var(--color-plasma);
+    }
+
+    .filename {
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+  }
+
+  .active-indicator {
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 4px;
+    background-color: var(--color-plasma);
+    border-radius: 2px;
+  }
+
+  .file-icon {
+    color: var(--on-surface);
+    opacity: 0.7;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .filename {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--on-surface);
+    opacity: 0.9;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dirty-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-neon-coral);
+  }
+
+  .delete-button {
+    opacity: 0;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    transition: opacity 0.2s, color 0.2s;
+    color: var(--on-surface);
+    
+    &:hover {
+      color: var(--color-neon-coral);
+      background-color: rgba(255, 77, 109, 0.1);
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--on-surface);
+  opacity: 0.7;
+
+  p {
+    margin: 0;
+  }
+}
+
+.drawer-footer {
+  flex-shrink: 0;
+  padding: 16px;
+  border-top: 1px solid var(--outline);
+  display: flex;
+  justify-content: center;
+  background-color: var(--surface);
+}
+
+.new-fab {
+  background-color: var(--color-volt) !important;
+  color: #18181F !important;
+  box-shadow: none !important;
+  border-radius: 12px !important; // Match item radius
+}

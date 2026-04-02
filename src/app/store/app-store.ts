@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, effect } from '@angular/core';
+import { FsService } from '../services/fs.service';
+import { PrefsService, AppPrefs } from '../services/prefs.service';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -38,12 +40,115 @@ Hit the **▶ Present** button to go full-screen.
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
-  readonly currentMarkdown = signal(SAMPLE_MARKDOWN);
+  private readonly fs = inject(FsService);
+  private readonly prefsService = inject(PrefsService);
+
+  readonly presentationList = signal<string[]>([]);
+  readonly currentFile = signal<string | null>(null);
+  readonly currentMarkdown = signal('');
   readonly currentSlideIndex = signal(0);
   readonly slideCount = signal(1);
   readonly isDirty = signal(false);
-  readonly colorScheme = signal<ColorScheme>('system');
+  readonly prefs = signal<AppPrefs>({
+    lastOpenFile: null,
+    preferredTheme: 'default',
+    editorFontSize: 16,
+    darkMode: 'system',
+  });
+
+  readonly colorScheme = computed(() => this.prefs().darkMode);
   readonly editorWidth = signal(500);
+
+  constructor() {
+    // Auto-save effect
+    effect(async () => {
+      const markdown = this.currentMarkdown();
+      const file = this.currentFile();
+      if (file && this.isDirty()) {
+        await this.fs.writeFile(file, markdown);
+        this.isDirty.set(false);
+      }
+    });
+  }
+
+  async init(): Promise<void> {
+    await this.fs.init();
+    const prefs = await this.prefsService.init();
+    this.prefs.set(prefs);
+    
+    await this.refreshList();
+    const list = this.presentationList();
+
+    if (prefs.lastOpenFile && list.includes(prefs.lastOpenFile)) {
+      await this.openFile(prefs.lastOpenFile);
+    } else if (list.length > 0) {
+      await this.openFile(list[0]);
+    } else {
+      await this.createFile('Welcome.md', SAMPLE_MARKDOWN);
+    }
+  }
+
+  async createFile(filename: string, content: string = SAMPLE_MARKDOWN): Promise<void> {
+    let finalName = filename;
+    if (!finalName.endsWith('.md')) finalName += '.md';
+    
+    // Simple collision avoidance
+    let counter = 1;
+    const baseName = finalName.replace('.md', '');
+    while (await this.fs.exists(finalName)) {
+      finalName = `${baseName} (${counter++}).md`;
+    }
+
+    await this.fs.writeFile(finalName, content);
+    await this.refreshList();
+    await this.openFile(finalName);
+  }
+
+  async openFile(filename: string): Promise<void> {
+    const content = await this.fs.readFile(filename);
+    this.currentFile.set(filename);
+    this.currentMarkdown.set(content);
+    this.isDirty.set(false);
+    this.updatePrefs({ lastOpenFile: filename });
+  }
+
+  async deleteFile(filename: string): Promise<void> {
+    await this.fs.deleteFile(filename);
+    await this.refreshList();
+    
+    if (this.currentFile() === filename) {
+      const list = this.presentationList();
+      if (list.length > 0) {
+        await this.openFile(list[0]);
+      } else {
+        this.currentFile.set(null);
+        this.currentMarkdown.set('');
+        this.updatePrefs({ lastOpenFile: null });
+      }
+    }
+  }
+
+  async renameFile(oldName: string, newName: string): Promise<void> {
+    let finalNewName = newName;
+    if (!finalNewName.endsWith('.md')) finalNewName += '.md';
+    
+    if (await this.fs.exists(finalNewName)) {
+      throw new Error('A file with that name already exists');
+    }
+
+    await this.fs.renameFile(oldName, finalNewName);
+    await this.refreshList();
+    
+    if (this.currentFile() === oldName) {
+      this.currentFile.set(finalNewName);
+      this.updatePrefs({ lastOpenFile: finalNewName });
+    }
+  }
+
+  private async refreshList(): Promise<void> {
+    const list = await this.fs.listPresentations();
+    this.presentationList.set(list);
+  }
 
   setMarkdown(value: string): void {
     this.currentMarkdown.set(value);
@@ -63,11 +168,17 @@ export class AppStore {
   cycleColorScheme(): void {
     const current = this.colorScheme();
     const next = COLOR_SCHEME_CYCLE[(COLOR_SCHEME_CYCLE.indexOf(current) + 1) % COLOR_SCHEME_CYCLE.length];
-    this.colorScheme.set(next);
+    this.updatePrefs({ darkMode: next });
   }
 
   goToSlide(index: number): void {
     const clamped = Math.max(0, Math.min(index, this.slideCount() - 1));
     this.currentSlideIndex.set(clamped);
+  }
+
+  private updatePrefs(patch: Partial<AppPrefs>): void {
+    const next = { ...this.prefs(), ...patch };
+    this.prefs.set(next);
+    this.prefsService.save(next);
   }
 }

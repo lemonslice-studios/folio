@@ -168,3 +168,11 @@ body {
   height: 100%;
   overflow: hidden !important;
 }
+
+// ── Snack Bar ───────────────────────────────────────────────────────────────
+
+.undo-snackbar {
+  .mat-mdc-snack-bar-action {
+    color: var(--color-plasma) !important;
+  }
+}

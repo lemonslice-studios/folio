@@ -1,56 +1,70 @@
-<mat-toolbar class="toolbar" role="banner">
-  <span class="toolbar__logo" aria-hidden="true">◈</span>
-  <span class="toolbar__brand">Folio</span>
+<mat-drawer-container class="app-container">
+  <mat-drawer #drawer mode="over" class="file-drawer">
+    <app-presentation-list-drawer></app-presentation-list-drawer>
+  </mat-drawer>
 
-  <button mat-button class="toolbar__file-chip" aria-label="Open presentation menu">
-    New Presentation
-    <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
-  </button>
+  <mat-drawer-content class="app-content">
+    <mat-toolbar class="toolbar" role="banner">
+      <button mat-icon-button (click)="drawer.toggle()" aria-label="Open presentation list">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar__brand">Folio</span>
 
-  <span class="toolbar__spacer"></span>
+      <button mat-button class="toolbar__file-chip" (click)="drawer.toggle()" aria-label="Current file">
+        {{ store.currentFile() || 'New Presentation' }}
+        <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
+      </button>
 
-  <button
-    mat-icon-button
-    [attr.aria-label]="colorSchemeLabel()"
-    [matTooltip]="colorSchemeLabel()"
-    (click)="store.cycleColorScheme()"
-  >
-    <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
-  </button>
-  <button mat-icon-button aria-label="Open settings">
-    <mat-icon>settings</mat-icon>
-  </button>
-</mat-toolbar>
+      @if (store.isDirty()) {
+        <div class="toolbar__dirty-indicator" matTooltip="Unsaved changes"></div>
+      }
 
-@if (isWide()) {
-  <div #splitPane class="split-pane" role="main" 
-    [class.is-dragging]="isDragging()"
-    [style.grid-template-columns]="store.editorWidth() + 'px 1px 1fr'">
-    <app-editor-pane class="split-pane__editor" />
-    <div
-      class="split-pane__divider"
-      role="separator"
-      aria-orientation="vertical"
-      cdkDrag
-      cdkDragLockAxis="x"
-      (cdkDragStarted)="onDragStart()"
-      (cdkDragEnded)="onDragEnd()"
-      (cdkDragMoved)="onResize($event)"
-    ></div>
-    <app-preview-pane class="split-pane__preview" />
+      <span class="toolbar__spacer"></span>
 
-    @if (isDragging()) {
-      <div class="split-pane__shield"></div>
+      <button
+        mat-icon-button
+        [attr.aria-label]="colorSchemeLabel()"
+        [matTooltip]="colorSchemeLabel()"
+        (click)="store.cycleColorScheme()"
+      >
+        <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="Open settings">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    @if (isWide()) {
+      <div #splitPane class="split-pane" role="main" 
+        [class.is-dragging]="isDragging()"
+        [style.grid-template-columns]="store.editorWidth() + 'px 1px 1fr'">
+        <app-editor-pane class="split-pane__editor" />
+        <div
+          class="split-pane__divider"
+          role="separator"
+          aria-orientation="vertical"
+          cdkDrag
+          cdkDragLockAxis="x"
+          (cdkDragStarted)="onDragStart()"
+          (cdkDragEnded)="onDragEnd()"
+          (cdkDragMoved)="onResize($event)"
+        ></div>
+        <app-preview-pane class="split-pane__preview" />
+
+        @if (isDragging()) {
+          <div class="split-pane__shield"></div>
+        }
+      </div>
+    } @else {
+      <mat-tab-group class="tab-group" animationDuration="200ms" role="main"
+        aria-label="Editor and Preview tabs">
+        <mat-tab label="Edit">
+          <app-editor-pane />
+        </mat-tab>
+        <mat-tab label="Preview">
+          <app-preview-pane />
+        </mat-tab>
+      </mat-tab-group>
     }
-  </div>
-} @else {
-  <mat-tab-group class="tab-group" animationDuration="200ms" role="main"
-    aria-label="Editor and Preview tabs">
-    <mat-tab label="Edit">
-      <app-editor-pane />
-    </mat-tab>
-    <mat-tab label="Preview">
-      <app-preview-pane />
-    </mat-tab>
-  </mat-tab-group>
-}
+  </mat-drawer-content>
+</mat-drawer-container>

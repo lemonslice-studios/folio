@@ -55,10 +55,9 @@ npm start        # dev server → http://localhost:4200
 | M2 | Marp rendering — live Markdown → iframe preview, slide nav, fullscreen keyboard nav | ✅ Done |
 | M3 | CodeMirror editor — syntax theme, `---` bar decoration, cheat bar | ✅ Done |
 | M4 | Storage — lightning-fs persistence, file list, create / rename / delete | Planned |
-| M5 | Presentation mode — fullscreen, slide nav, theme switcher | Planned |
-| M6 | PWA — offline install, service worker, bundled fonts | Planned |
-| M7 | Export — download `.md`, self-contained HTML, print-to-PDF | Planned |
-| M8 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
+| M5 | PWA — offline install, service worker, bundled fonts | Planned |
+| M6 | Export — download `.md`, self-contained HTML, print-to-PDF | Planned |
+| M7 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
 
 ## Design principles
 

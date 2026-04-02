@@ -100,6 +100,22 @@
   overflow: hidden;
   position: relative;
 
+  &.is-dragging {
+    cursor: col-resize;
+
+    // Disable pointer events on children (especially the iframe) during drag
+    // so the mouse never "slips" into them.
+    & > * {
+      pointer-events: none;
+    }
+
+    // Keep pointer events on the divider so it can still be moved
+    .split-pane__divider {
+      pointer-events: auto;
+      background: var(--color-plasma);
+    }
+  }
+
   &__editor {
     min-width: 0;
   }
@@ -111,23 +127,15 @@
     cursor: col-resize;
     z-index: 10;
     transition: background 0.2s;
+    pointer-events: auto; // Ensure it's always interactive
 
-    &:hover,
-    &.cdk-drag-dragging {
+    &:hover {
       background: var(--color-plasma);
     }
   }
 
   &__preview {
     min-width: 0;
-  }
-
-  &__shield {
-    position: absolute;
-    inset: 0;
-    z-index: 5; // Above preview, below divider (10)
-    background: transparent;
-    cursor: col-resize;
   }
 }
 

@@ -43,7 +43,7 @@ npm start        # dev server → http://localhost:4200
 | UI | Angular Material 3 (M3 Expressive) + Angular CDK | ✅ wired |
 | Styles | SCSS + CSS custom properties (M3 tokens) | ✅ wired |
 | Filesystem | `lightning-fs` — IndexedDB-backed POSIX fs | M4 |
-| Preferences | Raw IndexedDB — single JSON value | M4 |
+| Preferences | Raw IndexedDB — single JSON value | M5 |
 | PWA | `@angular/pwa` (Workbox service worker) | M6 |
 | Tests | Vitest + jsdom | — |
 

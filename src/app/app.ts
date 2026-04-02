@@ -45,7 +45,10 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'app-root' },
+  host: { 
+    class: 'app-root',
+    '(window:mouseup)': 'onDragEnd()'
+  },
 })
 export class App {
   protected readonly store = inject(AppStore);

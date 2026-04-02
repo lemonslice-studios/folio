@@ -58,6 +58,9 @@
       <div #splitPane class="split-pane" role="main" 
         [class.is-dragging]="isDragging()"
         [style.grid-template-columns]="store.editorWidth() + 'px 1px 1fr'">
+        
+        <div class="split-pane__shield" [class.active]="isDragging()"></div>
+
         <app-editor-pane class="split-pane__editor" />
         <div
           class="split-pane__divider"
@@ -65,6 +68,7 @@
           aria-orientation="vertical"
           cdkDrag
           cdkDragLockAxis="x"
+          (mousedown)="onDragStart()"
           (cdkDragStarted)="onDragStart()"
           (cdkDragEnded)="onDragEnd()"
           (cdkDragMoved)="onResize($event)"

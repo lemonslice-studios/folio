@@ -54,7 +54,12 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
+            },
+            "github": {
+              "baseHref": "/folio-markdown-slides/",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,

@@ -178,6 +178,10 @@ export class AppStore {
     this.currentSlideIndex.set(clamped);
   }
 
+  setTheme(theme: AppPrefs['preferredTheme']): void {
+    this.updatePrefs({ preferredTheme: theme });
+  }
+
   private updatePrefs(patch: Partial<AppPrefs>): void {
     const next = { ...this.prefs(), ...patch };
     this.prefs.set(next);

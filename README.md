@@ -19,6 +19,7 @@ npm start        # dev server → http://localhost:4200
 |---|---|
 | `npm start` | Dev server at `http://localhost:4200` (HMR enabled) |
 | `npm run build` | Production build → `dist/` |
+| `npm run build -- --configuration github` | Build for GitHub Pages (sub-path base href) |
 | `npm run watch` | Build in watch mode (development config) |
 | `npm test` | Run unit tests with Vitest |
 | `npx prettier --write .` | Format all files |
@@ -27,6 +28,10 @@ npm start        # dev server → http://localhost:4200
 
 - **Split-pane layout** — editor left, preview right on wide screens (≥ 840 px); Edit / Preview tabs on narrow
 - **Live Marp preview** — typing in the editor re-renders the iframe within 300 ms; first load is immediate
+- **File Management** — create, open, and delete presentations via a Material 3 sidebar; swipe-to-delete logic replaced by refined M3 list items with explicit actions and Undo support
+- **Inline Renaming** — click the filename in the app bar to rename the current deck; auto-commits on Enter/blur, cancels on Escape
+- **Persistence** — all slides saved locally via `lightning-fs` (IndexedDB POSIX fs); app preferences (last open file, theme, etc.) stored in a dedicated IndexedDB store
+- **PWA Ready** — fully functional offline via Angular Service Worker; pre-caches app shell, assets, and Google Fonts
 - **One slide at a time** — prev / next nav bar below the preview; keyboard navigation (`←` `→` `Space` `Backspace`) works in fullscreen
 - **Present button** — Volt FAB bottom-right of the preview; triggers `requestFullscreen()` on the iframe
 - **CodeMirror 6 editor** — JetBrains Mono, line-wrapping, undo/redo, full keyboard support
@@ -42,9 +47,9 @@ npm start        # dev server → http://localhost:4200
 | Editor | CodeMirror 6 (`@codemirror/*`) | ✅ wired |
 | UI | Angular Material 3 (M3 Expressive) + Angular CDK | ✅ wired |
 | Styles | SCSS + CSS custom properties (M3 tokens) | ✅ wired |
-| Filesystem | `lightning-fs` — IndexedDB-backed POSIX fs | M4 |
-| Preferences | Raw IndexedDB — single JSON value | M5 |
-| PWA | `@angular/pwa` (Workbox service worker) | M6 |
+| Filesystem | `lightning-fs` — IndexedDB-backed POSIX fs | ✅ wired |
+| Preferences | Raw IndexedDB — single JSON value | ✅ wired |
+| PWA | `@angular/pwa` (Workbox service worker) | ✅ wired |
 | Tests | Vitest + jsdom | — |
 
 ## Milestones
@@ -55,7 +60,7 @@ npm start        # dev server → http://localhost:4200
 | M2 | Marp rendering — live Markdown → iframe preview, slide nav, fullscreen keyboard nav | ✅ Done |
 | M3 | CodeMirror editor — syntax theme, `---` bar decoration, cheat bar | ✅ Done |
 | M4 | Storage — lightning-fs persistence, file list, create / rename / delete | ✅ Done |
-| M5 | PWA — offline install, service worker, bundled fonts | Planned |
+| M5 | PWA — offline install, service worker, bundled fonts | ✅ Done |
 | M6 | Export — download `.md`, self-contained HTML, print-to-PDF | Planned |
 | M7 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
 

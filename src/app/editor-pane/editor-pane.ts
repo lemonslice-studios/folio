@@ -37,7 +37,10 @@ export class EditorPaneComponent {
       this.editorView = new EditorView({
         state: EditorState.create({
           doc: this.store.currentMarkdown(),
-          extensions: createMarpExtensions(md => this.store.setMarkdown(md)),
+          extensions: createMarpExtensions(
+            md => this.store.setMarkdown(md),
+            idx => this.store.goToSlide(idx)
+          ),
         }),
         parent: this.editorHost().nativeElement,
       });

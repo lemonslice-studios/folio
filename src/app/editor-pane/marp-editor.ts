@@ -120,7 +120,10 @@ const marpBaseTheme = EditorView.theme({
 
 // ── Public extension factory ─────────────────────────────────────────────────
 
-export function createMarpExtensions(onChange: (content: string) => void): Extension[] {
+export function createMarpExtensions(
+  onChange: (content: string) => void,
+  onCursorMove: (slideIndex: number) => void,
+): Extension[] {
   return [
     history(),
     keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
@@ -130,7 +133,60 @@ export function createMarpExtensions(onChange: (content: string) => void): Exten
     separatorPlugin,
     EditorView.lineWrapping,
     EditorView.updateListener.of(update => {
-      if (update.docChanged) onChange(update.state.doc.toString());
+      if (update.docChanged) {
+        onChange(update.state.doc.toString());
+      }
+      
+      if (update.selectionSet || update.docChanged) {
+        const fullText = update.state.doc.toString();
+        const pos = update.state.selection.main.head;
+        const textBefore = fullText.slice(0, pos);
+        
+        // Count '---' separators on their own lines before the cursor
+        const linesBefore = textBefore.split('\n');
+        let separatorsBefore = 0;
+        for (const line of linesBefore) {
+          if (/^-{3,}\s*$/.test(line)) {
+            separatorsBefore++;
+          }
+        }
+
+        // Marp Logic:
+        // 1. If doc starts with ---, it's front-matter.
+        // 2. Front-matter ends at the 2nd ---.
+        // 3. Slide 1 content is everything until the 3rd ---.
+        
+        const hasFrontMatter = fullText.trimStart().startsWith('---');
+        let slideIndex = 0;
+
+        if (hasFrontMatter) {
+          // 0, 1, or 2 separators = we are still in/just after front-matter (Slide 1)
+          // 3 separators = Slide 2 starts
+          slideIndex = Math.max(0, separatorsBefore - 1);
+          
+          // Wait, let's be precise:
+          // --- (sep 1)
+          // metadata
+          // --- (sep 2)
+          // Slide 1 content
+          // --- (sep 3)
+          // Slide 2 content
+          
+          if (separatorsBefore <= 2) {
+            slideIndex = 0;
+          } else {
+            slideIndex = separatorsBefore - 2;
+          }
+        } else {
+          // No front matter:
+          // Slide 1 content
+          // --- (sep 1)
+          // Slide 2 content
+          slideIndex = separatorsBefore;
+        }
+        
+        onCursorMove(slideIndex);
+      }
     }),
   ];
 }

@@ -41,15 +41,6 @@
 
       <span class="toolbar__spacer"></span>
 
-      <button
-        mat-icon-button
-        [attr.aria-label]="colorSchemeLabel()"
-        [matTooltip]="colorSchemeLabel()"
-        (click)="store.cycleColorScheme()"
-      >
-        <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
-      </button>
-
       <button mat-icon-button [matMenuTriggerFor]="exportMenu" aria-label="Export presentation" matTooltip="Export">
         <mat-icon>download</mat-icon>
       </button>
@@ -70,10 +61,6 @@
 
       <button mat-icon-button (click)="onShowHelp()" aria-label="Show cheatsheet" matTooltip="Help">
         <mat-icon>help_outline</mat-icon>
-      </button>
-
-      <button mat-icon-button aria-label="Open settings">
-        <mat-icon>settings</mat-icon>
       </button>
     </mat-toolbar>
 

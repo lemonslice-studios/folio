@@ -1,10 +1,22 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppStore } from '../store/app-store';
 import { FsService } from '../services/fs.service';
+
+const COLOR_SCHEME_ICON: Record<string, string> = {
+  system: 'brightness_auto',
+  light:  'light_mode',
+  dark:   'dark_mode',
+};
+
+const COLOR_SCHEME_LABEL: Record<string, string> = {
+  system: 'Color scheme: automatic',
+  light:  'Color scheme: light',
+  dark:   'Color scheme: dark',
+};
 
 @Component({
   selector: 'app-presentation-list-drawer',
@@ -22,6 +34,14 @@ export class PresentationListDrawerComponent {
   protected readonly store = inject(AppStore);
   protected readonly fs = inject(FsService);
   private readonly snackBar = inject(MatSnackBar);
+
+  protected readonly colorSchemeIcon = computed(
+    () => COLOR_SCHEME_ICON[this.store.colorScheme()],
+  );
+
+  protected readonly colorSchemeLabel = computed(
+    () => COLOR_SCHEME_LABEL[this.store.colorScheme()],
+  );
 
   async onNewPresentation(): Promise<void> {
     await this.store.createFile('Untitled.md');
@@ -45,5 +65,10 @@ export class PresentationListDrawerComponent {
     snackBarRef.onAction().subscribe(async () => {
       await this.store.createFile(file, content);
     });
+  }
+
+  onShowSettings(): void {
+    // Settings logic could be added here later
+    this.snackBar.open('Settings coming soon!', 'Dismiss', { duration: 2000 });
   }
 }

@@ -1,5 +1,19 @@
 <div class="drawer-header">
-  <h2 class="mat-title-medium">My Presentations</h2>
+  <div class="header-actions">
+    <button
+      mat-icon-button
+      [attr.aria-label]="colorSchemeLabel()"
+      [matTooltip]="colorSchemeLabel()"
+      (click)="store.cycleColorScheme()"
+    >
+      <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
+    </button>
+    
+    <button mat-icon-button (click)="onShowSettings()" aria-label="Open settings" matTooltip="Settings">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </div>
+
   <button mat-icon-button (click)="onNewPresentation()" matTooltip="New presentation">
     <mat-icon>add</mat-icon>
   </button>

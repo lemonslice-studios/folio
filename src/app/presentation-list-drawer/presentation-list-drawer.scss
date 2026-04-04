@@ -7,15 +7,15 @@
 
 .drawer-header {
   flex-shrink: 0;
-  padding: 16px 24px;
+  padding: 8px 16px; // Tighter padding for icon-only header
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--outline);
 
-  h2 {
-    margin: 0;
-    font-weight: 600;
+  .header-actions {
+    display: flex;
+    gap: 4px;
   }
 }
 

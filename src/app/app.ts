@@ -11,9 +11,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EditorPaneComponent } from './editor-pane/editor-pane';
 import { PreviewPaneComponent } from './preview-pane/preview-pane';
 import { PresentationListDrawerComponent } from './presentation-list-drawer/presentation-list-drawer';
+import { HelpDialogComponent } from './help-dialog/help-dialog';
 import { AppStore } from './store/app-store';
 import { ExportService } from './services/export.service';
 
@@ -40,6 +42,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
     MatSidenavModule,
     MatSnackBarModule,
     MatMenuModule,
+    MatDialogModule,
     CdkDrag,
     EditorPaneComponent,
     PreviewPaneComponent,
@@ -61,6 +64,7 @@ export class App {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly snackBar = inject(MatSnackBar);
   private readonly exportService = inject(ExportService);
+  private readonly dialog = inject(MatDialog);
 
   readonly isWide = toSignal(
     this.breakpointObserver.observe('(min-width: 840px)').pipe(
@@ -157,6 +161,15 @@ export class App {
 
   protected onPrintPdf(): void {
     this.exportService.print(this.store.currentMarkdown());
+  }
+
+  protected onShowHelp(): void {
+    this.dialog.open(HelpDialogComponent, {
+      width: '90vw',
+      maxWidth: '850px',
+      maxHeight: '90vh',
+      panelClass: 'folio-help-dialog'
+    });
   }
 
   constructor() {

@@ -61,7 +61,7 @@ npm start        # dev server → http://localhost:4200
 | M3 | CodeMirror editor — syntax theme, `---` bar decoration, cheat bar | ✅ Done |
 | M4 | Storage — lightning-fs persistence, file list, create / rename / delete | ✅ Done |
 | M5 | PWA — offline install, service worker, bundled fonts | ✅ Done |
-| M6 | Export — download `.md`, self-contained HTML, print-to-PDF | Planned |
+| M6 | Export — download `.md`, self-contained HTML, print-to-PDF | ✅ Done |
 | M7 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
 
 ## Design principles

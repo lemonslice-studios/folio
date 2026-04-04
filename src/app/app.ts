@@ -10,10 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
 import { EditorPaneComponent } from './editor-pane/editor-pane';
 import { PreviewPaneComponent } from './preview-pane/preview-pane';
 import { PresentationListDrawerComponent } from './presentation-list-drawer/presentation-list-drawer';
 import { AppStore } from './store/app-store';
+import { ExportService } from './services/export.service';
 
 const COLOR_SCHEME_ICON: Record<string, string> = {
   system: 'brightness_auto',
@@ -37,6 +39,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
     MatTooltipModule,
     MatSidenavModule,
     MatSnackBarModule,
+    MatMenuModule,
     CdkDrag,
     EditorPaneComponent,
     PreviewPaneComponent,
@@ -57,6 +60,7 @@ export class App {
 
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly exportService = inject(ExportService);
 
   readonly isWide = toSignal(
     this.breakpointObserver.observe('(min-width: 840px)').pipe(
@@ -137,6 +141,22 @@ export class App {
     this.store.setEditorWidth(newWidth);
     // Reset the drag transform so the divider stays synced with the grid
     event.source.reset();
+  }
+
+  protected onDownloadMd(): void {
+    const file = this.store.currentFile();
+    if (!file) return;
+    this.exportService.downloadMarkdown(file, this.store.currentMarkdown());
+  }
+
+  protected onDownloadHtml(): void {
+    const file = this.store.currentFile();
+    if (!file) return;
+    this.exportService.downloadHtml(file, this.store.currentMarkdown());
+  }
+
+  protected onPrintPdf(): void {
+    this.exportService.print(this.store.currentMarkdown());
   }
 
   constructor() {

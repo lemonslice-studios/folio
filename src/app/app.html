@@ -49,6 +49,25 @@
       >
         <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
       </button>
+
+      <button mat-icon-button [matMenuTriggerFor]="exportMenu" aria-label="Export presentation" matTooltip="Export">
+        <mat-icon>download</mat-icon>
+      </button>
+      <mat-menu #exportMenu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="onDownloadMd()">
+          <mat-icon>description</mat-icon>
+          <span>Download Markdown (.md)</span>
+        </button>
+        <button mat-menu-item (click)="onDownloadHtml()">
+          <mat-icon>html</mat-icon>
+          <span>Export HTML (.html)</span>
+        </button>
+        <button mat-menu-item (click)="onPrintPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>Print to PDF</span>
+        </button>
+      </mat-menu>
+
       <button mat-icon-button aria-label="Open settings">
         <mat-icon>settings</mat-icon>
       </button>

@@ -13,38 +13,12 @@ export class MarpService {
   }
 
   /**
-   * Builds a self-contained HTML document for the iframe srcdoc.
-   * Includes Marp's CSS and a small navigation script that responds
-   * to postMessage({ slideIndex: number }) from the parent frame.
+   * Builds a self-contained HTML document.
+   * If isExport is true, it builds a static document suitable for saving.
+   * If isExport is false, it includes the interactive navigation script for the iframe.
    */
-  buildSrcdoc(html: string, css: string): string {
-    // language=HTML
-    return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>${css}</style>
-<style>
-  html, body, .marpit {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: transparent;
-    touch-action: none; /* Prevent browser handling of gestures */
-  }
-  /* Hide all slides; only the active one is shown */
-  svg[data-marpit-svg] {
-    display: none;
-    width: 100%;
-    height: 100%;
-  }
-  svg[data-marpit-svg].active {
-    display: block;
-  }
-</style>
-</head>
-<body>
-${html}
+  buildSrcdoc(html: string, css: string, isExport: boolean = false): string {
+    const navScript = isExport ? '' : `
 <script>
 (function () {
   var slides = document.querySelectorAll('svg[data-marpit-svg]');
@@ -108,7 +82,64 @@ ${html}
     if (e.data && typeof e.data.slideIndex === 'number') show(e.data.slideIndex);
   });
 })();
-</script>
+</script>`;
+
+    const interactiveStyles = isExport ? `
+  /* Print/Export styles: show all slides in a flow */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  svg[data-marpit-svg] {
+    display: block !important;
+    width: 100vw !important;
+    height: auto !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  @media print {
+    @page { margin: 0; size: landscape; }
+    body { margin: 0; }
+    svg[data-marpit-svg] {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+` : `
+  /* Interactive styles: only show active slide */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  svg[data-marpit-svg] {
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+  svg[data-marpit-svg].active {
+    display: block;
+  }
+`;
+
+    // language=HTML
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Folio Presentation</title>
+<style>${css}</style>
+<style>
+  html, body, .marpit {
+    margin: 0; padding: 0;
+    background: transparent;
+    ${isExport ? '' : 'touch-action: none;'}
+  }
+  ${interactiveStyles}
+</style>
+</head>
+<body>
+${html}
+${navScript}
 </body>
 </html>`;
   }

@@ -30,6 +30,7 @@ export class MarpService {
     width: 100%; height: 100%;
     overflow: hidden;
     background: transparent;
+    touch-action: none; /* Prevent browser handling of gestures */
   }
   /* Hide all slides; only the active one is shown */
   svg[data-marpit-svg] {
@@ -58,7 +59,7 @@ ${html}
 
   show(0);
 
-  // Keyboard navigation — works in fullscreen and when the iframe is focused
+  // Keyboard navigation
   document.addEventListener('keydown', function (e) {
     var next;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
@@ -72,6 +73,35 @@ ${html}
     next = show(next);
     window.parent.postMessage({ slideIndex: next }, '*');
   });
+
+  // Touch navigation (swipes)
+  var touchStartX = 0;
+  var touchEndX = 0;
+  
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+  }, false);
+
+  document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, false);
+
+  function handleSwipe() {
+    var threshold = 50;
+    var next = current;
+    if (touchEndX < touchStartX - threshold) {
+      // Swipe left -> next slide
+      next = current + 1;
+    } else if (touchEndX > touchStartX + threshold) {
+      // Swipe right -> previous slide
+      next = current - 1;
+    } else {
+      return;
+    }
+    next = show(next);
+    window.parent.postMessage({ slideIndex: next }, '*');
+  }
 
   // Parent → iframe: navigate to a specific slide
   window.addEventListener('message', function (e) {

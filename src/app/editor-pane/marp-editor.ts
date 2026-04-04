@@ -56,10 +56,15 @@ const SNIPPETS = [
   { label: '### Header 3', apply: '### ', detail: 'Subsection title' },
   { label: '--- New Slide', apply: '\n---\n', detail: 'Slide separator' },
   { label: '![bg] Background', apply: '![bg](url)', detail: 'Full slide image' },
-  { label: '![bg right] Split', apply: '![bg right](url)', detail: 'Image on right half' },
-  { label: '![bg left] Split', apply: '![bg left](url)', detail: 'Image on left half' },
   { label: '**Bold**', apply: '**text**', detail: 'Strong emphasis' },
   { label: '*Italic*', apply: '*text*', detail: 'Emphasis' },
+  { label: '$ Math Inline', apply: '$formula$', detail: 'KaTeX formula' },
+  { label: '$$ Math Block', apply: '$$\nformula\n$$', detail: 'Block formula' },
+  { label: '== Highlight ==', apply: '==text==', detail: 'Mark text' },
+  { label: '[^1] Footnote', apply: '[^1]', detail: 'Add reference' },
+  { label: ':rocket: Rocket', apply: ':rocket:', detail: 'Emoji' },
+  { label: ':bulb: Idea', apply: ':bulb:', detail: 'Emoji' },
+  { label: ':check: Check', apply: ':white_check_mark:', detail: 'Emoji' },
 ];
 
 // ── Autocomplete Logic ──────────────────────────────────────────────────────
@@ -145,7 +150,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   }
 
   // 5. General Markdown snippets (triggered by characters OR explicit Ctrl+Space)
-  const snippetPrefix = context.matchBefore(/[#!*-]*/);
+  const snippetPrefix = context.matchBefore(/[#!$*=\^:-]*/);
   if (context.explicit || (snippetPrefix && snippetPrefix.from !== snippetPrefix.to)) {
     return {
       from: snippetPrefix ? snippetPrefix.from : context.pos,
@@ -162,7 +167,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   return null;
 }
 
-// ── Rest of Editor Logic ────────────────────────────────────────────────────
+// ── Editor Theme & Highlight ────────────────────────────────────────────────
 
 const marpHighlightStyle = HighlightStyle.define([
   {

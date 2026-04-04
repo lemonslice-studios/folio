@@ -28,6 +28,17 @@ const HELP_SECTIONS: HelpSection[] = [
     ]
   },
   {
+    title: 'Advanced MD',
+    items: [
+      { label: 'Math Inline', snippet: '$E=mc^2$', description: 'KaTeX formula' },
+      { label: 'Math Block', snippet: '$$\nI = \\int f(x) dx\n$$', description: 'Centered formula' },
+      { label: 'Highlight', snippet: '==text==', description: 'Mark text yellow' },
+      { label: 'Footnote', snippet: '[^1]', description: 'Add reference' },
+      { label: 'Definition', snippet: 'Term\n: Definition', description: 'Terminology list' },
+      { label: 'Emoji', snippet: ':rocket:', description: 'Shortcodes support' },
+    ]
+  },
+  {
     title: 'Slides',
     items: [
       { label: 'New Slide', snippet: '\n---\n', description: 'Horizontal separator' },
@@ -43,15 +54,6 @@ const HELP_SECTIONS: HelpSection[] = [
       { label: 'Class', snippet: '<!-- _class: lead -->', description: 'Apply style to current slide' },
       { label: 'Background', snippet: 'backgroundColor: #f0f0f0', description: 'Solid slide color' },
       { label: 'Color', snippet: 'color: #333', description: 'Default text color' },
-    ]
-  },
-  {
-    title: 'Images & Video',
-    items: [
-      { label: 'Image', snippet: '![alt](url)', description: 'Standard image' },
-      { label: 'Background', snippet: '![bg](url)', description: 'Full-bleed slide background' },
-      { label: 'BG Right', snippet: '![bg right](url)', description: 'Split background' },
-      { label: 'Video', snippet: '<video controls height="400px" src="url"></video>', description: 'Embedded video player' },
     ]
   },
   {

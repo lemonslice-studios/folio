@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
 import Marp from '@marp-team/marp-core';
+// @ts-ignore
+import mark from 'markdown-it-mark';
+// @ts-ignore
+import footnote from 'markdown-it-footnote';
+// @ts-ignore
+import deflist from 'markdown-it-deflist';
+// @ts-ignore
+import container from 'markdown-it-container';
 
 const MARPX_THEMES = [
   'cantor', 'church', 'copernicus', 'einstein', 
@@ -10,9 +18,22 @@ const MARPX_THEMES = [
 
 @Injectable({ providedIn: 'root' })
 export class MarpService {
-  private readonly marp = new Marp({ html: true });
+  private readonly marp = new Marp({ 
+    html: true,
+    math: 'katex',
+    emoji: {
+      shortcode: true,
+      unicode: true
+    }
+  });
 
   constructor() {
+    this.marp.markdown
+      .use(mark)
+      .use(footnote)
+      .use(deflist)
+      .use(container, 'container');
+
     this.registerMarpXThemes();
   }
 

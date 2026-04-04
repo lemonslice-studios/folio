@@ -106,18 +106,25 @@ export class MarpService {
     }
   }
 ` : `
-  /* Interactive styles: only show active slide */
-  html, body {
+  /* Interactive styles: only show active slide, centered in viewport */
+  html, body, .marpit {
+    width: 100%;
     height: 100%;
     overflow: hidden;
   }
+  .marpit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   svg[data-marpit-svg] {
     display: none;
-    width: 100%;
-    height: 100%;
+    flex-shrink: 0;
   }
   svg[data-marpit-svg].active {
     display: block;
+    max-width: 100%;
+    max-height: 100%;
   }
 `;
 

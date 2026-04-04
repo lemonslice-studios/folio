@@ -46,12 +46,25 @@ const HELP_SECTIONS: HelpSection[] = [
     ]
   },
   {
-    title: 'Images',
+    title: 'Images & Video',
     items: [
       { label: 'Image', snippet: '![alt](url)', description: 'Standard image' },
       { label: 'Background', snippet: '![bg](url)', description: 'Full-bleed slide background' },
-      { label: 'BG Right', snippet: '![bg right](url)', description: 'Split background (right half)' },
-      { label: 'BG 50%', snippet: '![bg left:50%](url)', description: 'Resize background area' },
+      { label: 'BG Right', snippet: '![bg right](url)', description: 'Split background' },
+      { label: 'Video', snippet: '<video controls height="400px" src="url"></video>', description: 'Embedded video player' },
+    ]
+  },
+  {
+    title: 'MarpX Extras',
+    items: [
+      { label: 'Box', snippet: '<box>\nContent\n</box>', description: 'Styled content box' },
+      { label: 'Callout', snippet: '<div class="callout">\nTip!\n</div>', description: 'Attention-grabbing block' },
+      { label: 'Columns', snippet: '<div class="multicolumn">\n\nLeft\n\n</div>', description: 'Multicolumn layout' },
+      { label: 'Chapter', snippet: '<!-- _class: chapter -->', description: 'Transition slide style' },
+      { label: 'Quote', snippet: '<!-- _class: quote -->', description: 'Full-slide blockquote' },
+      { label: 'Black Slide', snippet: '<!-- _class: black-slide -->', description: 'Invert to solid black' },
+      { label: 'TOC', snippet: '<!-- _class: toc -->', description: 'Table of contents style' },
+      { label: 'Notes', snippet: '<div class="notes">\nVisible notes\n</div>', description: 'On-slide notes block' },
     ]
   }
 ];

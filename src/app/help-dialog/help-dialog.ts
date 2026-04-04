@@ -34,8 +34,13 @@ const HELP_SECTIONS: HelpSection[] = [
       { label: 'Math Block', snippet: '$$\nI = \\int f(x) dx\n$$', description: 'Centered formula' },
       { label: 'Highlight', snippet: '==text==', description: 'Mark text yellow' },
       { label: 'Footnote', snippet: '[^1]', description: 'Add reference' },
-      { label: 'Definition', snippet: 'Term\n: Definition', description: 'Terminology list' },
       { label: 'Emoji', snippet: ':rocket:', description: 'Shortcodes support' },
+    ]
+  },
+  {
+    title: 'Diagrams',
+    items: [
+      { label: 'Flowchart', snippet: '```mermaid\ngraph TD\nA[Start] --> B{Decision}\nB -- Yes --> C[End]\nB -- No --> D[Try again]\n```', description: 'Mermaid.js diagram' },
     ]
   },
   {
@@ -48,15 +53,6 @@ const HELP_SECTIONS: HelpSection[] = [
     ]
   },
   {
-    title: 'Directives',
-    items: [
-      { label: 'Theme', snippet: 'theme: gaia', description: 'Built-in themes: default, gaia, uncover' },
-      { label: 'Class', snippet: '<!-- _class: lead -->', description: 'Apply style to current slide' },
-      { label: 'Background', snippet: 'backgroundColor: #f0f0f0', description: 'Solid slide color' },
-      { label: 'Color', snippet: 'color: #333', description: 'Default text color' },
-    ]
-  },
-  {
     title: 'MarpX Extras',
     items: [
       { label: 'Box', snippet: '<box>\nContent\n</box>', description: 'Styled content box' },
@@ -65,8 +61,6 @@ const HELP_SECTIONS: HelpSection[] = [
       { label: 'Chapter', snippet: '<!-- _class: chapter -->', description: 'Transition slide style' },
       { label: 'Quote', snippet: '<!-- _class: quote -->', description: 'Full-slide blockquote' },
       { label: 'Black Slide', snippet: '<!-- _class: black-slide -->', description: 'Invert to solid black' },
-      { label: 'TOC', snippet: '<!-- _class: toc -->', description: 'Table of contents style' },
-      { label: 'Notes', snippet: '<div class="notes">\nVisible notes\n</div>', description: 'On-slide notes block' },
     ]
   }
 ];

@@ -62,9 +62,9 @@ const SNIPPETS = [
   { label: '$$ Math Block', apply: '$$\nformula\n$$', detail: 'Block formula' },
   { label: '== Highlight ==', apply: '==text==', detail: 'Mark text' },
   { label: '[^1] Footnote', apply: '[^1]', detail: 'Add reference' },
+  { label: '```mermaid Diagram', apply: '```mermaid\ngraph TD\nA --> B\n```', detail: 'Mermaid flowchart' },
   { label: ':rocket: Rocket', apply: ':rocket:', detail: 'Emoji' },
   { label: ':bulb: Idea', apply: ':bulb:', detail: 'Emoji' },
-  { label: ':check: Check', apply: ':white_check_mark:', detail: 'Emoji' },
 ];
 
 // ── Autocomplete Logic ──────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   }
 
   // 5. General Markdown snippets (triggered by characters OR explicit Ctrl+Space)
-  const snippetPrefix = context.matchBefore(/[#!$*=\^:-]*/);
+  const snippetPrefix = context.matchBefore(/[#!$*=\^:`-]*/);
   if (context.explicit || (snippetPrefix && snippetPrefix.from !== snippetPrefix.to)) {
     return {
       from: snippetPrefix ? snippetPrefix.from : context.pos,
@@ -167,7 +167,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   return null;
 }
 
-// ── Editor Theme & Highlight ────────────────────────────────────────────────
+// ── Rest of Editor Logic ────────────────────────────────────────────────────
 
 const marpHighlightStyle = HighlightStyle.define([
   {

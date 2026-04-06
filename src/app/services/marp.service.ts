@@ -81,8 +81,8 @@ export class MarpService {
       theme: 'default',
       securityLevel: 'loose',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-      fontSize: 16,
-      flowchart: { useMaxWidth: false, htmlLabels: false },
+      fontSize: 20,
+      flowchart: { useMaxWidth: false, htmlLabels: true },
       sequence: { useMaxWidth: false },
       gantt: { useMaxWidth: false }
     });
@@ -94,9 +94,26 @@ export class MarpService {
     current = clamped;
     
     if (window.mermaid) {
-      await mermaid.run({
-        querySelector: '.active .mermaid'
-      });
+      await document.fonts.ready;
+      var diagramEls = Array.from(document.querySelectorAll('.active .mermaid:not([data-processed])'));
+      if (diagramEls.length) {
+        var tempDiv = document.createElement('div');
+        tempDiv.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px;visibility:hidden;';
+        document.body.appendChild(tempDiv);
+        var placements = diagramEls.map(function(el) {
+          var marker = document.createComment('mermaid');
+          el.parentNode.replaceChild(marker, el);
+          el.classList.add('mermaid-render-tmp');
+          tempDiv.appendChild(el);
+          return { el: el, marker: marker };
+        });
+        await mermaid.run({ querySelector: '.mermaid-render-tmp' });
+        placements.forEach(function(p) {
+          p.el.classList.remove('mermaid-render-tmp');
+          p.marker.parentNode.replaceChild(p.el, p.marker);
+        });
+        document.body.removeChild(tempDiv);
+      }
     }
     return clamped;
   }
@@ -140,10 +157,12 @@ export class MarpService {
   .mermaid-container {
     display: flex;
     justify-content: center;
+    width: 100%;
   }
   .mermaid svg {
+    display: block;
     max-width: 100%;
-    height: auto !important;
+    height: auto;
   }
 `;
 

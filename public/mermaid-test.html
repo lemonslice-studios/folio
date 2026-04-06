@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mermaid Test</title>
+<style>
+  body { font-family: sans-serif; padding: 2rem; background: #f5f5f5; }
+  h2 { margin-top: 2rem; }
+  .slide-sim {
+    width: 800px;
+    height: 600px;
+    background: white;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  .mermaid-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .mermaid svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+
+<h1>Mermaid Rendering Test</h1>
+
+<h2>1. Flowchart (htmlLabels: false)</h2>
+<div class="slide-sim">
+  <div class="mermaid-container">
+    <pre class="mermaid" id="d1">
+flowchart TD
+    A[Start] --> B{Is it working?}
+    B -- Yes --> C[Great!]
+    B -- No --> D[Debug it]
+    D --> B
+    </pre>
+  </div>
+</div>
+
+<h2>2. Sequence Diagram</h2>
+<div class="slide-sim">
+  <div class="mermaid-container">
+    <pre class="mermaid" id="d2">
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+    </pre>
+  </div>
+</div>
+
+<h2>3. Flowchart with longer labels</h2>
+<div class="slide-sim">
+  <div class="mermaid-container">
+    <pre class="mermaid" id="d3">
+flowchart LR
+    A[User Input] --> B[Validate Data]
+    B --> C{Valid?}
+    C -- Yes --> D[Process Request]
+    C -- No --> E[Return Error]
+    D --> F[Send Response]
+    </pre>
+  </div>
+</div>
+
+<script src="js/mermaid.min.js"></script>
+<script>
+(async function() {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    fontSize: 20,
+    flowchart: { useMaxWidth: false, htmlLabels: true },
+    sequence: { useMaxWidth: false },
+  });
+
+  await document.fonts.ready;
+  await mermaid.run({ querySelector: '.mermaid' });
+})();
+</script>
+</body>
+</html>

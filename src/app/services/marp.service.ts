@@ -269,7 +269,10 @@ window.addEventListener('DOMContentLoaded', function() {
   /* --- as explicit page break */
   hr {
     break-before: page;
-    display: none;
+    border: none;
+    height: 0;
+    margin: 0;
+    visibility: hidden;
   }
 
   body {

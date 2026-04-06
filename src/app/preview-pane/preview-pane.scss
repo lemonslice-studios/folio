@@ -59,12 +59,21 @@
   }
 }
 
-// ── Present FAB ───────────────────────────────────────────────────────────────
+// ── Present / Toggle FABs ──────────────────────────────────────────────────
 
-.present-fab {
+.present-fab, .prose-toggle-fab {
   position: absolute;
   bottom: 3.5rem; // sits just above the nav bar
   right: 1rem;
+}
+
+.present-fab {
+  --mdc-fab-container-color: var(--color-plasma);
+  --mdc-fab-icon-color: white;
+  --mat-fab-foreground-color: white;
+}
+
+.prose-toggle-fab {
   --mdc-fab-container-color: var(--color-volt);
   --mdc-fab-icon-color: #18181F;
   --mat-fab-foreground-color: #18181F;

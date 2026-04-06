@@ -51,5 +51,14 @@
         <span class="page-counter">VIEW: FLOW</span>
       }
     </div>
+
+    <button
+      mat-fab
+      class="prose-toggle-fab"
+      [attr.aria-label]="store.proseViewMode() === 'flow' ? 'Switch to paginated view' : 'Switch to flow view'"
+      (click)="toggleProseMode()"
+    >
+      <mat-icon>{{ store.proseViewMode() === 'flow' ? 'import_contacts' : 'article' }}</mat-icon>
+    </button>
   }
 </div>

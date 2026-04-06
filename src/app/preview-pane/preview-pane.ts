@@ -106,4 +106,9 @@ export class PreviewPaneComponent {
   protected present(): void {
     this.iframeRef()?.nativeElement.requestFullscreen();
   }
+
+  protected toggleProseMode(): void {
+    const current = this.store.proseViewMode();
+    this.store.setProseViewMode(current === 'flow' ? 'paged' : 'flow');
+  }
 }

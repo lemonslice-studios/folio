@@ -311,52 +311,46 @@ window.addEventListener('DOMContentLoaded', function() {
   /* Base scaling and reset */
   html, body {
     width: 100%;
-    min-width: 100%;
     margin: 0;
     padding: 0;
+    background: white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #1d1b20; /* M3 On Surface */
+    -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
   }
 
   *, *::before, *::after {
     box-sizing: border-box;
   }
 
-  /* Prose typography - Material 3 inspired */
-  html, body, .markdown-body {
-    all: initial;
-    display: block;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-size: 16px !important;
-    line-height: 1.5;
-    color: #1d1b20; /* M3 On Surface */
-    background: white;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  p, li, td, th, blockquote, div, span, b, strong, em, i, a {
+  /* Prose typography */
+  .markdown-body {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
     color: inherit;
-    display: inline; /* inline by default for all:initial */
   }
 
-  p, div, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, pre, table {
-    display: block !important;
-    margin-bottom: 1rem !important;
+  .markdown-body p, .markdown-body ul, .markdown-body ol, 
+  .markdown-body blockquote, .markdown-body pre, .markdown-body table {
+    margin-top: 0;
+    margin-bottom: 1rem;
   }
 
   /* Headings - M3 Proportions */
-  h1 { font-size: 2rem !important; font-weight: 400 !important; margin-top: 2rem !important; }
-  h2 { font-size: 1.5rem !important; font-weight: 400 !important; margin-top: 1.5rem !important; }
-  h3 { font-size: 1.25rem !important; font-weight: 500 !important; margin-top: 1.2rem !important; }
+  .markdown-body h1 { font-size: 2rem; font-weight: 400; margin: 2rem 0 1rem; line-height: 1.2; }
+  .markdown-body h2 { font-size: 1.5rem; font-weight: 400; margin: 1.5rem 0 1rem; line-height: 1.2; }
+  .markdown-body h3 { font-size: 1.25rem; font-weight: 500; margin: 1.2rem 0 0.8rem; line-height: 1.2; }
   
-  strong, b { font-weight: 600 !important; }
-  em, i { font-style: italic !important; }
+  .markdown-body strong, .markdown-body b { font-weight: 600; }
+  .markdown-body em, .markdown-body i { font-style: italic; }
 
-  ul, ol { padding-left: 1.5rem !important; }
-  li { display: list-item !important; margin-bottom: 0.5rem !important; }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; }
+  .markdown-body li { margin-bottom: 0.5rem; }
+  .markdown-body li > p { margin-bottom: 0.25rem; }
   
   /* Reset for exported HTML */
   ${isExport ? 'body { background: white; }' : ''}

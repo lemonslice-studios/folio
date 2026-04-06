@@ -28,6 +28,10 @@
   height: 100%;
   border: none;
   display: block;
+
+  &.reloading {
+    visibility: hidden;
+  }
 }
 
 // ── Slide navigation bar ──────────────────────────────────────────────────────

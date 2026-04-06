@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -33,6 +34,8 @@ export class PreviewPaneComponent {
 
   /** Saved scroll offset (px) of the prose preview before its srcdoc is replaced. */
   private proseScrollY = 0;
+  /** True while a prose-flow srcdoc swap is in-flight; hides the iframe to avoid scroll-jump flicker. */
+  protected readonly proseReloading = signal(false);
 
   /**
    * First emission is immediate (no debounce) so the preview populates on load.
@@ -75,9 +78,11 @@ export class PreviewPaneComponent {
         this.store.setSlideCount(result.slideCount);
         iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false);
       } else {
-        // Save scroll position before the srcdoc replacement resets it to 0
+        // Save scroll position before the srcdoc replacement resets it to 0.
+        // Hide the iframe in flow mode so the scroll-jump isn't visible.
         const scrollEl = iframe.nativeElement.contentDocument?.documentElement;
         this.proseScrollY = scrollEl?.scrollTop ?? 0;
+        if (proseMode === 'flow') this.proseReloading.set(true);
         // Page count is set via postMessage after Paged.js finishes
         iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme);
       }
@@ -119,10 +124,12 @@ export class PreviewPaneComponent {
     if (!iframe) return;
     iframe.contentWindow?.postMessage({ slideIndex: this.store.currentSlideIndex() }, '*');
 
-    // For flow mode, the document is fully laid out at load time — restore scroll immediately.
+    // For flow mode, the document is fully laid out at load time — restore scroll immediately,
+    // then reveal the iframe (was hidden to suppress the scroll-jump flicker).
     // Paged mode is handled after the pageCount postMessage (Paged.js runs asynchronously).
     if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow') {
       iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
+      this.proseReloading.set(false);
     }
   }
 

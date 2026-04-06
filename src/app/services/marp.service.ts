@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import Marp from '@marp-team/marp-core';
 import { configureMarkdownPlugins } from './configure-markdown';
+import { loadMermaidScript } from './mermaid-loader';
 
 const MARPX_THEMES = [
   'cantor', 'church', 'copernicus', 'einstein',
@@ -20,9 +21,12 @@ export class MarpService {
     }
   });
 
+  private mermaidContent = '';
+
   constructor() {
     configureMarkdownPlugins(this.marp.markdown);
     this.registerMarpXThemes();
+    loadMermaidScript().then(s => (this.mermaidContent = s));
   }
 
   private async registerMarpXThemes(): Promise<void> {
@@ -45,9 +49,49 @@ export class MarpService {
     return { html, css, slideCount };
   }
 
-  buildSrcdoc(html: string, css: string = '', isExport: boolean = false): string {
-    const navScript = isExport ? '' : `
-<script src="js/mermaid.min.js"></script>
+  /**
+   * @param standalone - true for HTML file download (inlines mermaid script);
+   *                     false for live preview and print-to-PDF (uses <script src>).
+   */
+  buildSrcdoc(html: string, css: string = '', isExport: boolean = false, standalone: boolean = false): string {
+    const mermaidTag = standalone && this.mermaidContent
+      ? `<script>${this.mermaidContent}</script>`
+      : `<script src="js/mermaid.min.js"></script>`;
+
+    // Mermaid initialisation — always included (preview + export).
+    // Export renders all diagrams at once; preview renders per active slide.
+    const mermaidInit = isExport ? `
+${mermaidTag}
+<script>
+(function () {
+  var MERMAID_CONFIG = {
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    fontSize: 20,
+    flowchart: { useMaxWidth: false, htmlLabels: true },
+    sequence: { useMaxWidth: false },
+    gantt: { useMaxWidth: false }
+  };
+  function init() {
+    if (!window.mermaid) {
+      window.parent.postMessage({ type: 'printReady' }, '*');
+      return;
+    }
+    mermaid.initialize(MERMAID_CONFIG);
+    mermaid.run({ querySelector: '.mermaid' }).then(function() {
+      window.parent.postMessage({ type: 'printReady' }, '*');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>` : `
+${mermaidTag}
 <script>
 (function () {
   var slides = document.querySelectorAll('svg[data-marpit-svg]');
@@ -161,7 +205,7 @@ export class MarpService {
 </head>
 <body>
 ${html}
-${navScript}
+${mermaidInit}
 </body>
 </html>`;
   }

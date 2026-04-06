@@ -20,10 +20,10 @@ export class ExportService {
 
     if (type === 'slides') {
       const { html, css } = this.marpService.render(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, css, true);
+      fullHtml = this.marpService.buildSrcdoc(html, css, true, true);
     } else {
       const { html } = this.proseService.render(markdown);
-      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged');
+      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged', 'system', true);
     }
 
     const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -53,12 +53,19 @@ export class ExportService {
     document.body.appendChild(printFrame);
 
     printFrame.srcdoc = fullHtml;
-    printFrame.onload = () => {
+    window.addEventListener('message', function onPrintReady(e) {
+      if (e.source !== printFrame.contentWindow || e.data?.type !== 'printReady') return;
+      window.removeEventListener('message', onPrintReady);
       printFrame.contentWindow?.focus();
       printFrame.contentWindow?.print();
-      // Cleanup after a delay to ensure print dialog is shown
       setTimeout(() => document.body.removeChild(printFrame), 1000);
-    };
+    });
+    // Fallback: if mermaid isn't present or signals are never sent, print after a delay
+    printFrame.onload = () => setTimeout(() => {
+      printFrame.contentWindow?.focus();
+      printFrame.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(printFrame), 1000);
+    }, 1500);
   }
 
   private download(filename: string, blob: Blob): void {

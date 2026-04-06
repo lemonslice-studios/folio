@@ -5,6 +5,7 @@ import MarkdownIt from 'markdown-it';
 import { full as emojiPlugin } from 'markdown-it-emoji';
 import { configureMarkdownPlugins } from './configure-markdown';
 import { mathPlugin } from './markdown-math';
+import { loadMermaidScript } from './mermaid-loader';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -17,9 +18,12 @@ export class ProseService {
     typographer: true,
   });
 
+  private mermaidContent = '';
+
   constructor() {
     configureMarkdownPlugins(this.md);
     this.md.use(emojiPlugin).use(mathPlugin);
+    loadMermaidScript().then(s => (this.mermaidContent = s));
   }
 
   render(markdown: string): { html: string } {
@@ -28,18 +32,39 @@ export class ProseService {
     return { html };
   }
 
+  /**
+   * @param standalone - true for HTML file download (inlines mermaid script);
+   *                     false for live preview and print-to-PDF (uses <script src>).
+   */
   buildSrcdoc(
     html: string,
     isExport: boolean = false,
     proseMode: 'flow' | 'paged' = 'flow',
     colorScheme: ColorScheme = 'system',
+    standalone: boolean = false,
   ): string {
     const isPaged = proseMode === 'paged';
     const htmlAttr = colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`;
 
+    const mermaidTag = standalone && this.mermaidContent
+      ? `<script>${this.mermaidContent}</script>`
+      : `<script src="js/mermaid.min.js"></script>`;
+
+    const mermaidTheme = `document.documentElement.dataset.colorScheme === 'dark' ||
+               (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+               ? 'dark' : 'default'`;
+
+    const mermaidConfig = `{
+      startOnLoad: false,
+      theme: ${mermaidTheme},
+      securityLevel: 'loose',
+      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+      flowchart: { useMaxWidth: false, htmlLabels: true }
+    }`;
+
     let pagedScript = '';
     if (isPaged && !isExport) {
-      pagedScript = `<script src="js/mermaid.min.js"></script>
+      pagedScript = `${mermaidTag}
 <script src="js/paged.polyfill.min.js"></script>
 <script>
 window.PagedConfig = {
@@ -47,15 +72,7 @@ window.PagedConfig = {
   after: function(flow) {
     window.parent.postMessage({ pageCount: flow.total }, '*');
     if (window.mermaid) {
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: document.documentElement.dataset.colorScheme === 'dark' ||
-               (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-               ? 'dark' : 'default',
-        securityLevel: 'loose',
-        fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-        flowchart: { useMaxWidth: false, htmlLabels: true }
-      });
+      mermaid.initialize(${mermaidConfig});
       mermaid.run({ querySelector: '.mermaid' });
     }
   }
@@ -64,20 +81,28 @@ window.addEventListener('DOMContentLoaded', function() {
   window.PagedPolyfill.preview();
 });
 </script>`;
-    } else if (!isExport) {
-      pagedScript = `<script src="js/mermaid.min.js"></script>
+    } else if (isExport) {
+      // Export (HTML download or print): no paged.js, but mermaid still renders
+      pagedScript = `${mermaidTag}
 <script>
 window.addEventListener('DOMContentLoaded', function() {
   if (window.mermaid) {
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: document.documentElement.dataset.colorScheme === 'dark' ||
-             (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-             ? 'dark' : 'default',
-      securityLevel: 'loose',
-      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-      flowchart: { useMaxWidth: false, htmlLabels: true }
+    mermaid.initialize(${mermaidConfig});
+    mermaid.run({ querySelector: '.mermaid' }).then(function() {
+      window.parent.postMessage({ type: 'printReady' }, '*');
     });
+  } else {
+    window.parent.postMessage({ type: 'printReady' }, '*');
+  }
+});
+</script>`;
+    } else {
+      // Flow mode preview
+      pagedScript = `${mermaidTag}
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  if (window.mermaid) {
+    mermaid.initialize(${mermaidConfig});
     mermaid.run({ querySelector: '.mermaid' });
   }
 });

@@ -2,12 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { FsService } from './services/fs.service';
 import { MarpService } from './services/marp.service';
+import { ProseService } from './services/prose.service';
 import { PrefsService } from './services/prefs.service';
 import { signal } from '@angular/core';
 
 describe('App', () => {
   let fsServiceMock: any;
   let marpServiceMock: any;
+  let proseServiceMock: any;
   let prefsServiceMock: any;
 
   beforeEach(async () => {
@@ -21,7 +23,11 @@ describe('App', () => {
 
     marpServiceMock = {
       render: vi.fn().mockReturnValue({ html: '', css: '', slideCount: 1 }),
-      renderProse: vi.fn().mockReturnValue({ html: '' }),
+      buildSrcdoc: vi.fn().mockReturnValue(''),
+    };
+
+    proseServiceMock = {
+      render: vi.fn().mockReturnValue({ html: '' }),
       buildSrcdoc: vi.fn().mockReturnValue(''),
     };
 
@@ -40,6 +46,7 @@ describe('App', () => {
       providers: [
         { provide: FsService, useValue: fsServiceMock },
         { provide: MarpService, useValue: marpServiceMock },
+        { provide: ProseService, useValue: proseServiceMock },
         { provide: PrefsService, useValue: prefsServiceMock },
       ]
     }).compileComponents();

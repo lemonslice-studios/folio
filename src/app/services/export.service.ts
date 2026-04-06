@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { MarpService } from './marp.service';
+import { ProseService } from './prose.service';
 import { AppStore } from '../store/app-store';
 
 @Injectable({ providedIn: 'root' })
 export class ExportService {
   private readonly marpService = inject(MarpService);
+  private readonly proseService = inject(ProseService);
   private readonly store = inject(AppStore);
 
   downloadMarkdown(filename: string, content: string): void {
@@ -18,10 +20,10 @@ export class ExportService {
 
     if (type === 'slides') {
       const { html, css } = this.marpService.render(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, css, true, 'slides');
+      fullHtml = this.marpService.buildSrcdoc(html, css, true);
     } else {
-      const { html } = this.marpService.renderProse(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, '', true, 'prose', 'paged');
+      const { html } = this.proseService.render(markdown);
+      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged');
     }
 
     const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -35,10 +37,10 @@ export class ExportService {
 
     if (type === 'slides') {
       const { html, css } = this.marpService.render(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, css, true, 'slides');
+      fullHtml = this.marpService.buildSrcdoc(html, css, true);
     } else {
-      const { html } = this.marpService.renderProse(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, '', true, 'prose', 'paged');
+      const { html } = this.proseService.render(markdown);
+      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged');
     }
     
     const printFrame = document.createElement('iframe');

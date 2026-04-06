@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AppStore } from '../store/app-store';
 import { MarpService } from '../services/marp.service';
+import { ProseService } from '../services/prose.service';
 
 @Component({
   selector: 'app-preview-pane',
@@ -27,6 +28,7 @@ export class PreviewPaneComponent {
 
   protected readonly store = inject(AppStore);
   private readonly marpService = inject(MarpService);
+  private readonly proseService = inject(ProseService);
   private readonly iframeRef = viewChild<ElementRef<HTMLIFrameElement>>('previewFrame');
 
   /**
@@ -44,14 +46,14 @@ export class PreviewPaneComponent {
         if (this.store.documentType() === 'slides') {
           return { type: 'slides' as const, ...this.marpService.render(md) };
         } else {
-          return { type: 'prose' as const, ...this.marpService.renderProse(md) };
+          return { type: 'prose' as const, ...this.proseService.render(md) };
         }
       }),
     ),
-    { 
-      initialValue: this.store.documentType() === 'slides' 
+    {
+      initialValue: this.store.documentType() === 'slides'
         ? { type: 'slides' as const, ...this.marpService.render(this.store.currentMarkdown()) }
-        : { type: 'prose' as const, ...this.marpService.renderProse(this.store.currentMarkdown()) }
+        : { type: 'prose' as const, ...this.proseService.render(this.store.currentMarkdown()) }
     },
   );
 
@@ -67,10 +69,10 @@ export class PreviewPaneComponent {
       
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
-        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, 'slides');
+        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false);
       } else {
         // Page count is set via postMessage after Paged.js finishes
-        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, '', false, 'prose', proseMode);
+        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode);
       }
     });
 

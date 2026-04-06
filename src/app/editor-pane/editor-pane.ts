@@ -6,6 +6,7 @@ import {
   afterNextRender,
   effect,
   inject,
+  input,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -28,6 +29,8 @@ import { CheatBarComponent } from './cheat-bar/cheat-bar';
   host: { class: 'editor-pane' },
 })
 export class EditorPaneComponent {
+  readonly active = input(true);
+
   private readonly store = inject(AppStore);
   private readonly editorService = inject(EditorService);
   private readonly destroyRef = inject(DestroyRef);
@@ -60,6 +63,14 @@ export class EditorPaneComponent {
       const view = this.editorView;
       if (!view || view.state.doc.toString() === md) return;
       view.setState(EditorState.create({ doc: md, extensions: this.extensions }));
+    });
+
+    // When the Edit tab becomes visible after being hidden, CodeMirror needs to
+    // re-measure its layout (size was 0 while hidden) so cursor tracking works.
+    effect(() => {
+      if (this.active()) {
+        this.editorView?.requestMeasure();
+      }
     });
 
     this.destroyRef.onDestroy(() => this.editorView?.destroy());

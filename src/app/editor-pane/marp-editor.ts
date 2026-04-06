@@ -50,6 +50,34 @@ const MARPX_TAGS = [
   { label: 'notes', detail: 'On-slide notes' },
 ];
 
+const CODE_FENCE_LANGUAGES = [
+  { label: 'mermaid',     detail: 'Diagram (flowchart, sequence, …)' },
+  { label: 'javascript',  detail: 'JavaScript' },
+  { label: 'typescript',  detail: 'TypeScript' },
+  { label: 'python',      detail: 'Python' },
+  { label: 'html',        detail: 'HTML' },
+  { label: 'css',         detail: 'CSS' },
+  { label: 'scss',        detail: 'SCSS' },
+  { label: 'json',        detail: 'JSON' },
+  { label: 'yaml',        detail: 'YAML' },
+  { label: 'bash',        detail: 'Bash / Shell' },
+  { label: 'sql',         detail: 'SQL' },
+  { label: 'java',        detail: 'Java' },
+  { label: 'c',           detail: 'C' },
+  { label: 'cpp',         detail: 'C++' },
+  { label: 'csharp',      detail: 'C#' },
+  { label: 'rust',        detail: 'Rust' },
+  { label: 'go',          detail: 'Go' },
+  { label: 'ruby',        detail: 'Ruby' },
+  { label: 'php',         detail: 'PHP' },
+  { label: 'swift',       detail: 'Swift' },
+  { label: 'kotlin',      detail: 'Kotlin' },
+  { label: 'r',           detail: 'R' },
+  { label: 'markdown',    detail: 'Markdown' },
+  { label: 'xml',         detail: 'XML' },
+  { label: 'diff',        detail: 'Diff / Patch' },
+];
+
 const SNIPPETS = [
   { label: '# Header 1', apply: '# ', detail: 'Main title' },
   { label: '## Header 2', apply: '## ', detail: 'Section title' },
@@ -62,7 +90,7 @@ const SNIPPETS = [
   { label: '$$ Math Block', apply: '$$\nformula\n$$', detail: 'Block formula' },
   { label: '== Highlight ==', apply: '==text==', detail: 'Mark text' },
   { label: '[^1] Footnote', apply: '[^1]', detail: 'Add reference' },
-  { label: '```mermaid Diagram', apply: '```mermaid\ngraph TD\nA --> B\n```', detail: 'Mermaid flowchart' },
+  { label: '``` Code block', apply: '```\n\n```', detail: 'Fenced code block' },
   { label: ':rocket: Rocket', apply: ':rocket:', detail: 'Emoji' },
   { label: ':bulb: Idea', apply: ':bulb:', detail: 'Emoji' },
 ];
@@ -149,7 +177,24 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
     }
   }
 
-  // 5. General Markdown snippets (triggered by characters OR explicit Ctrl+Space)
+  // 5. Code fence language (triggered by ``` at start of line)
+  const fenceMatch = lineTextBefore.match(/^(`{3})(\w*)$/);
+  if (fenceMatch) {
+    const langStart = line.from + fenceMatch[1].length;
+    return {
+      from: langStart,
+      options: CODE_FENCE_LANGUAGES.map(l => ({
+        label: l.label,
+        type: 'keyword',
+        detail: l.detail,
+        apply: l.label + '\n\n```',
+        boost: l.label === 'mermaid' ? 1 : 0,
+      })),
+      filter: true,
+    };
+  }
+
+  // 6. General Markdown snippets (triggered by characters OR explicit Ctrl+Space)
   const snippetPrefix = context.matchBefore(/[#!$*=\^:`-]*/);
   if (context.explicit || (snippetPrefix && snippetPrefix.from !== snippetPrefix.to)) {
     return {

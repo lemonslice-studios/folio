@@ -2,14 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  computed,
   effect,
   inject,
+  input,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, filter, map, switchMap } from 'rxjs/operators';
-import { fromEvent, of, timer, combineLatest, merge } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs/operators';
+import { fromEvent, of, timer, merge } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AppStore } from '../store/app-store';
@@ -23,6 +23,8 @@ import { MarpService } from '../services/marp.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreviewPaneComponent {
+  readonly active = input(true);
+
   protected readonly store = inject(AppStore);
   private readonly marpService = inject(MarpService);
   private readonly iframeRef = viewChild<ElementRef<HTMLIFrameElement>>('previewFrame');
@@ -73,6 +75,13 @@ export class PreviewPaneComponent {
 
     // Scroll to current slide (also fires via onFrameLoad after srcdoc reloads)
     effect(() => {
+      const idx = this.store.currentSlideIndex();
+      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ slideIndex: idx }, '*');
+    });
+
+    // Re-sync slide position when the tab becomes visible after being hidden
+    effect(() => {
+      if (!this.active()) return;
       const idx = this.store.currentSlideIndex();
       this.iframeRef()?.nativeElement.contentWindow?.postMessage({ slideIndex: idx }, '*');
     });

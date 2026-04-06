@@ -82,6 +82,7 @@ export class App {
   );
 
   protected readonly isDragging = signal(false);
+  protected readonly selectedTab = signal(0);
 
   protected readonly isEditingTitle = signal(false);
   protected readonly editValue = signal('');

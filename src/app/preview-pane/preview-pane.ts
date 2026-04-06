@@ -63,16 +63,17 @@ export class PreviewPaneComponent {
     // Update iframe srcdoc and store slide/page count whenever rendered output changes
     effect(() => {
       const result = this.rendered();
-      const proseMode = this.store.proseViewMode(); // Track mode changes
+      const proseMode = this.store.proseViewMode();
+      const colorScheme = this.store.colorScheme();
       const iframe = this.iframeRef();
       if (!iframe) return;
-      
+
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
         iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false);
       } else {
         // Page count is set via postMessage after Paged.js finishes
-        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode);
+        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme);
       }
     });
 

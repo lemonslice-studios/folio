@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import MarkdownIt from 'markdown-it';
 import { configureMarkdownPlugins } from './configure-markdown';
 
+export type ColorScheme = 'system' | 'light' | 'dark';
+
 @Injectable({ providedIn: 'root' })
 export class ProseService {
   private readonly md = new MarkdownIt({
@@ -22,8 +24,14 @@ export class ProseService {
     return { html };
   }
 
-  buildSrcdoc(html: string, isExport: boolean = false, proseMode: 'flow' | 'paged' = 'flow'): string {
+  buildSrcdoc(
+    html: string,
+    isExport: boolean = false,
+    proseMode: 'flow' | 'paged' = 'flow',
+    colorScheme: ColorScheme = 'system',
+  ): string {
     const isPaged = proseMode === 'paged';
+    const htmlAttr = colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`;
 
     let pagedScript = '';
     if (isPaged && !isExport) {
@@ -37,7 +45,9 @@ window.PagedConfig = {
     if (window.mermaid) {
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'default',
+        theme: document.documentElement.dataset.colorScheme === 'dark' ||
+               (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+               ? 'dark' : 'default',
         securityLevel: 'loose',
         fontFamily: 'ui-sans-serif, system-ui, sans-serif',
         flowchart: { useMaxWidth: false, htmlLabels: true }
@@ -57,7 +67,9 @@ window.addEventListener('DOMContentLoaded', function() {
   if (window.mermaid) {
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'default',
+      theme: document.documentElement.dataset.colorScheme === 'dark' ||
+             (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+             ? 'dark' : 'default',
       securityLevel: 'loose',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       flowchart: { useMaxWidth: false, htmlLabels: true }
@@ -69,10 +81,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 
     const pagedStyles = isPaged ? `
-  @page {
-    size: A4 portrait;
-    margin: 20mm 22mm;
-  }
+  @page { size: A4 portrait; margin: 20mm 22mm; }
 
   hr {
     break-before: page;
@@ -82,68 +91,105 @@ window.addEventListener('DOMContentLoaded', function() {
     visibility: hidden;
   }
 
-  body {
-    background: ${isExport ? 'white' : '#f0f0f0'};
-  }
-
-  .markdown-body {
-    background: white;
-  }
+  body { background: ${isExport ? 'var(--prose-bg)' : 'var(--prose-canvas)'}; }
+  .markdown-body { background: var(--prose-bg); }
 
   .pagedjs_page {
-    background: white;
+    background: var(--prose-bg);
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     margin: 0 auto 24px;
   }
-
   ${isExport ? '.pagedjs_page { box-shadow: none; margin: 0; }' : ''}
 ` : `
   body {
-    background: white;
+    background: var(--prose-bg);
     padding: 2rem;
   }
 
   hr {
     border: none;
-    border-top: 1px solid var(--outline-variant, #eee);
+    border-top: 1px solid var(--prose-border);
     margin: 2rem 0;
   }
 `;
 
     return `<!DOCTYPE html>
-<html>
+<html${htmlAttr}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Folio Document</title>
 <style>
+  /* ── Colour tokens (light defaults) ── */
+  :root {
+    --prose-bg:       #ffffff;
+    --prose-canvas:   #f0f0f0;
+    --prose-text:     #1d1b20;
+    --prose-muted:    #555555;
+    --prose-border:   #e0e0e0;
+    --prose-code-bg:  #f5f5f5;
+    --prose-quote-border: #aaaaaa;
+  }
+
+  /* System dark */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --prose-bg:       #1c1b1f;
+      --prose-canvas:   #111013;
+      --prose-text:     #e6e0e9;
+      --prose-muted:    #a09aac;
+      --prose-border:   #49454f;
+      --prose-code-bg:  #2b2930;
+      --prose-quote-border: #6b6573;
+    }
+  }
+
+  /* Forced light — wins over system dark */
+  html[data-color-scheme="light"] {
+    --prose-bg:       #ffffff;
+    --prose-canvas:   #f0f0f0;
+    --prose-text:     #1d1b20;
+    --prose-muted:    #555555;
+    --prose-border:   #e0e0e0;
+    --prose-code-bg:  #f5f5f5;
+    --prose-quote-border: #aaaaaa;
+  }
+
+  /* Forced dark */
+  html[data-color-scheme="dark"] {
+    --prose-bg:       #1c1b1f;
+    --prose-canvas:   #111013;
+    --prose-text:     #e6e0e9;
+    --prose-muted:    #a09aac;
+    --prose-border:   #49454f;
+    --prose-code-bg:  #2b2930;
+    --prose-quote-border: #6b6573;
+  }
+
+  /* ── Base ── */
   html, body {
     width: 100%;
     margin: 0;
     padding: 0;
-    background: white;
+    background: var(--prose-bg);
+    color: var(--prose-text);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-size: 16px;
     line-height: 1.5;
-    color: #1d1b20;
+    color-scheme: ${colorScheme === 'dark' ? 'dark' : colorScheme === 'light' ? 'light' : 'light dark'};
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
   }
 
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
+  /* ── Prose body ── */
   .markdown-body {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
     color: inherit;
-    ${isExport ? `
-      max-width: 840px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-    ` : ''}
+    ${isExport ? 'max-width: 840px; margin: 0 auto; padding: 4rem 2rem;' : ''}
   }
 
   .markdown-body p, .markdown-body ul, .markdown-body ol,
@@ -152,9 +198,17 @@ window.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 1rem;
   }
 
-  .markdown-body h1 { font-size: 2rem; font-weight: 400; margin: 2rem 0 1rem; line-height: 1.2; }
-  .markdown-body h2 { font-size: 1.5rem; font-weight: 400; margin: 1.5rem 0 1rem; line-height: 1.2; }
-  .markdown-body h3 { font-size: 1.25rem; font-weight: 500; margin: 1.2rem 0 0.8rem; line-height: 1.2; }
+  /* ── Headings ── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.2;
+    color: var(--prose-text);
+  }
+  .markdown-body h1 { font-size: 2rem;   font-weight: 400; margin: 2rem 0 1rem; }
+  .markdown-body h2 { font-size: 1.5rem; font-weight: 400; margin: 1.5rem 0 1rem; }
+  .markdown-body h3 { font-size: 1.25rem; font-weight: 500; margin: 1.2rem 0 0.8rem; }
+
+  p { margin: 0 0 0.9em; }
 
   .markdown-body strong, .markdown-body b { font-weight: 600; }
   .markdown-body em, .markdown-body i { font-style: italic; }
@@ -163,50 +217,52 @@ window.addEventListener('DOMContentLoaded', function() {
   .markdown-body li { margin-bottom: 0.5rem; }
   .markdown-body li > p { margin-bottom: 0.25rem; }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: system-ui, -apple-system, sans-serif;
-    margin-top: 1.4em;
-    margin-bottom: 0.4em;
-    line-height: 1.2;
-  }
-  p { margin: 0 0 0.9em; }
-
+  /* ── Code ── */
   pre, code {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.88em;
   }
+  code {
+    background: var(--prose-code-bg);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
   pre {
-    background: #f5f5f5;
+    background: var(--prose-code-bg);
     padding: 0.8em 1em;
     border-radius: 4px;
     overflow-x: auto;
     white-space: pre-wrap;
     word-break: break-all;
   }
+  pre code { background: none; padding: 0; }
 
+  /* ── Blockquote ── */
   blockquote {
-    border-left: 3px solid #aaa;
+    border-left: 3px solid var(--prose-quote-border);
     margin-left: 0;
     padding-left: 1em;
-    color: #555;
+    color: var(--prose-muted);
     font-style: italic;
   }
 
+  /* ── Table ── */
   table {
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 1em;
   }
   th, td {
-    border: 1px solid #ccc;
+    border: 1px solid var(--prose-border);
     padding: 0.4em 0.7em;
     text-align: left;
   }
+  th { background: var(--prose-code-bg); }
 
-  img {
-    max-width: 100%;
-    height: auto;
-  }
+  /* ── Misc ── */
+  img { max-width: 100%; height: auto; }
+
+  a { color: inherit; }
 
   .mermaid-container {
     display: flex;
@@ -214,8 +270,6 @@ window.addEventListener('DOMContentLoaded', function() {
     width: 100%;
     margin: 1em 0;
   }
-
-  ${isExport ? 'body { background: white; }' : ''}
 
   ${pagedStyles}
 </style>

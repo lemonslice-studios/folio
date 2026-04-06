@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 // @ts-ignore
 import MarkdownIt from 'markdown-it';
+// @ts-ignore
+import { full as emojiPlugin } from 'markdown-it-emoji';
 import { configureMarkdownPlugins } from './configure-markdown';
+import { mathPlugin } from './markdown-math';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -16,6 +19,7 @@ export class ProseService {
 
   constructor() {
     configureMarkdownPlugins(this.md);
+    this.md.use(emojiPlugin).use(mathPlugin);
   }
 
   render(markdown: string): { html: string } {
@@ -263,6 +267,10 @@ window.addEventListener('DOMContentLoaded', function() {
   img { max-width: 100%; height: auto; }
 
   a { color: inherit; }
+
+  /* KaTeX MathML — block centering only; browser renders the math natively */
+  .katex-block { text-align: center; margin: 1rem 0; overflow-x: auto; }
+  .katex-block .katex { display: inline-block; }
 
   .mermaid-container {
     display: flex;

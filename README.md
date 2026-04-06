@@ -53,26 +53,20 @@ npm start                         # dev server → http://localhost:4200
 - **Inline renaming** — click the filename in the app bar to rename; commits on Enter/blur, cancels on Escape
 - **Persistence** — all files saved locally via `lightning-fs` (IndexedDB POSIX fs); preferences stored in a dedicated IndexedDB store
 - **PWA** — fully functional offline via Angular Service Worker; pre-caches app shell, assets, and fonts
-- **Export** — download as `.md`, self-contained `.html` (with Paged.js bundled for prose), or Print to PDF
+- **Export** — download as `.md`, self-contained `.html` (Mermaid diagrams inlined), or Print to PDF
 - **Presentation mode** — full-screen slides with keyboard and touch swipe navigation
 - **Slide sync** — preview scrolls to the slide matching the cursor position
 - **MarpX themes** — 16 professional themes bundled (cantor, einstein, socrates, …)
 - **Cheat bar** — six snippet categories; items insert at cursor and display a monospace hint
+- **Dark mode** — system / light / dark toggle; prose preview and syntax highlighting both respond
 
----
+### Prose mode features
 
-## What's coming — v2 Prose Mode
-
-Folio is evolving into a **multi-document-type editor**. The next milestone adds paginated prose as a first-class document type, powered by [Paged.js](https://pagedjs.org).
-
-See [SPEC_v2_mdtext.md](./SPEC_v2_mdtext.md) for the full implementation spec.
-
-```
-marp: true   →  slide deck    (existing)
-(no marp)    →  paginated prose document  (v2)
-```
-
-`---` works as a page break in prose mode — the same gesture users already know from slides.
+- **Emoji shortcodes** — `:smile:` → 😄 (full shortcode set)
+- **Math** — inline `$x^2$` and block `$$...$$` via KaTeX, rendered as MathML (no fonts needed)
+- **Syntax highlighting** — fenced code blocks highlighted via highlight.js with a custom light/dark theme
+- **Mermaid diagrams** — same as slides; render correctly in preview, HTML export, and PDF
+- **Dark mode** — prose iframe follows the app's colour scheme; code tokens and mermaid theme switch too
 
 ---
 
@@ -92,7 +86,7 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 |---|---|---|
 | Framework | Angular 21 — standalone components, Signals | ✅ |
 | Slides engine | `@marp-team/marp-core` | ✅ |
-| Prose pagination | `pagedjs` — Paged Media CSS polyfill | 🔜 v2 |
+| Prose pagination | `pagedjs` — Paged Media CSS polyfill | ✅ |
 | Editor | CodeMirror 6 (`@codemirror/*`) | ✅ |
 | UI | Angular Material 3 (M3 Expressive) + Angular CDK | ✅ |
 | Styles | SCSS + CSS custom properties (M3 tokens) | ✅ |
@@ -100,6 +94,27 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 | Preferences | Raw IndexedDB — single JSON value | ✅ |
 | PWA | `@angular/pwa` (Workbox service worker) | ✅ |
 | Themes | MarpX Collection (16 themes) | ✅ |
+| Prose math | KaTeX — MathML output, no CSS dependency | ✅ |
+| Syntax highlighting | highlight.js — custom light/dark token theme | ✅ |
+
+---
+
+## Architecture notes
+
+### Service split
+
+Rendering is split between two focused services:
+
+| Service | Responsibility |
+|---|---|
+| `MarpService` | Marp Core rendering, MarpX theme registration, slide srcdoc |
+| `ProseService` | markdown-it rendering, emoji, math, syntax highlighting, prose srcdoc |
+
+Shared markdown-it plugins (mark, footnote, deflist, container, Mermaid fence) live in `configure-markdown.ts` and are applied to both the Marp internal `markdown-it` instance and the prose standalone instance.
+
+### Mermaid in exports
+
+`mermaid.min.js` is fetched once at startup and cached. For **HTML download** it is inlined in the output (fully self-contained). For **print-to-PDF** the relative `js/mermaid.min.js` path resolves from the app's origin. Print waits for a `printReady` postMessage fired after `mermaid.run()` resolves before opening the print dialog.
 
 ---
 
@@ -113,7 +128,7 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 | M4 | Storage — lightning-fs, file list, create / rename / delete | ✅ Done |
 | M5 | PWA — offline install, service worker, bundled fonts | ✅ Done |
 | M6 | Export — `.md`, self-contained HTML, print-to-PDF | ✅ Done |
-| M7 | **Prose mode** — frontmatter detection, Paged.js pagination, `---` as page break | 🔜 Planned |
+| M7 | **Prose mode** — frontmatter detection, Paged.js pagination, `---` as page break | ✅ Done |
 | M8 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
 
 ---

@@ -188,6 +188,11 @@ ${mermaidTag}
   }
 `;
 
+    const taskListStyles = `
+  .task-list-item { list-style-type: none !important; }
+  .task-list-item-checkbox { margin: 0 0.5em 0.25em -1.4em !important; vertical-align: middle !important; }
+`;
+
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -201,6 +206,7 @@ ${mermaidTag}
     ${isExport ? '' : 'touch-action: none;'}
   }
   ${interactiveStyles}
+  ${taskListStyles}
 </style>
 </head>
 <body>

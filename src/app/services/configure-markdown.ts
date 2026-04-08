@@ -8,6 +8,8 @@ import footnote from 'markdown-it-footnote';
 import deflist from 'markdown-it-deflist';
 // @ts-ignore
 import container from 'markdown-it-container';
+// @ts-ignore
+import taskLists from 'markdown-it-task-lists';
 
 /**
  * Applies the shared plugin set to any markdown-it instance.
@@ -17,6 +19,7 @@ export function configureMarkdownPlugins(md: MarkdownIt): void {
   md.use(mark)
     .use(footnote)
     .use(deflist)
+    .use(taskLists, { label: true, labelAfter: true })
     .use(container, 'container');
 
   const defaultFence = md.renderer.rules.fence;

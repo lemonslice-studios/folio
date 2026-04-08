@@ -380,6 +380,9 @@ window.addEventListener('DOMContentLoaded', function() {
     margin: 1em 0;
   }
 
+  .task-list-item { list-style-type: none !important; }
+  .task-list-item-checkbox { margin: 0 0.5em 0.25em -1.4em !important; vertical-align: middle !important; }
+
   ${pagedStyles}
 </style>
 </head>

@@ -47,28 +47,32 @@ npm start                         # dev server → http://localhost:4200
 
 ## What works today
 
-- **Multi-document support** — automatically switch between Slides and Prose modes
-- **Split-pane layout** — editor left, preview right on wide screens (≥ 840 px); Edit / Preview tabs on narrow
-- **Live Marp preview** — typing in the editor re-renders slides in real time
-- **Paginated Prose preview** — powered by Paged.js, supports standard Markdown and page breaks via `---`
-- **File management** — create, open, and delete files via a Material 3 sidebar; M3 list items with explicit actions and Undo support
-- **Inline renaming** — click the filename in the app bar to rename; commits on Enter/blur, cancels on Escape
-- **Persistence** — all files saved locally via `lightning-fs` (IndexedDB POSIX fs); preferences stored in a dedicated IndexedDB store
-- **PWA** — fully functional offline via Angular Service Worker; pre-caches app shell, assets, and fonts
-- **Export** — download as `.md`, self-contained `.html` (Mermaid diagrams inlined), or Print to PDF
-- **Presentation mode** — full-screen slides with keyboard and touch swipe navigation
-- **Slide sync** — preview scrolls to the slide matching the cursor position
-- **MarpX themes** — 16 professional themes bundled (cantor, einstein, socrates, …)
-- **Cheat bar** — six snippet categories; items insert at cursor and display a monospace hint
-- **Dark mode** — system / light / dark toggle; prose preview and syntax highlighting both respond
+- **Multi-document support** — automatically switch between Slides and Prose modes.
+- **Split-pane layout** — editor left, preview right on wide screens (≥ 840 px); Edit / Preview tabs on narrow.
+- **Prose Preview Toggle** — hide the preview panel in Prose mode on desktop to focus entirely on writing.
+- **Post-it Theme** — a calm, lavender-inspired light theme with vibrant "Volt" green accents for primary actions.
+- **Live Marp preview** — typing in the editor re-renders slides in real time.
+- **Paginated Prose preview** — powered by Paged.js, supports standard Markdown and page breaks via `---`.
+- **Smart Editor Shortcuts** — "Cheat bar" and Cheatsheet support selection wrapping (bold, italic, links) and smart cursor placement.
+- **File management** — create, open, and delete files via a Material 3 sidebar; M3 list items with explicit actions and Undo support.
+- **Inline renaming** — click the filename in the app bar to rename; commits on Enter/blur, cancels on Escape.
+- **Persistence** — all files saved locally via `lightning-fs` (IndexedDB POSIX fs); preferences stored in a dedicated IndexedDB store.
+- **PWA** — fully functional offline via Angular Service Worker; pre-caches app shell, assets, and fonts.
+- **Export** — download as `.md`, self-contained `.html` (Mermaid diagrams inlined), or Print to PDF.
+- **Presentation mode** — full-screen slides with keyboard and touch swipe navigation.
+- **Slide sync** — preview scrolls to the slide matching the cursor position.
+- **MarpX themes** — 16 professional themes bundled (cantor, einstein, socrates, …).
+- **Dark mode** — system / light / dark toggle; prose preview and syntax highlighting both respond.
+- **Mobile Optimized** — aggressive focus management ensures the virtual keyboard stays active during snippet insertion on tablets and Chromebooks.
 
 ### Prose mode features
 
-- **Emoji shortcodes** — `:smile:` → 😄 (full shortcode set)
-- **Math** — inline `$x^2$` and block `$$...$$` via KaTeX, rendered as MathML (no fonts needed)
-- **Syntax highlighting** — fenced code blocks highlighted via highlight.js with a custom light/dark theme
-- **Mermaid diagrams** — same as slides; render correctly in preview, HTML export, and PDF
-- **Dark mode** — prose iframe follows the app's colour scheme; code tokens and mermaid theme switch too
+- **Task lists** — GitHub-style checkboxes `- [ ]` and `- [x]` rendered in both slides and prose.
+- **Emoji shortcodes** — `:smile:` → 😄 (full shortcode set).
+- **Math** — inline `$x^2$` and block `$$...$$` via KaTeX, rendered as MathML (no fonts needed).
+- **Syntax highlighting** — fenced code blocks highlighted via highlight.js with a custom light/dark theme.
+- **Mermaid diagrams** — same as slides; render correctly in preview, HTML export, and PDF.
+- **Dark mode** — prose iframe follows the app's colour scheme; code tokens and mermaid theme switch too.
 
 ---
 
@@ -110,9 +114,9 @@ Rendering is split between two focused services:
 | Service | Responsibility |
 |---|---|
 | `MarpService` | Marp Core rendering, MarpX theme registration, slide srcdoc |
-| `ProseService` | markdown-it rendering, emoji, math, syntax highlighting, prose srcdoc |
+| `ProseService` | markdown-it rendering, emoji, math, syntax highlighting, task lists, prose srcdoc |
 
-Shared markdown-it plugins (mark, footnote, deflist, container, Mermaid fence) live in `configure-markdown.ts` and are applied to both the Marp internal `markdown-it` instance and the prose standalone instance.
+Shared markdown-it plugins (mark, footnote, deflist, task-lists, container, Mermaid fence) live in `configure-markdown.ts` and are applied to both the Marp internal `markdown-it` instance and the prose standalone instance.
 
 ### Mermaid in exports
 
@@ -131,7 +135,7 @@ Shared markdown-it plugins (mark, footnote, deflist, container, Mermaid fence) l
 | M5 | PWA — offline install, service worker, bundled fonts | ✅ Done |
 | M6 | Export — `.md`, self-contained HTML, print-to-PDF | ✅ Done |
 | M7 | **Prose mode** — frontmatter detection, Paged.js pagination, `---` as page break | ✅ Done |
-| M8 | Polish — dark mode, micro-interactions, M3 Expressive theming complete | Planned |
+| M8 | Polish — dark mode, smart snippets, lavender "post-it" theme | ✅ Done |
 
 ---
 

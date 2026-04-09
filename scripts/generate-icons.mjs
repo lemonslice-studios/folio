@@ -1,5 +1,7 @@
 import sharp from 'sharp';
+import pngToIco from 'png-to-ico';
 import path from 'path';
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,4 +18,14 @@ await Promise.all(
         console.log(`  icon-${size}x${size}.png`);
     })
 );
-console.log('Done.');
+
+// Generate favicon.ico (multi-size: 16, 32, 48)
+console.log('Generating favicon.ico...');
+const icoSizes = [16, 32, 48];
+const pngBuffers = await Promise.all(
+    icoSizes.map((size) => sharp(SRC).resize(size, size).png().toBuffer())
+);
+const icoBuffer = await pngToIco(pngBuffers);
+await fs.writeFile(path.join(__dirname, '../public/favicon.ico'), icoBuffer);
+console.log('  favicon.ico');
+

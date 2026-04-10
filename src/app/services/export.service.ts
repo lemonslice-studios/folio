@@ -17,30 +17,33 @@ export class ExportService {
   downloadHtml(filename: string, markdown: string): void {
     const type = this.store.documentType();
     let fullHtml = '';
+    const title = filename.replace(/\.slides\.md$/, '').replace(/\.md$/, '');
 
     if (type === 'slides') {
       const { html, css } = this.marpService.render(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, css, true, true);
+      fullHtml = this.marpService.buildSrcdoc(html, css, true, true, title);
     } else {
       const { html } = this.proseService.render(markdown);
-      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged', 'system', true);
+      fullHtml = this.proseService.buildSrcdoc(html, true, 'paged', 'system', true, title);
     }
 
     const blob = new Blob([fullHtml], { type: 'text/html' });
-    const htmlFilename = filename.replace(/\.md$/, '') + '.html';
+    const htmlFilename = filename.replace(/\.slides\.md$/, '').replace(/\.md$/, '') + '.html';
     this.download(htmlFilename, blob);
   }
 
   print(markdown: string): void {
     const type = this.store.documentType();
     let fullHtml = '';
+    const filename = this.store.currentFile() || 'Folio';
+    const title = filename.replace(/\.slides\.md$/, '').replace(/\.md$/, '');
 
     if (type === 'slides') {
       const { html, css } = this.marpService.render(markdown);
-      fullHtml = this.marpService.buildSrcdoc(html, css, true);
+      fullHtml = this.marpService.buildSrcdoc(html, css, true, false, title);
     } else {
       const { html } = this.proseService.render(markdown);
-      fullHtml = this.proseService.buildSrcdoc(html, true, this.store.proseViewMode());
+      fullHtml = this.proseService.buildSrcdoc(html, true, this.store.proseViewMode(), 'system', false, title);
     }
     
     const printFrame = document.createElement('iframe');

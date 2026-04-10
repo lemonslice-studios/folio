@@ -51,6 +51,7 @@ export class ProseService {
     proseMode: 'flow' | 'paged' = 'flow',
     colorScheme: ColorScheme = 'system',
     standalone: boolean = false,
+    title: string = 'Folio Document',
   ): string {
     const isPaged = proseMode === 'paged';
     const htmlAttr = colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`;
@@ -251,7 +252,7 @@ ${linkHandlerScript}`;
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Folio Document</title>
+<title>${title}</title>
 <style>
   /* ── Colour tokens (light defaults) ── */
   :root {

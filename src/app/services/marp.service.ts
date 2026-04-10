@@ -53,7 +53,7 @@ export class MarpService {
    * @param standalone - true for HTML file download (inlines mermaid script);
    *                     false for live preview and print-to-PDF (uses <script src>).
    */
-  buildSrcdoc(html: string, css: string = '', isExport: boolean = false, standalone: boolean = false): string {
+  buildSrcdoc(html: string, css: string = '', isExport: boolean = false, standalone: boolean = false, title: string = 'Folio Presentation'): string {
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
@@ -224,7 +224,7 @@ ${linkHandlerScript}`;
 <html>
 <head>
 <meta charset="utf-8">
-<title>Folio Presentation</title>
+<title>${title}</title>
 <style>${css}</style>
 <style>
   html, body, .marpit {

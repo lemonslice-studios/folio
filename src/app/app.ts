@@ -213,5 +213,11 @@ export class App {
         html.setAttribute('data-color-scheme', scheme);
       }
     });
+
+    // Update document title based on the current file
+    effect(() => {
+      const fileName = this.displayedFileName();
+      document.title = fileName ? `${fileName} — Folio` : 'Folio';
+    });
   }
 }

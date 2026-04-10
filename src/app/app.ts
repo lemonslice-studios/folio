@@ -89,12 +89,20 @@ export class App {
   protected readonly isEditingTitle = signal(false);
   protected readonly editValue = signal('');
 
+  protected readonly displayedFileName = computed(() => {
+    const current = this.store.currentFile();
+    if (!current) return this.store.documentType() === 'slides' ? 'New Presentation' : 'New Document';
+    
+    if (current.endsWith('.slides.md')) return current.slice(0, -10);
+    if (current.endsWith('.md')) return current.slice(0, -3);
+    return current;
+  });
+
   protected onTitleClick(): void {
     const current = this.store.currentFile();
     if (!current) return;
     
-    // Show without extension for editing
-    this.editValue.set(current.replace('.md', ''));
+    this.editValue.set(this.displayedFileName());
     this.isEditingTitle.set(true);
   }
 
@@ -102,16 +110,25 @@ export class App {
     if (!this.isEditingTitle()) return;
     
     const oldName = this.store.currentFile();
+    if (!oldName) {
+      this.isEditingTitle.set(false);
+      return;
+    }
+
     let newName = this.editValue().trim();
-    
     if (!newName) {
       this.isEditingTitle.set(false);
       return;
     }
 
-    if (!newName.endsWith('.md')) newName += '.md';
+    // Restore the correct extension
+    if (oldName.endsWith('.slides.md')) {
+      if (!newName.endsWith('.slides.md')) newName += '.slides.md';
+    } else {
+      if (!newName.endsWith('.md')) newName += '.md';
+    }
     
-    if (oldName && oldName !== newName) {
+    if (oldName !== newName) {
       try {
         await this.store.renameFile(oldName, newName);
       } catch (e: any) {

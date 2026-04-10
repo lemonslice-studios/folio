@@ -13,15 +13,6 @@
       <mat-icon>settings</mat-icon>
     </button>
   </div>
-
-  <div class="create-actions">
-    <button mat-icon-button (click)="onNewProse()" matTooltip="New prose document">
-      <mat-icon>add_notes</mat-icon>
-    </button>
-    <button mat-icon-button (click)="onNewPresentation()" matTooltip="New presentation slides">
-      <mat-icon>slideshow</mat-icon>
-    </button>
-  </div>
 </div>
 
 <div class="presentation-list">
@@ -34,7 +25,9 @@
         <div class="active-indicator"></div>
       }
       
-      <mat-icon class="file-icon">description</mat-icon>
+      <mat-icon class="file-icon">
+        {{ file.endsWith('.slides.md') ? 'slideshow' : 'description' }}
+      </mat-icon>
       <span class="filename">{{ file }}</span>
       
       <div class="actions">
@@ -56,7 +49,7 @@
         <button mat-flat-button (click)="onNewProse()">
           Create prose
         </button>
-        <button mat-flat-button (click)="onNewPresentation()">
+        <button mat-flat-button (click)="onNewSlides()">
           Create slides
         </button>
       </div>
@@ -65,8 +58,19 @@
 </div>
 
 <div class="drawer-footer">
-  <button mat-fab extended color="tertiary" (click)="onNewProse()" class="new-fab">
+  <button mat-fab extended color="tertiary" [matMenuTriggerFor]="createMenu" class="new-fab">
     <mat-icon>add</mat-icon>
-    New document
+    New
   </button>
+  
+  <mat-menu #createMenu="matMenu">
+    <button mat-menu-item (click)="onNewProse()">
+      <mat-icon>description</mat-icon>
+      <span>Text Document</span>
+    </button>
+    <button mat-menu-item (click)="onNewSlides()">
+      <mat-icon>slideshow</mat-icon>
+      <span>Presentation Slides</span>
+    </button>
+  </mat-menu>
 </div>

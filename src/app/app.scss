@@ -59,12 +59,33 @@
   color: var(--on-surface) !important;
   max-width: 300px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
   }
+
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+}
+
+.toolbar__file-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.toolbar__filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .toolbar__title-input {

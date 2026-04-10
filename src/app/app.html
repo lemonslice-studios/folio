@@ -30,9 +30,13 @@
             aria-label="Rename document"
             matTooltip="Rename document"
           >
-            {{ store.currentFile()?.replace('.md', '') || (store.documentType() === 'slides' ? 'New Presentation' : 'New Document') }}
+            <mat-icon class="toolbar__file-icon">
+              {{ store.currentFile()?.endsWith('.slides.md') ? 'slideshow' : 'description' }}
+            </mat-icon>
+            <span class="toolbar__filename">{{ displayedFileName() }}</span>
           </button>
         }
+
       </div>
 
       @if (store.isDirty()) {

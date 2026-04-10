@@ -64,6 +64,10 @@ export class AppStore {
   readonly proseViewMode = signal<'flow' | 'paged'>('flow');
 
   readonly documentType = computed<'slides' | 'prose'>(() => {
+    const file = this.currentFile();
+    if (file?.endsWith('.slides.md')) return 'slides';
+    
+    // Fallback to content detection for older files or manual renaming
     const md = this.currentMarkdown();
     const frontmatterMatch = md.trimStart().match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (frontmatterMatch && /^marp:\s*true\s*$/m.test(frontmatterMatch[1])) {
@@ -113,15 +117,28 @@ export class AppStore {
     }
   }
 
-  async createFile(filename: string, content: string = SAMPLE_PROSE): Promise<void> {
+  async createFile(filename: string, content: string = SAMPLE_PROSE, isSlides: boolean = false): Promise<void> {
     let finalName = filename;
-    if (!finalName.endsWith('.md')) finalName += '.md';
+    const suffix = isSlides ? '.slides.md' : '.md';
+    
+    // Ensure the correct extension based on isSlides
+    if (isSlides) {
+      if (!finalName.endsWith('.slides.md')) {
+        finalName = finalName.replace(/\.md$/, '') + '.slides.md';
+      }
+    } else {
+      if (finalName.endsWith('.slides.md')) {
+        finalName = finalName.replace(/\.slides\.md$/, '') + '.md';
+      } else if (!finalName.endsWith('.md')) {
+        finalName += '.md';
+      }
+    }
     
     // Simple collision avoidance
     let counter = 1;
-    const baseName = finalName.replace('.md', '');
+    const baseName = finalName.slice(0, -suffix.length);
     while (await this.fs.exists(finalName)) {
-      finalName = `${baseName} (${counter++}).md`;
+      finalName = `${baseName} (${counter++})${suffix}`;
     }
 
     await this.fs.writeFile(finalName, content);

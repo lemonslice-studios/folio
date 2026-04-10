@@ -230,6 +230,7 @@ ${linkHandlerScript}`;
   html, body, .marpit {
     margin: 0; padding: 0;
     background: transparent;
+    overscroll-behavior: none;
     ${isExport ? '' : 'touch-action: none;'}
   }
   ${interactiveStyles}

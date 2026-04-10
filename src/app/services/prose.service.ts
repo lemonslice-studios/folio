@@ -312,6 +312,7 @@ ${linkHandlerScript}`;
     color-scheme: ${colorScheme === 'dark' ? 'dark' : colorScheme === 'light' ? 'light' : 'light dark'};
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
   }
 
   *, *::before, *::after { box-sizing: border-box; }

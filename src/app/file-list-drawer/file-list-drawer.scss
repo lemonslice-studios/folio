@@ -26,6 +26,7 @@
   flex-direction: column;
   gap: 4px; // Tighter gap for M3
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .presentation-card {

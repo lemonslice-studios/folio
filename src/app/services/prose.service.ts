@@ -98,26 +98,87 @@ document.addEventListener('click', function(e) {
 });
 </script>`;
 
+    // Scaling script for paged mode to fit the width of the iframe.
+    const pagedScaleScript = isPaged && !isExport ? `
+<script>
+(function() {
+  var resizeTimeout;
+  function updateScale() {
+    var pages = document.querySelector('.pagedjs_pages');
+    if (!pages) {
+      // If Paged.js hasn't finished yet, try again shortly
+      setTimeout(updateScale, 100);
+      return;
+    }
+    
+    // Ensure styles are set on body
+    document.body.style.display = 'flex';
+    document.body.style.flexDirection = 'column';
+    document.body.style.alignItems = 'center';
+    document.body.style.overflowX = 'hidden';
+
+    // Reset for measurement
+    pages.style.transform = 'none';
+    pages.style.width = 'max-content';
+    pages.style.display = 'inline-block';
+    
+    var pageWidth = pages.offsetWidth;
+    var containerWidth = window.innerWidth;
+    var padding = 40; 
+    
+    if (pageWidth > 0) {
+      var scale = (containerWidth - padding) / pageWidth;
+      if (scale > 1) scale = 1; 
+
+      pages.style.transform = 'scale(' + scale + ')';
+      pages.style.transformOrigin = 'top center';
+      
+      // Update body to accommodate scaled content height
+      document.body.style.height = (pages.offsetHeight * scale + padding) + 'px';
+    }
+    pages.style.width = '';
+  }
+
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(updateScale, 50);
+  });
+
+  window.rescalePagedView = updateScale;
+  
+  // Also run on load as a backup to PagedConfig.after
+  window.addEventListener('load', function() {
+    setTimeout(updateScale, 200);
+  });
+})();
+</script>` : '';
+
     let pagedScript = '';
     if (isPaged && !isExport) {
-      pagedScript = `${mermaidTag}
-<script src="js/paged.polyfill.min.js"></script>
+      pagedScript = `
 <script>
 window.PagedConfig = {
   auto: false,
   after: function(flow) {
-    window.parent.postMessage({ pageCount: flow.total }, '*');
+    if (window.rescalePagedView) window.rescalePagedView();
     if (window.mermaid) {
       mermaid.initialize(${mermaidConfig(false)});
       mermaid.run({ querySelector: '.mermaid' });
     }
+    // Post message AFTER scaling so parent scroll restoration is accurate
+    window.parent.postMessage({ pageCount: flow.total }, '*');
   }
 };
+</script>
+${mermaidTag}
+<script src="js/paged.polyfill.min.js"></script>
+<script>
 window.addEventListener('DOMContentLoaded', function() {
   window.PagedPolyfill.preview();
 });
 </script>
-${linkHandlerScript}`;
+${linkHandlerScript}
+${pagedScaleScript}`;
     } else if (isExport) {
       // Export (HTML download or print): no paged.js, but mermaid still renders
       pagedScript = `${mermaidTag}

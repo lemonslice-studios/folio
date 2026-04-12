@@ -59,7 +59,7 @@
   color: var(--on-surface) !important;
   max-width: 300px;
   overflow: hidden;
-  
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
   }
@@ -116,10 +116,10 @@
 
 .toolbar__prose-toggle {
   height: 32px;
-  
+
   mat-button-toggle {
     font-size: 0.75rem;
-    
+
     ::ng-deep .mat-button-toggle-label-content {
       line-height: 30px;
       padding: 0 12px;
@@ -153,7 +153,9 @@
   }
 
   &.preview-hidden {
-    .split-pane__divider, .split-pane__preview {
+
+    .split-pane__divider,
+    .split-pane__preview {
       display: none;
     }
   }
@@ -202,10 +204,24 @@
   height: 100%;
   overflow: hidden;
 
-  // Ensure internal tab body expands
+  // Ensure the full flex-height chain works without intermediate overflow.
+  // Without this, Angular Material's default overflow:auto on body-content
+  // causes a scrollable view on first load before any resize event fires.
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   ::ng-deep .mat-mdc-tab-body {
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
+  }
+
+  ::ng-deep .mat-mdc-tab-body-content {
+    overflow: hidden;
+    height: 100%;
   }
 }

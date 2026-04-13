@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -26,6 +27,7 @@ import { ProseService } from '../services/prose.service';
 })
 export class PreviewPaneComponent {
   readonly active = input(true);
+  readonly backToEditor = output<void>();
 
   protected readonly store = inject(AppStore);
   private readonly marpService = inject(MarpService);
@@ -117,6 +119,12 @@ export class PreviewPaneComponent {
       .subscribe(e => {
         const iframe = this.iframeRef()?.nativeElement;
         if (e.source !== iframe?.contentWindow) return;
+
+        if (e.data?.type === 'tabSwitch') {
+          if (e.data.direction === 'prev') {
+            this.backToEditor.emit();
+          }
+        }
 
         if (e.data?.pageCount !== undefined) {
           this.store.setSlideCount(e.data.pageCount);

@@ -9,6 +9,17 @@
     ></iframe>
   </div>
 
+  @if (!active()) {
+    <button
+      mat-mini-fab
+      class="back-fab"
+      aria-label="Back to editor"
+      (click)="backToEditor.emit()"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+  }
+
   @if (store.documentType() === 'slides') {
     <nav class="slide-nav" aria-label="Slide navigation">
       <button

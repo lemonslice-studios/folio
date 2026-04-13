@@ -89,6 +89,34 @@ export class App {
   protected readonly isEditingTitle = signal(false);
   protected readonly editValue = signal('');
 
+  private touchStartX = 0;
+  private touchStartY = 0;
+
+  protected onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
+  }
+
+  protected onTouchEnd(event: TouchEvent): void {
+    const endX = event.changedTouches[0].screenX;
+    const endY = event.changedTouches[0].screenY;
+    
+    const diffX = this.touchStartX - endX;
+    const diffY = Math.abs(this.touchStartY - endY);
+
+    // Threshold: at least 50px horizontal, and horizontal must be 
+    // significantly larger than vertical (to ignore scroll).
+    if (Math.abs(diffX) > 50 && Math.abs(diffX) > diffY) {
+      if (diffX > 0 && this.selectedTab() === 0) {
+        // Swipe left (forward to preview)
+        this.selectedTab.set(1);
+      } else if (diffX < 0 && this.selectedTab() === 1) {
+        // Swipe right (back to editor)
+        this.selectedTab.set(0);
+      }
+    }
+  }
+
   protected readonly displayedFileName = computed(() => {
     const current = this.store.currentFile();
     if (!current) return this.store.documentType() === 'slides' ? 'New Presentation' : 'New Document';

@@ -102,12 +102,14 @@
       <mat-tab-group class="tab-group" animationDuration="200ms" role="main"
         aria-label="Editor and Preview tabs"
         [selectedIndex]="selectedTab()"
-        (selectedIndexChange)="selectedTab.set($event)">
+        (selectedIndexChange)="selectedTab.set($event)"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)">
         <mat-tab label="Edit">
           <app-editor-pane [active]="selectedTab() === 0" />
         </mat-tab>
         <mat-tab label="Preview">
-          <app-preview-pane [active]="selectedTab() === 1" />
+          <app-preview-pane [active]="selectedTab() === 1" (backToEditor)="selectedTab.set(0)" />
         </mat-tab>
       </mat-tab-group>
     }

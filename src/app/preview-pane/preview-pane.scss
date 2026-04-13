@@ -68,10 +68,26 @@
 // ── Present / Toggle FABs ──────────────────────────────────────────────────
 
 .present-fab,
-.prose-toggle-fab {
+.prose-toggle-fab,
+.back-fab {
   position: absolute;
   bottom: 3.5rem; // sits just above the nav bar
   right: 2rem;
+}
+
+.back-fab {
+  right: auto;
+  left: 1rem;
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface) !important;
+  border: 1px solid var(--outline-variant);
+  z-index: 20;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .present-fab {

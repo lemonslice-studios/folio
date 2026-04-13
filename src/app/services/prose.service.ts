@@ -77,27 +77,50 @@ export class ProseService {
     // Helper script to handle links within srcdoc.
     // 1. Internal hash links (footnotes) scroll into view.
     // 2. External links open in a new tab to avoid iframe navigation issues.
-    const linkHandlerScript = `
-<script>
-document.addEventListener('click', function(e) {
-  var target = e.target;
-  while (target && target.tagName !== 'A') target = target.parentNode;
-  if (!target || !target.getAttribute('href')) return;
+    var linkHandlerScript = `
+    <script>
+    document.addEventListener('click', function(e) {
+    var target = e.target;
+    while (target && target.tagName !== 'A') target = target.parentNode;
+    if (!target || !target.getAttribute('href')) return;
 
-  var href = target.getAttribute('href');
-  if (href.startsWith('#')) {
-    var id = href.slice(1);
-    var el = document.getElementById(id);
-    if (el) {
+    var href = target.getAttribute('href');
+    if (href.startsWith('#')) {
+      var id = href.slice(1);
+      var el = document.getElementById(id);
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView();
+      }
+    } else {
       e.preventDefault();
-      el.scrollIntoView();
+      window.open(href, '_blank');
     }
-  } else {
-    e.preventDefault();
-    window.open(href, '_blank');
-  }
-});
-</script>`;
+    });
+
+    (function() {
+    var touchStartX = 0;
+    var touchStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      var touchEndX = e.changedTouches[0].screenX;
+      var touchEndY = e.changedTouches[0].screenY;
+      var diffX = touchStartX - touchEndX;
+      var diffY = Math.abs(touchStartY - touchEndY);
+
+      // If swiping right (diffX < -50) and it's mostly horizontal, switch back to editor.
+      // Swiping left in prose just scrolls horizontally or does nothing, 
+      // but we can also trigger next tab if at the right edge if we want.
+      if (diffX < -50 && Math.abs(diffX) > diffY) {
+        window.parent.postMessage({ type: 'tabSwitch', direction: 'prev' }, '*');
+      }
+    }, { passive: true });
+    })();
+    </script>`;
 
     // Scaling script for paged mode to fit the width of the iframe.
     const pagedScaleScript = isPaged && !isExport ? `

@@ -180,11 +180,23 @@ ${mermaidTag}
   document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, false);
   document.addEventListener('touchend', function(e) {
     var touchEndX = e.changedTouches[0].screenX;
-    var next = current;
-    if (touchEndX < touchStartX - 50) next = current + 1;
-    else if (touchEndX > touchStartX + 50) next = current - 1;
-    else return;
-    show(next).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+    var diffX = touchStartX - touchEndX;
+    
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) { // swipe left (next)
+        if (current === slides.length - 1) {
+          window.parent.postMessage({ type: 'tabSwitch', direction: 'next' }, '*');
+        } else {
+          show(current + 1).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+        }
+      } else { // swipe right (prev)
+        if (current === 0) {
+          window.parent.postMessage({ type: 'tabSwitch', direction: 'prev' }, '*');
+        } else {
+          show(current - 1).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+        }
+      }
+    }
   }, false);
 
   window.addEventListener('message', function (e) {

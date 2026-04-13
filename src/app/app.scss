@@ -203,6 +203,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  touch-action: pan-y; // allow custom horizontal swipes, keep vertical scroll
 
   // Ensure the full flex-height chain works without intermediate overflow.
   // Without this, Angular Material's default overflow:auto on body-content

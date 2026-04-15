@@ -50,11 +50,13 @@ export class ProseService {
     isExport: boolean = false,
     proseMode: 'flow' | 'paged' = 'flow',
     colorScheme: ColorScheme = 'system',
+    appTheme: 'quiet' | 'clean' = 'quiet',
+    fontFamily: 'sans-serif' | 'serif' = 'sans-serif',
     standalone: boolean = false,
     title: string = 'Folio Document',
   ): string {
     const isPaged = proseMode === 'paged';
-    const htmlAttr = colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`;
+    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}"${colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`}`;
 
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
@@ -277,50 +279,86 @@ ${linkHandlerScript}`;
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <style>
-  /* ── Colour tokens (light defaults) ── */
-  :root {
+  /* ── Colour tokens (Theme-aware) ── */
+  
+  [data-theme="quiet"] {
     --prose-bg:       #ffffff;
-    --prose-canvas:   #f0f0f0;
+    --prose-canvas:   #f3f0ff; /* lavender container */
     --prose-text:     #1d1b20;
     --prose-muted:    #555555;
-    --prose-border:   #e0e0e0;
+    --prose-border:   #dfd9f2;
     --prose-code-bg:  #f5f5f5;
     --prose-quote-border: #aaaaaa;
-  }
 
-  /* System dark */
-  @media (prefers-color-scheme: dark) {
-    :root {
+    @media (prefers-color-scheme: dark) {
+      &:not([data-color-scheme="light"]) {
+        --prose-bg:       #1c1b1f;
+        --prose-canvas:   #111116;
+        --prose-text:     #e6e0e9;
+        --prose-muted:    #a09aac;
+        --prose-border:   #2e2e3e;
+        --prose-code-bg:  #2b2930;
+        --prose-quote-border: #6b6573;
+      }
+    }
+    &[data-color-scheme="dark"] {
       --prose-bg:       #1c1b1f;
-      --prose-canvas:   #111013;
+      --prose-canvas:   #111116;
       --prose-text:     #e6e0e9;
       --prose-muted:    #a09aac;
-      --prose-border:   #49454f;
+      --prose-border:   #2e2e3e;
       --prose-code-bg:  #2b2930;
       --prose-quote-border: #6b6573;
     }
+    &[data-color-scheme="light"] {
+      --prose-bg:       #ffffff;
+      --prose-canvas:   #f3f0ff;
+      --prose-text:     #1d1b20;
+      --prose-muted:    #555555;
+      --prose-border:   #dfd9f2;
+      --prose-code-bg:  #f5f5f5;
+      --prose-quote-border: #aaaaaa;
+    }
   }
 
-  /* Forced light — wins over system dark */
-  html[data-color-scheme="light"] {
+  [data-theme="clean"] {
     --prose-bg:       #ffffff;
-    --prose-canvas:   #f0f0f0;
-    --prose-text:     #1d1b20;
-    --prose-muted:    #555555;
-    --prose-border:   #e0e0e0;
-    --prose-code-bg:  #f5f5f5;
-    --prose-quote-border: #aaaaaa;
-  }
+    --prose-canvas:   #f2f2f7;
+    --prose-text:     #000000;
+    --prose-muted:    #8e8e93;
+    --prose-border:   #d1d1d6;
+    --prose-code-bg:  #f2f2f7;
+    --prose-quote-border: #c7c7cc;
 
-  /* Forced dark */
-  html[data-color-scheme="dark"] {
-    --prose-bg:       #1c1b1f;
-    --prose-canvas:   #111013;
-    --prose-text:     #e6e0e9;
-    --prose-muted:    #a09aac;
-    --prose-border:   #49454f;
-    --prose-code-bg:  #2b2930;
-    --prose-quote-border: #6b6573;
+    @media (prefers-color-scheme: dark) {
+      &:not([data-color-scheme="light"]) {
+        --prose-bg:       #000000;
+        --prose-canvas:   #1c1c1e;
+        --prose-text:     #ffffff;
+        --prose-muted:    #8e8e93;
+        --prose-border:   #38383a;
+        --prose-code-bg:  #1c1c1e;
+        --prose-quote-border: #38383a;
+      }
+    }
+    &[data-color-scheme="dark"] {
+      --prose-bg:       #000000;
+      --prose-canvas:   #1c1c1e;
+      --prose-text:     #ffffff;
+      --prose-muted:    #8e8e93;
+      --prose-border:   #38383a;
+      --prose-code-bg:  #1c1c1e;
+      --prose-quote-border: #38383a;
+    }
+    &[data-color-scheme="light"] {
+      --prose-bg:       #ffffff;
+      --prose-canvas:   #f2f2f7;
+      --prose-text:     #000000;
+      --prose-muted:    #8e8e93;
+      --prose-border:   #d1d1d6;
+      --prose-code-bg:  #f2f2f7;
+      --prose-quote-border: #c7c7cc;
+    }
   }
 
   /* ── Base ── */
@@ -337,6 +375,20 @@ ${linkHandlerScript}`;
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: none;
+  }
+
+  html[data-font-family="serif"], 
+  html[data-font-family="serif"] body,
+  html[data-font-family="serif"] h1,
+  html[data-font-family="serif"] h2,
+  html[data-font-family="serif"] h3,
+  html[data-font-family="serif"] h4,
+  html[data-font-family="serif"] h5,
+  html[data-font-family="serif"] h6,
+  html[data-font-family="serif"] .markdown-body h1,
+  html[data-font-family="serif"] .markdown-body h2,
+  html[data-font-family="serif"] .markdown-body h3 {
+    font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -358,7 +410,7 @@ ${linkHandlerScript}`;
 
   /* ── Headings ── */
   h1, h2, h3, h4, h5, h6 {
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: inherit;
     line-height: 1.2;
     color: var(--prose-text);
   }

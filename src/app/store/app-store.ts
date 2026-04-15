@@ -85,11 +85,14 @@ export class AppStore {
   readonly prefs = signal<AppPrefs>({
     lastOpenFile: null,
     preferredTheme: 'default',
+    appTheme: 'quiet',
+    fontFamily: 'sans-serif',
     editorFontSize: 16,
     darkMode: 'system',
   });
 
   readonly colorScheme = computed(() => this.prefs().darkMode);
+  readonly appTheme = computed(() => this.prefs().appTheme);
   readonly editorWidth = signal(500);
   readonly previewVisible = signal(true);
 
@@ -231,6 +234,22 @@ export class AppStore {
 
   setTheme(theme: AppPrefs['preferredTheme']): void {
     this.updatePrefs({ preferredTheme: theme });
+  }
+
+  setAppTheme(theme: AppPrefs['appTheme']): void {
+    this.updatePrefs({ appTheme: theme });
+  }
+
+  setFontFamily(family: AppPrefs['fontFamily']): void {
+    this.updatePrefs({ fontFamily: family });
+  }
+
+  setDarkMode(mode: AppPrefs['darkMode']): void {
+    this.updatePrefs({ darkMode: mode });
+  }
+
+  setEditorFontSize(size: number): void {
+    this.updatePrefs({ editorFontSize: size });
   }
 
   togglePreview(): void {

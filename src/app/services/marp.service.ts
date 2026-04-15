@@ -244,6 +244,7 @@ ${linkHandlerScript}`;
   html, body, .marpit {
     margin: 0; padding: 0;
     background: transparent;
+    font-family: 'Inter', system-ui, sans-serif;
     overscroll-behavior: none;
     ${isExport ? '' : 'touch-action: none;'}
   }

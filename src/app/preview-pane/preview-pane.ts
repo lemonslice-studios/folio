@@ -101,6 +101,7 @@ export class PreviewPaneComponent {
 
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
+        this.proseReloading.set(false);
         iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme);
       } else {
         // Save scroll position before the srcdoc replacement resets it to 0.

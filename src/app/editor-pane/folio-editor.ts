@@ -301,7 +301,7 @@ const separatorPlugin = ViewPlugin.fromClass(
 const folioBaseTheme = EditorView.theme({
   '&': {
     height: '100%',
-    fontSize: '1rem',
+    fontSize: 'var(--editor-font-size, 1rem)',
     background: 'var(--surface)',
     color: 'var(--on-surface)',
   },

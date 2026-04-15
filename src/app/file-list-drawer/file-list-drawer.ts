@@ -10,18 +10,6 @@ import { SettingsDialogComponent } from '../settings-dialog/settings-dialog';
 import { FsService } from '../services/fs.service';
 import JSZip from 'jszip';
 
-const COLOR_SCHEME_ICON: Record<string, string> = {
-  system: 'brightness_auto',
-  light:  'light_mode',
-  dark:   'dark_mode',
-};
-
-const COLOR_SCHEME_LABEL: Record<string, string> = {
-  system: 'Color scheme: automatic',
-  light:  'Color scheme: light',
-  dark:   'Color scheme: dark',
-};
-
 @Component({
   selector: 'app-file-list-drawer',
   imports: [
@@ -41,14 +29,6 @@ export class FileListDrawerComponent {
   protected readonly fs = inject(FsService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-
-  protected readonly colorSchemeIcon = computed(
-    () => COLOR_SCHEME_ICON[this.store.colorScheme()],
-  );
-
-  protected readonly colorSchemeLabel = computed(
-    () => COLOR_SCHEME_LABEL[this.store.colorScheme()],
-  );
 
   async onNewSlides(): Promise<void> {
     await this.store.createFile('Untitled Slides.slides.md', SAMPLE_MARKDOWN, true);

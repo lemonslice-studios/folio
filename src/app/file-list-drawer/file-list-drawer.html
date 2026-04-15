@@ -1,14 +1,5 @@
 <div class="drawer-header">
   <div class="header-actions">
-    <button
-      mat-icon-button
-      [attr.aria-label]="colorSchemeLabel()"
-      [matTooltip]="colorSchemeLabel()"
-      (click)="store.cycleColorScheme()"
-    >
-      <mat-icon>{{ colorSchemeIcon() }}</mat-icon>
-    </button>
-    
     <button mat-icon-button (click)="onDownloadAll()" aria-label="Download all files as ZIP" matTooltip="Download all (ZIP)">
       <mat-icon>file_download</mat-icon>
     </button>

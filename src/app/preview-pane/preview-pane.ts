@@ -169,14 +169,14 @@ export class PreviewPaneComponent {
     effect(() => {
       if (this.store.documentType() !== 'slides') return;
       const idx = this.store.currentSlideIndex();
-      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ slideIndex: idx }, '*');
+      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*');
     });
 
     // Re-sync slide position when the tab becomes visible after being hidden
     effect(() => {
       if (!this.active() || this.store.documentType() !== 'slides') return;
       const idx = this.store.currentSlideIndex();
-      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ slideIndex: idx }, '*');
+      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*');
     });
 
     // Receive messages from the preview iframe.
@@ -184,7 +184,11 @@ export class PreviewPaneComponent {
       .pipe(takeUntilDestroyed())
       .subscribe(e => {
         const iframe = this.iframeRef()?.nativeElement;
-        if (e.source !== iframe?.contentWindow) return;
+        
+        // Robust source check: check for either matching contentWindow OR our unique identifier.
+        // Some mobile browsers have issues with e.source being consistent for about:srcdoc.
+        const isFromOurIframe = e.source === iframe?.contentWindow || e.data?.folioIdentifier === 'folio-preview';
+        if (!isFromOurIframe) return;
 
         if (e.data?.type === 'tabSwitch') {
           if (e.data.direction === 'prev') {
@@ -192,8 +196,11 @@ export class PreviewPaneComponent {
           }
         }
 
-        if (e.data?.pageCount !== undefined) {
-          this.store.setSlideCount(e.data.pageCount);
+        if (e.data?.pageCount !== undefined || e.data?.type === 'flowLoaded') {
+          if (e.data?.pageCount !== undefined) {
+            this.store.setSlideCount(e.data.pageCount);
+          }
+          
           if (this.store.proseViewMode() === 'paged') {
             const targetY = this.proseScrollY;
             const win = iframe?.contentWindow;
@@ -201,11 +208,15 @@ export class PreviewPaneComponent {
             const restore = () => {
               win?.scrollTo({ top: targetY, behavior: 'instant' });
               this.proseReloading.set(false);
+              clearTimeout(this.reloadingTimeout);
             };
 
             // Double-hit restoration to ensure it sticks after layout/paint
             restore();
             requestAnimationFrame(restore);
+          } else {
+            this.proseReloading.set(false);
+            clearTimeout(this.reloadingTimeout);
           }
         }
       });
@@ -215,7 +226,7 @@ export class PreviewPaneComponent {
   protected onFrameLoad(): void {
     const iframe = this.iframeRef()?.nativeElement;
     if (!iframe) return;
-    iframe.contentWindow?.postMessage({ slideIndex: this.store.currentSlideIndex() }, '*');
+    iframe.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: this.store.currentSlideIndex() }, '*');
 
     // For flow mode, the document is fully laid out at load time — restore scroll immediately,
     // then reveal the iframe (was hidden to suppress the scroll-jump flicker).
@@ -223,6 +234,7 @@ export class PreviewPaneComponent {
     if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow') {
       iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
       this.proseReloading.set(false);
+      clearTimeout(this.reloadingTimeout);
     }
   }
 

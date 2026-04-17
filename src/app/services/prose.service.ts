@@ -195,7 +195,7 @@ export class ProseService {
     // We use requestAnimationFrame to ensure the body height change has been processed.
     var total = (flow && typeof flow.total === 'number') ? flow.total : 1;
     requestAnimationFrame(function() {
-      window.parent.postMessage({ pageCount: total }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', pageCount: total }, '*');
     });
   }
 };
@@ -217,10 +217,10 @@ window.addEventListener('DOMContentLoaded', function() {
   if (window.mermaid) {
     mermaid.initialize(${mermaidConfig(!standalone)});
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
-      window.parent.postMessage({ type: 'printReady' }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
     });
   } else {
-    window.parent.postMessage({ type: 'printReady' }, '*');
+    window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
   }
 });
 </script>
@@ -234,6 +234,8 @@ window.addEventListener('DOMContentLoaded', function() {
     mermaid.initialize(${mermaidConfig(false)});
     mermaid.run({ querySelector: '.mermaid' });
   }
+  // Inform parent that we are loaded even in flow mode
+  window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'flowLoaded' }, '*');
 });
 </script>
 ${linkHandlerScript}`;

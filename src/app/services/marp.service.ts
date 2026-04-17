@@ -103,12 +103,12 @@ ${mermaidTag}
   };
   function init() {
     if (!window.mermaid) {
-      window.parent.postMessage({ type: 'printReady' }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
       return;
     }
     mermaid.initialize(MERMAID_CONFIG);
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
-      window.parent.postMessage({ type: 'printReady' }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
     });
   }
   if (document.readyState === 'loading') {
@@ -175,7 +175,7 @@ ${mermaidTag}
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') next = current + 1;
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'Backspace') next = current - 1;
     else return;
-    show(next).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+    show(next).then(function(idx) { window.parent.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*'); });
   });
 
   var touchStartX = 0;
@@ -187,15 +187,15 @@ ${mermaidTag}
     if (Math.abs(diffX) > 50) {
       if (diffX > 0) { // swipe left (next)
         if (current === slides.length - 1) {
-          window.parent.postMessage({ type: 'tabSwitch', direction: 'next' }, '*');
+          window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'tabSwitch', direction: 'next' }, '*');
         } else {
-          show(current + 1).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+          show(current + 1).then(function(idx) { window.parent.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*'); });
         }
       } else { // swipe right (prev)
         if (current === 0) {
-          window.parent.postMessage({ type: 'tabSwitch', direction: 'prev' }, '*');
+          window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'tabSwitch', direction: 'prev' }, '*');
         } else {
-          show(current - 1).then(function(idx) { window.parent.postMessage({ slideIndex: idx }, '*'); });
+          show(current - 1).then(function(idx) { window.parent.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*'); });
         }
       }
     }

@@ -40,6 +40,7 @@ export class PreviewPaneComponent {
   /** True while a prose-flow srcdoc swap is in-flight; hides the iframe to avoid scroll-jump flicker. */
   protected readonly proseReloading = signal(false);
   private reloadingTimeout?: any;
+  private lastSrcdoc = '';
 
   /** 
    * Tracks document visibility and focus to force a re-render when the app 
@@ -105,8 +106,7 @@ export class PreviewPaneComponent {
         }
       });
 
-    // Update iframe srcdoc and store slide/page count whenever rendered output changes.
-    // This effect handles standard content updates and tab switching.
+    // Update iframe srcdoc whenever content changes or the app is resumed.
     effect(() => {
       const result = this.rendered();
       const proseMode = this.store.proseViewMode();
@@ -114,20 +114,33 @@ export class PreviewPaneComponent {
       const appTheme = this.store.appTheme();
       const isActive = this.active();
       const visible = this.isVisible();
+      const trigger = this.refreshTrigger();
       const iframe = this.iframeRef();
 
-      // Don't write to a hidden iframe.
       if (!iframe || !isActive || !visible) return;
 
-      // We use untracked for the trigger because we only want to force a reload
-      // via the dedicated resumption effect below, not every time the tab changes.
-      const trigger = untracked(() => this.refreshTrigger());
+      // Calculate the next srcdoc including a cache-buster trigger.
       const reloadMeta = `<!-- r:${trigger} -->`;
+      let nextSrcdoc = '';
+      
+      if (result.type === 'slides') {
+        nextSrcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
+      } else {
+        nextSrcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme, appTheme, this.store.prefs().fontFamily) + reloadMeta;
+      }
+
+      // Optimization: If the content (including the resumption trigger) is identical
+      // to what is already in the iframe, do nothing. This prevents the "every time 
+      // I switch tabs" delay while still ensuring reloads happen when necessary.
+      if (nextSrcdoc === this.lastSrcdoc) {
+        return;
+      }
+      this.lastSrcdoc = nextSrcdoc;
 
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
         this.proseReloading.set(false);
-        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
+        iframe.nativeElement.srcdoc = nextSrcdoc;
       } else {
         const win = iframe.nativeElement.contentWindow;
         const scrollEl = iframe.nativeElement.contentDocument?.documentElement;
@@ -140,28 +153,17 @@ export class PreviewPaneComponent {
         this.reloadingTimeout = setTimeout(() => {
           if (untracked(() => this.proseReloading())) {
             this.proseReloading.set(false);
+            
+            // Nuclear option: If the failsafe hits after a background resumption (trigger > 0),
+            // the app shell's bridge to the iframe is likely corrupted by the OS.
+            // A full page reload is the only reliable way to recover the PWA state.
+            if (trigger > 0) {
+              window.location.reload();
+            }
           }
-        }, 3000);
+        }, 2000);
 
-        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme, appTheme, this.store.prefs().fontFamily) + reloadMeta;
-      }
-    });
-
-    // Dedicated effect to force a refresh when the app is resumed from background.
-    // This is separate so it doesn't trigger on every tab switch.
-    effect(() => {
-      const trigger = this.refreshTrigger();
-      if (trigger === 0) return;
-
-      // Only force the reload if we are currently active. If we're not active,
-      // the main effect will handle it naturally when we next switch to the tab.
-      if (untracked(() => this.active() && this.isVisible())) {
-        const iframe = untracked(() => this.iframeRef());
-        if (iframe) {
-          // Re-trigger the main effect by slightly modifying the srcdoc
-          const current = iframe.nativeElement.srcdoc;
-          iframe.nativeElement.srcdoc = current.replace(/<!-- r:\d+ -->/, `<!-- r:${trigger} -->`);
-        }
+        iframe.nativeElement.srcdoc = nextSrcdoc;
       }
     });
 

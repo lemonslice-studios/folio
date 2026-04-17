@@ -40,10 +40,12 @@ export class PreviewPaneComponent {
   protected readonly proseReloading = signal(false);
 
   /** 
-   * Tracks document visibility to force a re-render when the app is resumed 
-   * from the background (prevents discarded iframes on Android/iOS).
+   * Tracks document visibility and focus to force a re-render when the app 
+   * is resumed from the background. Mobile browsers often discard iframe 
+   * content or defer loading when hidden.
    */
-  private readonly isVisible = signal(true);
+  private readonly isVisible = signal(document.visibilityState === 'visible');
+  private readonly refreshTrigger = signal(0);
 
   /**
    * First emission is immediate (no debounce) so the preview populates on load.
@@ -75,17 +77,29 @@ export class PreviewPaneComponent {
   );
 
   constructor() {
-    // Force re-render on visibility change (background -> foreground)
-    fromEvent(document, 'visibilitychange')
+    // Force re-render on visibility/focus change (background -> foreground).
+    // We use a combination of events to be robust across mobile OSs.
+    merge(
+      fromEvent(document, 'visibilitychange'),
+      fromEvent(window, 'focus'),
+      fromEvent(window, 'pageshow'),
+    )
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
-        this.isVisible.set(document.visibilityState === 'visible');
+        const isVisible = document.visibilityState === 'visible';
+        const wasHidden = !this.isVisible();
+        this.isVisible.set(isVisible);
+        
+        // If we transitioned from hidden to visible, increment the trigger
+        // to force a srcdoc reload in the effect below.
+        if (isVisible && wasHidden) {
+          this.refreshTrigger.update(n => n + 1);
+        }
       });
 
     // Update iframe srcdoc and store slide/page count whenever rendered output changes.
-    // Also re-runs when `active()` becomes true so that mobile browsers (which often
-    // defer or discard iframe content inside a hidden tab) always get a fresh srcdoc
-    // when the Preview tab is switched back into view.
+    // Also re-runs when `active()` becomes true or when the app is resumed so that
+    // mobile browsers (which often discard iframe content) always get a fresh srcdoc.
     effect(() => {
       const result = this.rendered();
       const proseMode = this.store.proseViewMode();
@@ -93,16 +107,21 @@ export class PreviewPaneComponent {
       const appTheme = this.store.appTheme();
       const isActive = this.active();
       const visible = this.isVisible();
+      const trigger = this.refreshTrigger();
       const iframe = this.iframeRef();
 
       // Don't write to a hidden iframe — mobile browsers may defer the load event
       // or discard the content entirely. The next activation will re-trigger this effect.
       if (!iframe || !isActive || !visible) return;
 
+      // Append a tiny cache-buster comment to the srcdoc to force a reload even 
+      // if the HTML content is identical to the previous value.
+      const reloadMeta = `<!-- r:${trigger} -->`;
+
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
         this.proseReloading.set(false);
-        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme);
+        iframe.nativeElement.srcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
       } else {
         // Save scroll position before the srcdoc replacement resets it to 0.
         const win = iframe.nativeElement.contentWindow;
@@ -114,7 +133,7 @@ export class PreviewPaneComponent {
         this.proseReloading.set(true);
 
         // Page count is set via postMessage after Paged.js finishes
-        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme, appTheme, this.store.prefs().fontFamily);
+        iframe.nativeElement.srcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme, appTheme, this.store.prefs().fontFamily) + reloadMeta;
       }
     });
 

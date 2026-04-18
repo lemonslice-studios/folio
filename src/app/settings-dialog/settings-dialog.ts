@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppStore } from '../store/app-store';
 
 @Component({
@@ -14,6 +15,7 @@ import { AppStore } from '../store/app-store';
     MatIconModule,
     MatButtonToggleModule,
     MatSliderModule,
+    MatTooltipModule,
   ],
   templateUrl: './settings-dialog.html',
   styleUrl: './settings-dialog.scss',

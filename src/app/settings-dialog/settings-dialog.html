@@ -8,15 +8,13 @@
 <mat-dialog-content class="settings-content">
   <section class="settings-section">
     <h3 class="settings-section__title">Appearance</h3>
-    
+
     <div class="setting-item">
       <div class="setting-item__label">
         <mat-icon>palette</mat-icon>
         <span>Theme</span>
       </div>
-      <mat-button-toggle-group 
-        [value]="currentAppTheme()" 
-        (change)="store.setAppTheme($event.value)"
+      <mat-button-toggle-group [value]="currentAppTheme()" (change)="store.setAppTheme($event.value)"
         aria-label="App theme">
         <mat-button-toggle value="quiet">Quiet</mat-button-toggle>
         <mat-button-toggle value="clean">Clean</mat-button-toggle>
@@ -28,9 +26,7 @@
         <mat-icon>font_download</mat-icon>
         <span>Font Family</span>
       </div>
-      <mat-button-toggle-group 
-        [value]="currentFontFamily()" 
-        (change)="store.setFontFamily($event.value)"
+      <mat-button-toggle-group [value]="currentFontFamily()" (change)="store.setFontFamily($event.value)"
         aria-label="Font family">
         <mat-button-toggle value="sans-serif">Sans Serif</mat-button-toggle>
         <mat-button-toggle value="serif">Serif</mat-button-toggle>
@@ -39,16 +35,21 @@
 
     <div class="setting-item">
       <div class="setting-item__label">
-        <mat-icon>{{ currentColorScheme() === 'dark' ? 'dark_mode' : currentColorScheme() === 'light' ? 'light_mode' : 'brightness_auto' }}</mat-icon>
-        <span>Color Scheme</span>
+        <mat-icon>{{ currentColorScheme() === 'dark' ? 'dark_mode' : currentColorScheme() === 'light' ? 'light_mode' :
+          'brightness_auto' }}</mat-icon>
+        <span>Mode</span>
       </div>
-      <mat-button-toggle-group 
-        [value]="currentColorScheme()" 
-        (change)="store.setDarkMode($event.value)"
-        aria-label="Color scheme">
-        <mat-button-toggle value="system">System</mat-button-toggle>
-        <mat-button-toggle value="light">Light</mat-button-toggle>
-        <mat-button-toggle value="dark">Dark</mat-button-toggle>
+      <mat-button-toggle-group [value]="currentColorScheme()" (change)="store.setDarkMode($event.value)"
+        class="icon-group" aria-label="Color scheme">
+        <mat-button-toggle value="system" matTooltip="System">
+          <mat-icon>brightness_auto</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="light" matTooltip="Light">
+          <mat-icon>light_mode</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="dark" matTooltip="Dark">
+          <mat-icon>dark_mode</mat-icon>
+        </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
   </section>

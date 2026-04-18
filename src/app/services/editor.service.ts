@@ -5,7 +5,7 @@ import { CheatItem } from '../editor-pane/cheat-bar/cheat-bar';
 @Injectable({ providedIn: 'root' })
 export class EditorService {
   private readonly insertSubject = new Subject<string | CheatItem>();
-  private readonly focusSubject = new Subject<void>();
+  private readonly focusSubject = new Subject<'start' | 'end' | undefined>();
   
   /** Observable that emits whenever a snippet should be inserted at the cursor. */
   readonly insert$ = this.insertSubject.asObservable();
@@ -18,8 +18,8 @@ export class EditorService {
     this.insertSubject.next(value);
   }
 
-  /** Triggers a focus event on the active editor. */
-  focus(): void {
-    this.focusSubject.next();
+  /** Triggers a focus event on the active editor, optionally moving the cursor. */
+  focus(position?: 'start' | 'end'): void {
+    this.focusSubject.next(position);
   }
 }

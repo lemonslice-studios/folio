@@ -58,7 +58,7 @@ export class FileListDrawerComponent {
       } else {
         this.store.setMarkdown('');
       }
-      this.editorService.focus();
+      setTimeout(() => this.editorService.focus('end'), 50);
     });
   }
 

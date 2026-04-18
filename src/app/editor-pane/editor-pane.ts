@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EditorView } from '@codemirror/view';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Transaction } from '@codemirror/state';
 import { AppStore } from '../store/app-store';
 import { EditorService } from '../services/editor.service';
 import { createFolioExtensions } from './folio-editor';
@@ -62,15 +62,28 @@ export class EditorPaneComponent {
       }
     });
 
-    this.editorService.focus$.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.editorView?.focus();
+    this.editorService.focus$.pipe(takeUntilDestroyed()).subscribe(pos => {
+      const view = this.editorView;
+      if (!view) return;
+
+      view.focus();
+      if (pos === 'start') {
+        view.dispatch({ selection: { anchor: 0 }, scrollIntoView: true });
+      } else if (pos === 'end') {
+        const end = view.state.doc.length;
+        view.dispatch({ selection: { anchor: end }, scrollIntoView: true });
+      }
     });
 
     effect(() => {
       const md = this.store.currentMarkdown();
       const view = this.editorView;
       if (!view || view.state.doc.toString() === md) return;
-      view.setState(EditorState.create({ doc: md, extensions: this.extensions }));
+      
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: md },
+        annotations: Transaction.remote.of(true)
+      });
     });
 
     // When the Edit tab becomes visible after being hidden, CodeMirror needs to

@@ -114,7 +114,7 @@ export class PreviewPaneComponent {
 
       const reloadMeta = `<!-- r:${trigger} -->`;
       let nextSrcdoc = '';
-      
+
       if (result.type === 'slides') {
         nextSrcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
       } else {
@@ -140,7 +140,7 @@ export class PreviewPaneComponent {
       // If we already had a "ready" message for this specific trigger (race condition),
       // we might need to clear it, but usually the srcdoc swap will 
       // trigger a new 'ready' message from the new document anyway.
-      
+
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
       } else {
@@ -163,7 +163,7 @@ export class PreviewPaneComponent {
             this.isFrameReady.set(true);
           }
         }
-      }, 2000);
+      }, 700);
 
       iframe.nativeElement.srcdoc = nextSrcdoc;
     });
@@ -199,7 +199,7 @@ export class PreviewPaneComponent {
           if (e.data?.pageCount !== undefined) {
             this.store.setSlideCount(e.data.pageCount);
           }
-          
+
           if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'paged') {
             const targetY = this.proseScrollY;
             const win = iframe?.contentWindow;

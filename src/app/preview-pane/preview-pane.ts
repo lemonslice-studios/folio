@@ -82,22 +82,19 @@ export class PreviewPaneComponent {
   );
 
   constructor() {
-    // Force re-render on visibility/focus change (background -> foreground).
+    // Force re-render on visibility/focus change (background -> foreground) or tab activation.
     merge(
       fromEvent(document, 'visibilitychange'),
       fromEvent(window, 'focus'),
       fromEvent(window, 'pageshow'),
+      toObservable(this.active).pipe(filter(v => v))
     )
       .pipe(
         takeUntilDestroyed(),
         switchMap(() => timer(300).pipe(map(() => document.visibilityState === 'visible'))),
-        distinctUntilChanged()
       )
       .subscribe(visible => {
-        const wasHidden = !this.isVisible();
-        this.isVisible.set(visible);
-        
-        if (visible && wasHidden) {
+        if (visible && this.active()) {
           this.refreshTrigger.update(n => n + 1);
         }
       });
@@ -133,10 +130,17 @@ export class PreviewPaneComponent {
       const isResumption = trigger > this.lastTrigger;
       this.lastTrigger = trigger;
 
-      // Hide the iframe during reload to prevent flicker/jump
-      this.isPreviewLoading.set(true);
+      // Hide the iframe during reload to prevent flicker/jump if active.
+      // If NOT active, we don't set loading=true so it doesn't get stuck hidden.
+      if (isActive && visible) {
+        this.isPreviewLoading.set(true);
+      }
       this.isFrameReady.set(false);
 
+      // If we already had a "ready" message for this specific trigger (race condition),
+      // we might need to clear it, but usually the srcdoc swap will 
+      // trigger a new 'ready' message from the new document anyway.
+      
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
       } else {
@@ -146,7 +150,7 @@ export class PreviewPaneComponent {
         this.proseScrollY = win?.pageYOffset ?? win?.scrollY ?? scrollEl?.scrollTop ?? bodyEl?.scrollTop ?? 0;
       }
 
-      // Aggressive Failsafe: If the iframe doesn't report back within 500ms
+      // Aggressive Failsafe: If the iframe doesn't report back within 2000ms
       clearTimeout(this.reloadingTimeout);
       this.reloadingTimeout = setTimeout(() => {
         if (untracked(() => this.isPreviewLoading())) {
@@ -156,9 +160,10 @@ export class PreviewPaneComponent {
           } else {
             // Otherwise (normal editing), just reveal the iframe and hope for the best.
             this.isPreviewLoading.set(false);
+            this.isFrameReady.set(true);
           }
         }
-      }, 500);
+      }, 2000);
 
       iframe.nativeElement.srcdoc = nextSrcdoc;
     });
@@ -219,12 +224,8 @@ export class PreviewPaneComponent {
     if (!iframe) return;
     iframe.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: this.store.currentSlideIndex() }, '*');
 
-    if (this.store.documentType() === 'slides' || (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow')) {
-      if (this.store.documentType() === 'prose') {
-        iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
-      }
-      this.isPreviewLoading.set(false);
-      clearTimeout(this.reloadingTimeout);
+    if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow') {
+      iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
     }
   }
 

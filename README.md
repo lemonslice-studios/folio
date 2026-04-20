@@ -146,3 +146,9 @@ Folio follows **Quiet Tech** constraints — every feature must satisfy:
 - **No data, just art** — zero network calls at runtime after install; no analytics or telemetry
 - **Digital respect** — no background processes, no battery-draining workers
 - **Minimum permissions** — no camera, mic, contacts, or location access
+
+---
+
+## License
+
+This project is released under the **MIT License**. See [LICENSE](LICENSE) for the full text.

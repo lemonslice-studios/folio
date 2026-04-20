@@ -56,14 +56,15 @@ export class ProseService {
     title: string = 'Folio Document',
   ): string {
     const isPaged = proseMode === 'paged';
-    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}"`;
+    const isSystemDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}" data-system-dark="${isSystemDark}"`;
 
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
 
     const mermaidThemeExpr = `(document.documentElement.dataset.colorScheme === 'dark' ||
-               (document.documentElement.dataset.colorScheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
+               (document.documentElement.dataset.colorScheme === 'system' && document.documentElement.dataset.systemDark === 'true'))
                ? 'dark' : 'default'`;
 
     // Exports (HTML download + print-to-PDF) always use the light theme regardless
@@ -122,18 +123,20 @@ export class ProseService {
       }, { passive: true });
 
       // ── Theme/System Sync ──
-      // Some browsers (especially mobile) don't pass media queries to srcdoc iframes reliably.
-      // We manually sync the system dark mode state to an attribute.
+      // The initial state is pre-set in buildSrcdoc to avoid flickering.
+      // This script only handles real-time changes while the preview is open.
       function syncSystemTheme() {
         var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-system-dark', isDark ? 'true' : 'false');
+        var current = document.documentElement.getAttribute('data-system-dark');
+        var next = isDark ? 'true' : 'false';
+        if (current !== next) {
+          document.documentElement.setAttribute('data-system-dark', next);
+        }
       }
       
       var mq = window.matchMedia('(prefers-color-scheme: dark)');
       if (mq.addEventListener) mq.addEventListener('change', syncSystemTheme);
       else mq.addListener(syncSystemTheme);
-      
-      syncSystemTheme();
     })();
     </script>`;
 

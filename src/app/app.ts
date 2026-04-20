@@ -24,14 +24,14 @@ import { shouldShowApplePlatformWarning } from './services/platform-warning';
 
 const COLOR_SCHEME_ICON: Record<string, string> = {
   system: 'brightness_auto',
-  light:  'light_mode',
-  dark:   'dark_mode',
+  light: 'light_mode',
+  dark: 'dark_mode',
 };
 
 const COLOR_SCHEME_LABEL: Record<string, string> = {
   system: 'Color scheme: automatic (click to switch)',
-  light:  'Color scheme: light (click to switch)',
-  dark:   'Color scheme: dark (click to switch)',
+  light: 'Color scheme: light (click to switch)',
+  dark: 'Color scheme: dark (click to switch)',
 };
 
 @Component({
@@ -55,7 +55,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { 
+  host: {
     class: 'app-root',
     '(window:mouseup)': 'onDragEnd()'
   },
@@ -102,7 +102,7 @@ export class App {
   protected onTouchEnd(event: TouchEvent): void {
     const endX = event.changedTouches[0].screenX;
     const endY = event.changedTouches[0].screenY;
-    
+
     const diffX = this.touchStartX - endX;
     const diffY = Math.abs(this.touchStartY - endY);
 
@@ -122,7 +122,7 @@ export class App {
   protected readonly displayedFileName = computed(() => {
     const current = this.store.currentFile();
     if (!current) return this.store.documentType() === 'slides' ? 'New Presentation' : 'New Document';
-    
+
     if (current.endsWith('.slides.md')) return current.slice(0, -10);
     if (current.endsWith('.md')) return current.slice(0, -3);
     return current;
@@ -131,14 +131,14 @@ export class App {
   protected onTitleClick(): void {
     const current = this.store.currentFile();
     if (!current) return;
-    
+
     this.editValue.set(this.displayedFileName());
     this.isEditingTitle.set(true);
   }
 
   protected async finishRename(): Promise<void> {
     if (!this.isEditingTitle()) return;
-    
+
     const oldName = this.store.currentFile();
     if (!oldName) {
       this.isEditingTitle.set(false);
@@ -157,7 +157,7 @@ export class App {
     } else {
       if (!newName.endsWith('.md')) newName += '.md';
     }
-    
+
     if (oldName !== newName) {
       try {
         await this.store.renameFile(oldName, newName);
@@ -165,7 +165,7 @@ export class App {
         this.snackBar.open(e.message || 'Failed to rename file', 'Dismiss', { duration: 3000 });
       }
     }
-    
+
     this.isEditingTitle.set(false);
   }
 
@@ -255,7 +255,7 @@ export class App {
       const scheme = this.store.colorScheme();
       const theme = this.store.appTheme();
       const html = document.documentElement;
-      
+
       if (scheme === 'system') {
         html.removeAttribute('data-color-scheme');
       } else {

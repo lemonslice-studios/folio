@@ -56,14 +56,14 @@ export class ProseService {
     title: string = 'Folio Document',
   ): string {
     const isPaged = proseMode === 'paged';
-    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}"${colorScheme === 'system' ? '' : ` data-color-scheme="${colorScheme}"`}`;
+    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}"`;
 
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
 
-    const mermaidThemeExpr = `document.documentElement.dataset.colorScheme === 'dark' ||
-               (!document.documentElement.dataset.colorScheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const mermaidThemeExpr = `(document.documentElement.dataset.colorScheme === 'dark' ||
+               (document.documentElement.dataset.colorScheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
                ? 'dark' : 'default'`;
 
     // Exports (HTML download + print-to-PDF) always use the light theme regardless
@@ -81,46 +81,59 @@ export class ProseService {
     // 2. External links open in a new tab to avoid iframe navigation issues.
     var linkHandlerScript = `
     <script>
-    document.addEventListener('click', function(e) {
-    var target = e.target;
-    while (target && target.tagName !== 'A') target = target.parentNode;
-    if (!target || !target.getAttribute('href')) return;
-
-    var href = target.getAttribute('href');
-    if (href.startsWith('#')) {
-      var id = href.slice(1);
-      var el = document.getElementById(id);
-      if (el) {
-        e.preventDefault();
-        el.scrollIntoView();
-      }
-    } else {
-      e.preventDefault();
-      window.open(href, '_blank');
-    }
-    });
-
     (function() {
-    var touchStartX = 0;
-    var touchStartY = 0;
-    document.addEventListener('touchstart', function(e) {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
+      // ── Link Handling ──
+      document.addEventListener('click', function(e) {
+        var target = e.target;
+        while (target && target.tagName !== 'A') target = target.parentNode;
+        if (!target || !target.getAttribute('href')) return;
 
-    document.addEventListener('touchend', function(e) {
-      var touchEndX = e.changedTouches[0].screenX;
-      var touchEndY = e.changedTouches[0].screenY;
-      var diffX = touchStartX - touchEndX;
-      var diffY = Math.abs(touchStartY - touchEndY);
+        var href = target.getAttribute('href');
+        if (href.startsWith('#')) {
+          var id = href.slice(1);
+          var el = document.getElementById(id);
+          if (el) {
+            e.preventDefault();
+            el.scrollIntoView();
+          }
+        } else {
+          e.preventDefault();
+          window.open(href, '_blank');
+        }
+      });
 
-      // If swiping right (diffX < -50) and it's mostly horizontal, switch back to editor.
-      // Swiping left in prose just scrolls horizontally or does nothing, 
-      // but we can also trigger next tab if at the right edge if we want.
-      if (diffX < -50 && Math.abs(diffX) > diffY) {
-        window.parent.postMessage({ type: 'tabSwitch', direction: 'prev' }, '*');
+      // ── Swipe Handling ──
+      var touchStartX = 0;
+      var touchStartY = 0;
+      document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function(e) {
+        var touchEndX = e.changedTouches[0].screenX;
+        var touchEndY = e.changedTouches[0].screenY;
+        var diffX = touchStartX - touchEndX;
+        var diffY = Math.abs(touchStartY - touchEndY);
+
+        if (diffX < -50 && Math.abs(diffX) > diffY) {
+          window.parent.postMessage({ type: 'tabSwitch', direction: 'prev' }, '*');
+        }
+      }, { passive: true });
+
+      // ── Theme/System Sync ──
+      // Some browsers (especially mobile) don't pass media queries to srcdoc iframes reliably.
+      // We manually sync the system dark mode state to an attribute.
+      function syncSystemTheme() {
+        var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-system-dark', isDark ? 'true' : 'false');
       }
-    }, { passive: true });
+      
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mq.addEventListener) mq.addEventListener('change', syncSystemTheme);
+      else mq.addListener(syncSystemTheme);
+      
+      syncSystemTheme();
     })();
     </script>`;
 
@@ -196,7 +209,7 @@ export class ProseService {
     var total = (flow && typeof flow.total === 'number') ? flow.total : 1;
     requestAnimationFrame(function() {
       window.parent.postMessage({ folioIdentifier: 'folio-preview', pageCount: total }, '*');
-    window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
     });
   }
 };
@@ -219,9 +232,11 @@ window.addEventListener('DOMContentLoaded', function() {
     mermaid.initialize(${mermaidConfig(!standalone)});
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
       window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
+      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
     });
   } else {
     window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
+    window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
   }
 });
 </script>
@@ -290,46 +305,30 @@ ${linkHandlerScript}`;
 <style>
   /* ── Colour tokens (Theme-aware) ── */
   
+  /* Quiet Theme - Light (Base) */
   [data-theme="quiet"] {
     --prose-bg:       #ffffff;
-    --prose-canvas:   #f3f0ff; /* lavender container */
+    --prose-canvas:   #f3f0ff;
     --prose-text:     #1d1b20;
     --prose-muted:    #555555;
     --prose-border:   #dfd9f2;
     --prose-code-bg:  #f5f5f5;
     --prose-quote-border: #aaaaaa;
-
-    @media (prefers-color-scheme: dark) {
-      &:not([data-color-scheme="light"]) {
-        --prose-bg:       #1c1b1f;
-        --prose-canvas:   #111116;
-        --prose-text:     #e6e0e9;
-        --prose-muted:    #a09aac;
-        --prose-border:   #2e2e3e;
-        --prose-code-bg:  #2b2930;
-        --prose-quote-border: #6b6573;
-      }
-    }
-    &[data-color-scheme="dark"] {
-      --prose-bg:       #1c1b1f;
-      --prose-canvas:   #111116;
-      --prose-text:     #e6e0e9;
-      --prose-muted:    #a09aac;
-      --prose-border:   #2e2e3e;
-      --prose-code-bg:  #2b2930;
-      --prose-quote-border: #6b6573;
-    }
-    &[data-color-scheme="light"] {
-      --prose-bg:       #ffffff;
-      --prose-canvas:   #f3f0ff;
-      --prose-text:     #1d1b20;
-      --prose-muted:    #555555;
-      --prose-border:   #dfd9f2;
-      --prose-code-bg:  #f5f5f5;
-      --prose-quote-border: #aaaaaa;
-    }
   }
 
+  /* Quiet Theme - Dark (Explicit) */
+  [data-theme="quiet"][data-color-scheme="dark"],
+  [data-theme="quiet"][data-color-scheme="system"][data-system-dark="true"] {
+    --prose-bg:       #1c1b1f;
+    --prose-canvas:   #111116;
+    --prose-text:     #e6e0e9;
+    --prose-muted:    #a09aac;
+    --prose-border:   #2e2e3e;
+    --prose-code-bg:  #2b2930;
+    --prose-quote-border: #6b6573;
+  }
+
+  /* Clean Theme - Light (Base) */
   [data-theme="clean"] {
     --prose-bg:       #ffffff;
     --prose-canvas:   #f2f2f7;
@@ -338,36 +337,18 @@ ${linkHandlerScript}`;
     --prose-border:   #d1d1d6;
     --prose-code-bg:  #f2f2f7;
     --prose-quote-border: #c7c7cc;
+  }
 
-    @media (prefers-color-scheme: dark) {
-      &:not([data-color-scheme="light"]) {
-        --prose-bg:       #000000;
-        --prose-canvas:   #1c1c1e;
-        --prose-text:     #ffffff;
-        --prose-muted:    #8e8e93;
-        --prose-border:   #38383a;
-        --prose-code-bg:  #1c1c1e;
-        --prose-quote-border: #38383a;
-      }
-    }
-    &[data-color-scheme="dark"] {
-      --prose-bg:       #000000;
-      --prose-canvas:   #1c1c1e;
-      --prose-text:     #ffffff;
-      --prose-muted:    #8e8e93;
-      --prose-border:   #38383a;
-      --prose-code-bg:  #1c1c1e;
-      --prose-quote-border: #38383a;
-    }
-    &[data-color-scheme="light"] {
-      --prose-bg:       #ffffff;
-      --prose-canvas:   #f2f2f7;
-      --prose-text:     #000000;
-      --prose-muted:    #8e8e93;
-      --prose-border:   #d1d1d6;
-      --prose-code-bg:  #f2f2f7;
-      --prose-quote-border: #c7c7cc;
-    }
+  /* Clean Theme - Dark (Explicit) */
+  [data-theme="clean"][data-color-scheme="dark"],
+  [data-theme="clean"][data-color-scheme="system"][data-system-dark="true"] {
+    --prose-bg:       #000000;
+    --prose-canvas:   #1c1c1e;
+    --prose-text:     #ffffff;
+    --prose-muted:    #8e8e93;
+    --prose-border:   #38383a;
+    --prose-code-bg:  #1c1c1e;
+    --prose-quote-border: #38383a;
   }
 
   /* ── Base ── */

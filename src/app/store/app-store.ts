@@ -111,6 +111,8 @@ export class AppStore {
   readonly driveConnected = computed(() => this.drive.isConnected);
   readonly driveEnabled = computed(() => this.prefs().googleDriveSyncEnabled);
 
+  private autoSyncTimer: any = null;
+
   constructor() {
     // Auto-save effect
     effect(async () => {
@@ -140,6 +142,17 @@ export class AppStore {
     window.addEventListener('online', () => {
       if (this.driveEnabled()) {
         this.backgroundSync();
+      }
+    });
+
+    // Override Ctrl+S / Cmd+S for Quick Sync
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (this.driveEnabled()) {
+          if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
+          this.backgroundSync();
+        }
       }
     });
 
@@ -231,7 +244,10 @@ export class AppStore {
    * Unlike syncNow, it will not trigger an interactive login if silent refresh fails.
    */
   private async backgroundSync(): Promise<void> {
+    if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
     if (this.syncStatus() !== 'idle') return;
+    const current = this.currentFile();
+    if (!current) return;
 
     try {
       if (!this.drive.isConnected) {
@@ -248,8 +264,8 @@ export class AppStore {
                 googleDriveToken: response.access_token,
                 googleDriveTokenExpiresAt: Date.now() + (parseInt(response.expires_in) * 1000)
               });
-              // Proceed with sync if token was refreshed
-              await this.performSync();
+              // Proceed with focused sync if token was refreshed
+              await this.performSync(current);
             } else {
               // Reset status if callback returns with error
               if (this.syncStatus() === 'syncing') {
@@ -260,7 +276,7 @@ export class AppStore {
         });
         client.requestAccessToken();
       } else {
-        await this.performSync();
+        await this.performSync(current);
       }
     } catch (e) {
       // Background sync failures are silent by design
@@ -272,9 +288,11 @@ export class AppStore {
   }
 
   /**
-   * Extracted core sync logic to be shared between manual and background sync
+   * Extracted core sync logic. 
+   * If targetFile is provided, only that specific file is synced (Quick Sync).
+   * Otherwise, a full sync including deletions is performed.
    */
-  private async performSync(): Promise<void> {
+  private async performSync(targetFile?: string): Promise<void> {
     if (this.syncStatus() === 'syncing') return;
     
     this.syncStatus.set('syncing');
@@ -294,42 +312,43 @@ export class AppStore {
         console.warn('Failed to load sync manifest', e);
       }
 
-      const localFiles = await this.fs.listFiles();
       const remoteFiles = await this.drive.listFiles(folderId);
       const remoteMap = new Map(remoteFiles.map((f) => [f.name, f]));
-      const nextManifest: Record<string, string> = {};
+      const nextManifest: Record<string, string> = { ...manifest };
 
-      // 2. Deletion Sync (using manifest as the "last known state")
-      for (const [filename, driveId] of Object.entries(manifest)) {
-        const isLocal = localFiles.includes(filename);
-        const isRemote = remoteMap.has(filename);
+      // 2. Deletion Sync (Full sync only)
+      if (!targetFile) {
+        for (const [filename, driveId] of Object.entries(manifest)) {
+          const isLocal = await this.fs.exists(filename);
+          const isRemote = remoteMap.has(filename);
 
-        if (!isLocal && isRemote) {
-          // Deleted locally since last sync -> Delete from Drive
-          console.log(`[Sync] Deleting remote file: ${filename}`);
-          await this.drive.deleteFile(driveId);
-          remoteMap.delete(filename);
-        } else if (isLocal && !isRemote) {
-          // Deleted remotely since last sync -> Delete locally
-          console.log(`[Sync] Deleting local file: ${filename}`);
-          await this.fs.deleteFile(filename);
-          // Remove from our local processing list
-          localFiles.splice(localFiles.indexOf(filename), 1);
+          if (!isLocal && isRemote) {
+            console.log(`[Sync] Deleting remote file: ${filename}`);
+            await this.drive.deleteFile(driveId);
+            remoteMap.delete(filename);
+            delete nextManifest[filename];
+          } else if (isLocal && !isRemote) {
+            console.log(`[Sync] Deleting local file: ${filename}`);
+            await this.fs.deleteFile(filename);
+            delete nextManifest[filename];
+          }
         }
       }
 
       // 3. Update / Create Sync
-      // Process local files (Upload if newer or new)
+      const localFiles = targetFile ? [targetFile] : await this.fs.listFiles();
+      
       for (const filename of localFiles) {
         const localStats = await this.fs.getFileStats(filename);
+        if (!localStats) continue; // Should not happen for active file
+
         const remoteFile = remoteMap.get(filename);
-        const localMtime = localStats?.mtimeMs || 0;
+        const localMtime = localStats.mtimeMs;
 
         if (remoteFile) {
           const remoteMtime = new Date(remoteFile.modifiedTime).getTime();
           const driveId = remoteFile.id;
 
-          // Add a 2s buffer for timestamp comparisons to handle precision differences
           if (localMtime > remoteMtime + 2000) {
             console.log(`[Sync] Uploading newer local: ${filename}`);
             const content = await this.fs.readFile(filename);
@@ -341,13 +360,10 @@ export class AppStore {
             await this.fs.writeFile(filename, content);
             nextManifest[filename] = driveId;
           } else {
-            // Already in sync
             nextManifest[filename] = driveId;
           }
-          // Remove from remote map so we know what's left
           remoteMap.delete(filename);
         } else {
-          // New local file (not in remoteMap)
           console.log(`[Sync] Uploading new file: ${filename}`);
           const content = await this.fs.readFile(filename);
           const driveId = await this.drive.uploadFile(filename, content, folderId);
@@ -355,20 +371,23 @@ export class AppStore {
         }
       }
 
-      // Process remaining remote files (New files from other devices)
-      for (const [filename, remoteFile] of remoteMap.entries()) {
-        console.log(`[Sync] Downloading new remote: ${filename}`);
-        const content = await this.drive.downloadFile(remoteFile.id);
-        await this.fs.writeFile(filename, content);
-        nextManifest[filename] = remoteFile.id;
+      // 4. Remote Discovery (Full sync only)
+      if (!targetFile) {
+        for (const [filename, remoteFile] of remoteMap.entries()) {
+          console.log(`[Sync] Downloading new remote: ${filename}`);
+          const content = await this.drive.downloadFile(remoteFile.id);
+          await this.fs.writeFile(filename, content);
+          nextManifest[filename] = remoteFile.id;
+        }
       }
 
-      // 4. Cleanup & Save
+      // 5. Cleanup & Save
       await this.fs.writeFile('.sync-manifest.json', JSON.stringify(nextManifest));
-      this.updatePrefs({ lastSyncTime: Date.now() });
+      if (!targetFile) {
+        this.updatePrefs({ lastSyncTime: Date.now() });
+      }
       await this.refreshList();
       
-      // If we deleted the current file, we might need to update the UI
       if (this.currentFile() && !nextManifest[this.currentFile()!]) {
         const list = this.fileList();
         if (list.length > 0) {
@@ -453,6 +472,14 @@ export class AppStore {
   setMarkdown(value: string): void {
     this.currentMarkdown.set(value);
     this.isDirty.set(true);
+
+    // Auto-sync debounce (10 seconds)
+    if (this.driveEnabled()) {
+      if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
+      this.autoSyncTimer = setTimeout(() => {
+        this.backgroundSync();
+      }, 10000);
+    }
   }
 
   setEditorWidth(width: number): void {

@@ -42,12 +42,13 @@ export class ProseService {
   }
 
   /**
-   * @param standalone - true for HTML file download (inlines mermaid script);
-   *                     false for live preview and print-to-PDF (uses <script src>).
+   * @param isPrint - true if rendering for the print iframe (requires postMessage signals);
+   *                  false for live preview or standalone download.
+   * @param standalone - true for HTML file download (inlines scripts, removes app-specific logic).
    */
   buildSrcdoc(
     html: string,
-    isExport: boolean = false,
+    isPrint: boolean = false,
     proseMode: 'flow' | 'paged' = 'flow',
     colorScheme: ColorScheme = 'system',
     appTheme: 'quiet' | 'clean' = 'quiet',
@@ -57,21 +58,22 @@ export class ProseService {
   ): string {
     const isPaged = proseMode === 'paged';
     const isSystemDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const htmlAttr = ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}" data-system-dark="${isSystemDark}"`;
+    const hasMermaid = html.includes('class="mermaid"');
+    const htmlAttr = standalone ? ` data-theme="${appTheme}" data-font-family="${fontFamily}"` : ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}" data-system-dark="${isSystemDark}"`;
 
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
 
-    const mermaidThemeExpr = `(document.documentElement.dataset.colorScheme === 'dark' ||
+    const mermaidThemeExpr = standalone ? "'default'" : `(document.documentElement.dataset.colorScheme === 'dark' ||
                (document.documentElement.dataset.colorScheme === 'system' && document.documentElement.dataset.systemDark === 'true'))
                ? 'dark' : 'default'`;
 
     // Exports (HTML download + print-to-PDF) always use the light theme regardless
     // of the user's colour scheme — printed pages should not be dark.
-    const mermaidConfig = (export_: boolean) => `{
+    const mermaidConfig = (isPrint_: boolean) => `{
       startOnLoad: false,
-      theme: ${export_ ? "'default'" : mermaidThemeExpr},
+      theme: ${isPrint_ ? "'default'" : mermaidThemeExpr},
       securityLevel: 'loose',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       flowchart: { useMaxWidth: false, htmlLabels: true }
@@ -80,7 +82,7 @@ export class ProseService {
     // Helper script to handle links within srcdoc.
     // 1. Internal hash links (footnotes) scroll into view.
     // 2. External links open in a new tab to avoid iframe navigation issues.
-    var linkHandlerScript = `
+    var linkHandlerScript = standalone ? '' : `
     <script>
     (function() {
       // ── Link Handling ──
@@ -102,7 +104,7 @@ export class ProseService {
           window.open(href, '_blank');
         }
       });
-
+${standalone ? '' : `
       // ── Swipe Handling ──
       var touchStartX = 0;
       var touchStartY = 0;
@@ -137,11 +139,12 @@ export class ProseService {
       var mq = window.matchMedia('(prefers-color-scheme: dark)');
       if (mq.addEventListener) mq.addEventListener('change', syncSystemTheme);
       else mq.addListener(syncSystemTheme);
+`}
     })();
     </script>`;
 
     // Scaling script for paged mode to fit the width of the iframe.
-    const pagedScaleScript = isPaged && !isExport ? `
+    const pagedScaleScript = isPaged && !isPrint && !standalone ? `
 <script>
 (function() {
   var resizeTimeout;
@@ -196,14 +199,14 @@ export class ProseService {
 </script>` : '';
 
     let pagedScript = '';
-    if (isPaged && !isExport) {
+    if (isPaged && !isPrint && !standalone) {
       pagedScript = `
 <script>
     window.PagedConfig = {
   auto: false,
   after: function(flow) {
     if (window.rescalePagedView) window.rescalePagedView();
-    if (window.mermaid) {
+    if (window.mermaid && ${hasMermaid}) {
       mermaid.initialize(${mermaidConfig(false)});
       mermaid.run({ querySelector: '.mermaid' });
     }
@@ -217,7 +220,7 @@ export class ProseService {
   }
 };
 </script>
-${mermaidTag}
+${hasMermaid ? mermaidTag : ''}
 <script src="js/paged.polyfill.min.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded', function() {
@@ -226,36 +229,58 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 ${linkHandlerScript}
 ${pagedScaleScript}`;
-    } else if (isExport) {
+    } else if (isPrint || (standalone && hasMermaid)) {
       // Export (HTML download or print): no paged.js, but mermaid still renders
-      pagedScript = `${mermaidTag}
+      pagedScript = `${hasMermaid ? mermaidTag : ''}
 <script>
 window.addEventListener('DOMContentLoaded', function() {
-  if (window.mermaid) {
-    mermaid.initialize(${mermaidConfig(!standalone)});
+  if (window.mermaid && ${hasMermaid}) {
+    mermaid.initialize(${mermaidConfig(isPrint)});
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
+      ${isPrint ? `
       window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
       window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
+      ` : ''}
+      ${standalone ? `
+      window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'mermaidReady' }, '*');
+      ` : ''}
     });
   } else {
+    ${isPrint ? `
     window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
     window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
+    ` : ''}
   }
 });
+
+${standalone ? `
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'folio-get-rendered-html') {
+    var clone = document.documentElement.cloneNode(true);
+    var scripts = clone.querySelectorAll('script');
+    scripts.forEach(function(s) { s.parentNode.removeChild(s); });
+    window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'rendered-html', html: '<!DOCTYPE html>\\n' + clone.outerHTML }, '*');
+  }
+});
+` : ''}
 </script>
 ${linkHandlerScript}`;
+    } else if (standalone) {
+      pagedScript = ''; // Pure HTML/CSS export, no scripts needed
     } else {
       // Flow mode preview
-      pagedScript = `${mermaidTag}
+      pagedScript = `${(hasMermaid && !standalone) ? mermaidTag : ''}
 <script>
 window.addEventListener('DOMContentLoaded', function() {
-  if (window.mermaid) {
+  if (window.mermaid && ${hasMermaid}) {
     mermaid.initialize(${mermaidConfig(false)});
     mermaid.run({ querySelector: '.mermaid' });
   }
   // Inform parent that we are loaded even in flow mode
+  ${!standalone ? `
   window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'flowLoaded' }, '*');
   window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'ready' }, '*');
+  ` : ''}
 });
 </script>
 ${linkHandlerScript}`;
@@ -272,7 +297,7 @@ ${linkHandlerScript}`;
     visibility: hidden;
   }
 
-  body { background: ${isExport ? 'var(--prose-bg)' : 'var(--prose-canvas)'}; }
+  body { background: ${(isPrint || standalone) ? 'var(--prose-bg)' : 'var(--prose-canvas)'}; }
   .markdown-body { background: var(--prose-bg); }
 
   .pagedjs_page, .pagedjs_sheet, .pagedjs_pagebox, .pagedjs_area {
@@ -285,7 +310,7 @@ ${linkHandlerScript}`;
     margin: 0 auto 24px;
     border: 1px solid var(--prose-border);
   }
-  ${isExport ? '.pagedjs_page { box-shadow: none; margin: 0; border: none; }' : ''}
+  ${(isPrint || standalone) ? '.pagedjs_page { box-shadow: none; margin: 0; border: none; }' : ''}
 ` : `
   body {
     background: var(--prose-bg);
@@ -298,6 +323,29 @@ ${linkHandlerScript}`;
     margin: 2rem 0;
   }
 `;
+
+    const standaloneThemeStyles = standalone ? `
+  @media (prefers-color-scheme: dark) {
+    [data-theme="quiet"] {
+      --prose-bg:       #1c1b1f;
+      --prose-canvas:   #111116;
+      --prose-text:     #e6e0e9;
+      --prose-muted:    #a09aac;
+      --prose-border:   #2e2e3e;
+      --prose-code-bg:  #2b2930;
+      --prose-quote-border: #6b6573;
+    }
+    [data-theme="clean"] {
+      --prose-bg:       #000000;
+      --prose-canvas:   #1c1c1e;
+      --prose-text:     #ffffff;
+      --prose-muted:    #8e8e93;
+      --prose-border:   #38383a;
+      --prose-code-bg:  #1c1c1e;
+      --prose-quote-border: #38383a;
+    }
+  }
+` : '';
 
     return `<!DOCTYPE html>
 <html${htmlAttr}>
@@ -354,6 +402,8 @@ ${linkHandlerScript}`;
     --prose-quote-border: #38383a;
   }
 
+  ${standaloneThemeStyles}
+
   /* ── Base ── */
   html, body {
     width: 100%;
@@ -364,7 +414,7 @@ ${linkHandlerScript}`;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-size: 16px;
     line-height: 1.5;
-    color-scheme: ${colorScheme === 'dark' ? 'dark' : colorScheme === 'light' ? 'light' : 'light dark'};
+    color-scheme: ${standalone ? 'light dark' : (colorScheme === 'dark' ? 'dark' : colorScheme === 'light' ? 'light' : 'light dark')};
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: none;
@@ -392,7 +442,7 @@ ${linkHandlerScript}`;
     font-size: inherit;
     line-height: inherit;
     color: inherit;
-    ${isExport ? 'max-width: 840px; margin: 0 auto; padding: 4rem 2rem;' : ''}
+    ${(isPrint || standalone) ? 'max-width: 840px; margin: 0 auto; padding: 4rem 2rem;' : ''}
   }
 
   .markdown-body p, .markdown-body ul, .markdown-body ol,

@@ -50,20 +50,22 @@ export class MarpService {
   }
 
   /**
-   * @param standalone - true for HTML file download (inlines mermaid script);
-   *                     false for live preview and print-to-PDF (uses <script src>).
+   * @param isPrint - true if rendering for the print iframe (requires postMessage signals);
+   *                  false for live preview or standalone download.
+   * @param standalone - true for HTML file download (inlines scripts, removes app-specific logic).
    */
-  buildSrcdoc(html: string, css: string = '', isExport: boolean = false, appTheme: 'quiet' | 'clean' = 'quiet', standalone: boolean = false, title: string = 'Folio Presentation'): string {
+  buildSrcdoc(html: string, css: string = '', isPrint: boolean = false, appTheme: 'quiet' | 'clean' = 'quiet', standalone: boolean = false, title: string = 'Folio Presentation'): string {
+    const hasMermaid = html.includes('class="mermaid"');
     const mermaidTag = standalone && this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
 
-    const htmlAttr = ` data-theme="${appTheme}"`;
+    const htmlAttr = standalone ? '' : ` data-theme="${appTheme}"`;
 
     // Helper script to handle links within srcdoc.
     // 1. Internal hash links (footnotes) scroll into view.
     // 2. External links open in a new tab to avoid iframe navigation issues.
-    const linkHandlerScript = `
+    const linkHandlerScript = standalone ? '' : `
 <script>
 document.addEventListener('click', function(e) {
   var target = e.target;
@@ -85,10 +87,12 @@ document.addEventListener('click', function(e) {
 });
 </script>`;
 
-    // Mermaid initialisation — always included (preview + export).
-    // Export renders all diagrams at once; preview renders per active slide.
-    const mermaidInit = isExport ? `
-${mermaidTag}
+    // Mermaid initialisation.
+    // Print/Download renders all diagrams at once; preview renders per active slide.
+    let mermaidInit = '';
+    if (isPrint || (standalone && hasMermaid)) {
+      mermaidInit = `
+${hasMermaid ? mermaidTag : ''}
 <script>
 (function () {
   var MERMAID_CONFIG = {
@@ -102,13 +106,14 @@ ${mermaidTag}
     gantt: { useMaxWidth: false }
   };
   function init() {
-    if (!window.mermaid) {
-      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
+    if (!window.mermaid || !${hasMermaid}) {
+      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ""}
       return;
     }
     mermaid.initialize(MERMAID_CONFIG);
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
-      window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');
+      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ""}
+      ${standalone ? "window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'mermaidReady' }, '*');" : ""}
     });
   }
   if (document.readyState === 'loading') {
@@ -118,14 +123,30 @@ ${mermaidTag}
   }
 })();
 </script>
-${linkHandlerScript}` : `
-${mermaidTag}
+${standalone ? `
+<script>
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'folio-get-rendered-html') {
+    var clone = document.documentElement.cloneNode(true);
+    var scripts = clone.querySelectorAll('script');
+    scripts.forEach(function(s) { s.parentNode.removeChild(s); });
+    window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'rendered-html', html: '<!DOCTYPE html>\\n' + clone.outerHTML }, '*');
+  }
+});
+</script>
+` : ''}
+${linkHandlerScript}`;
+    } else if (standalone) {
+      mermaidInit = ''; // Pure HTML/CSS export, no scripts needed
+    } else {
+      mermaidInit = `
+${(hasMermaid && !standalone) ? mermaidTag : ''}
 <script>
 (function () {
   var slides = document.querySelectorAll('svg[data-marpit-svg]');
   var current = 0;
 
-  if (window.mermaid) {
+  if (window.mermaid && ${hasMermaid}) {
     mermaid.initialize({
       startOnLoad: false,
       theme: 'default',
@@ -143,7 +164,7 @@ ${mermaidTag}
     slides.forEach(function (s, i) { s.classList.toggle('active', i === clamped); });
     current = clamped;
 
-    if (window.mermaid) {
+    if (window.mermaid && ${hasMermaid}) {
       await document.fonts.ready;
       var diagramEls = Array.from(document.querySelectorAll('.active .mermaid:not([data-processed])'));
       if (diagramEls.length) {
@@ -214,8 +235,9 @@ ${mermaidTag}
 })();
 </script>
 ${linkHandlerScript}`;
+    }
 
-    const interactiveStyles = isExport ? `
+    const interactiveStyles = (isPrint || standalone) ? `
   html, body { height: auto !important; overflow: visible !important; }
   svg[data-marpit-svg] { display: block !important; width: 100vw !important; height: auto !important; page-break-after: always; break-after: page; }
 ` : `
@@ -241,8 +263,16 @@ ${linkHandlerScript}`;
   .task-list-item-checkbox { margin: 0 0.5em 0.25em -1.4em !important; vertical-align: middle !important; }
 `;
 
+    const themeStyles = standalone ? `
+  :root { color-scheme: light dark; }
+  body { background-color: #fff; }
+  @media (prefers-color-scheme: dark) {
+    body { background-color: #000; }
+  }
+` : '';
+
     return `<!DOCTYPE html>
-<html${htmlAttr}>
+<html ${htmlAttr}>
 <head>
 <meta charset="utf-8">
 <title>${title}</title>
@@ -253,10 +283,11 @@ ${linkHandlerScript}`;
     background: transparent;
     font-family: 'Inter', system-ui, sans-serif;
     overscroll-behavior: none;
-    ${isExport ? '' : 'touch-action: none;'}
+    ${(isPrint || standalone) ? '' : 'touch-action: none;'}
   }
   ${interactiveStyles}
   ${taskListStyles}
+  ${themeStyles}
 </style>
 </head>
 <body>

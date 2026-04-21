@@ -1,6 +1,13 @@
 /// <reference types="@types/google.accounts" />
 import { Injectable, signal } from '@angular/core';
 
+export class UnauthorizedError extends Error {
+  constructor() {
+    super('Unauthorized');
+    this.name = 'UnauthorizedError';
+  }
+}
+
 /**
  * Service to handle Google Drive API interactions using Google Identity Services.
  */
@@ -11,6 +18,30 @@ export class GoogleDriveService {
   private readonly SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
   private accessToken = signal<string | null>(null);
+
+  private async request(url: string, options: RequestInit = {}): Promise<Response> {
+    const token = this.accessToken();
+    if (!token) throw new UnauthorizedError();
+
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${token}`
+    };
+
+    const response = await fetch(url, { ...options, headers });
+    
+    if (response.status === 401) {
+      this.accessToken.set(null);
+      throw new UnauthorizedError();
+    }
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(error.message || response.statusText);
+    }
+
+    return response;
+  }
 
   /**
    * Request an access token from the user.
@@ -27,7 +58,8 @@ export class GoogleDriveService {
           if (response.error) {
             if (silent && (response.error === 'interaction_required' || response.error === 'immediate_failed')) {
               // If silent login fails due to interaction being required, 
-              // we proceed to an interactive login
+              // we proceed to an interactive login (only if not backgroundSync, but service doesn't know context)
+              // Actually, backgroundSync in store handles this by not calling login(true) directly if it wants to be truly silent.
               this.login(false).then(resolve).catch(reject);
             } else {
               reject(response);
@@ -61,14 +93,9 @@ export class GoogleDriveService {
    * Find or create the app-specific folder "Folio Markdown"
    */
   async getOrCreateFolder(): Promise<string> {
-    const token = this.accessToken();
-    if (!token) throw new Error('Not authenticated');
-
     // Search for existing folder
     const query = encodeURIComponent("name = 'Folio Markdown' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-    const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id)`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const searchResponse = await this.request(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id)`);
     const searchResult = await searchResponse.json();
 
     if (searchResult.files && searchResult.files.length > 0) {
@@ -76,10 +103,9 @@ export class GoogleDriveService {
     }
 
     // Create new folder
-    const createResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+    const createResponse = await this.request('https://www.googleapis.com/drive/v3/files', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -95,11 +121,8 @@ export class GoogleDriveService {
    * List files in the specified folder
    */
   async listFiles(folderId: string): Promise<any[]> {
-    const token = this.accessToken();
     const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id, name, modifiedTime)`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await this.request(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id, name, modifiedTime)`);
     const result = await response.json();
     return result.files || [];
   }
@@ -108,8 +131,6 @@ export class GoogleDriveService {
    * Upload a new file or update an existing one
    */
   async uploadFile(name: string, content: string, folderId: string, fileId?: string): Promise<string> {
-    const token = this.accessToken();
-
     const metadata = {
       name,
       mimeType: 'text/markdown',
@@ -126,9 +147,8 @@ export class GoogleDriveService {
 
     const method = fileId ? 'PATCH' : 'POST';
 
-    const response = await fetch(url, {
+    const response = await this.request(url, {
       method,
-      headers: { Authorization: `Bearer ${token}` },
       body: form
     });
 
@@ -140,10 +160,7 @@ export class GoogleDriveService {
    * Download file content
    */
   async downloadFile(fileId: string): Promise<string> {
-    const token = this.accessToken();
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await this.request(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
     return response.text();
   }
 
@@ -151,10 +168,8 @@ export class GoogleDriveService {
    * Delete a file from Drive
    */
   async deleteFile(fileId: string): Promise<void> {
-    const token = this.accessToken();
-    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
+    await this.request(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+      method: 'DELETE'
     });
   }
 }

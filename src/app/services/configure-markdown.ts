@@ -22,6 +22,23 @@ export function configureMarkdownPlugins(md: MarkdownIt): void {
     .use(taskLists, { label: true, labelAfter: true })
     .use(container, 'container');
 
+  // Add target="_blank" to external links
+  const defaultLinkRender = md.renderer.rules.link_open || ((tokens: any[], idx: number, options: any, env: any, self: any) => {
+    return self.renderToken(tokens, idx, options);
+  });
+
+  md.renderer.rules.link_open = (tokens: any[], idx: number, options: any, env: any, self: any) => {
+    const hrefIndex = tokens[idx].attrIndex('href');
+    if (hrefIndex >= 0) {
+      const href = tokens[idx].attrs![hrefIndex][1];
+      if (href.startsWith('http')) {
+        tokens[idx].attrPush(['target', '_blank']);
+        tokens[idx].attrPush(['rel', 'noopener']);
+      }
+    }
+    return defaultLinkRender(tokens, idx, options, env, self);
+  };
+
   const defaultFence = md.renderer.rules.fence;
   md.renderer.rules.fence = (tokens: any[], idx: number, options: any, env: any, self: any) => {
     const token = tokens[idx];

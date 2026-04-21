@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal, effect } from '@angular/core';
 import { FsService } from '../services/fs.service';
 import { PrefsService, AppPrefs } from '../services/prefs.service';
-import { GoogleDriveService } from '../services/google-drive.service';
+import { GoogleDriveService, UnauthorizedError } from '../services/google-drive.service';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -292,8 +292,8 @@ export class AppStore {
    * If targetFile is provided, only that specific file is synced (Quick Sync).
    * Otherwise, a full sync including deletions is performed.
    */
-  private async performSync(targetFile?: string): Promise<void> {
-    if (this.syncStatus() === 'syncing') return;
+  private async performSync(targetFile?: string, isRetry = false): Promise<void> {
+    if (this.syncStatus() === 'syncing' && !isRetry) return;
     
     this.syncStatus.set('syncing');
     try {
@@ -394,8 +394,27 @@ export class AppStore {
           await this.openFile(list[0]);
         }
       }
+    } catch (e) {
+      if (e instanceof UnauthorizedError && !isRetry) {
+        console.log('[Sync] Unauthorized, attempting re-auth...');
+        try {
+          const result = await this.drive.login(true);
+          this.updatePrefs({
+            googleDriveToken: result.token,
+            googleDriveTokenExpiresAt: Date.now() + (result.expires_in * 1000)
+          });
+          return await this.performSync(targetFile, true);
+        } catch (authError) {
+          console.error('[Sync] Re-auth failed', authError);
+          this.syncStatus.set('error');
+          throw e;
+        }
+      }
+      throw e;
     } finally {
-      this.syncStatus.set('idle');
+      if (!isRetry || this.syncStatus() !== 'syncing') {
+        this.syncStatus.set('idle');
+      }
     }
   }
 

@@ -64,6 +64,15 @@ npm start                         # dev server → http://localhost:4200
 - **MarpX themes** — 16 professional themes bundled (cantor, einstein, socrates, …).
 - **Dark mode** — system / light / dark toggle; prose preview and syntax highlighting both respond.
 - **Mobile Optimized** — aggressive focus management ensures the virtual keyboard stays active during snippet insertion on tablets and Chromebooks.
+- **Cloud Sync** — optional, privacy-focused Google Drive synchronization. Syncs your "Folio Markdown" folder across devices with smart conflict resolution.
+
+### Cloud Sync features
+
+- **Privacy First** — uses the `drive.file` scope; Folio can only see and manage files it creates.
+- **Multi-device Sync** — uses a manifest and file timestamps to handle updates and deletions across multiple devices.
+- **Silent Background Sync** — automatically backs up your work when you switch documents, stop typing for 10 seconds, or regain internet connection.
+- **Smart Conflict Resolution** — uses a "Last Write Wins" strategy with a 2-second timestamp buffer to handle precision differences between systems.
+- **Persistent Connectivity** — securely stores access tokens in IndexedDB with official `prompt: 'none'` support for seamless re-authentication.
 
 ### Prose mode features
 
@@ -100,6 +109,7 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 | Preferences | Raw IndexedDB — single JSON value | ✅ |
 | PWA | `@angular/pwa` (Workbox service worker) | ✅ |
 | Themes | MarpX Collection (16 themes) | ✅ |
+| Cloud Sync | Google Drive API v3 + GIS | ✅ |
 | Prose math | KaTeX — MathML output, no CSS dependency | ✅ |
 | Syntax highlighting | highlight.js — custom light/dark token theme | ✅ |
 
@@ -109,12 +119,15 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 
 ### Service split
 
-Rendering is split between two focused services:
+Rendering and external integrations are split between focused services:
 
 | Service | Responsibility |
 |---|---|
 | `MarpService` | Marp Core rendering, MarpX theme registration, slide srcdoc |
 | `ProseService` | markdown-it rendering, emoji, math, syntax highlighting, task lists, prose srcdoc |
+| `GoogleDriveService` | Google Identity Services OAuth 2.0 flow, Drive API REST calls |
+| `FsService` | lightning-fs POSIX wrapper for IndexedDB |
+| `AppStore` | Centralized state, auto-save effect, and robust multi-device sync logic |
 
 Shared markdown-it plugins (mark, footnote, deflist, task-lists, container, Mermaid fence) live in `configure-markdown.ts` and are applied to both the Marp internal `markdown-it` instance and the prose standalone instance.
 

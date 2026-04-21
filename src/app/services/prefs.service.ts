@@ -9,6 +9,9 @@ export interface AppPrefs {
   editorFontSize: number;
   darkMode: 'system' | 'light' | 'dark';
   safariWarningDismissed: boolean;
+  googleDriveFolderId: string | null;
+  googleDriveSyncEnabled: boolean;
+  lastSyncTime: number | null;
 }
 
 const DEFAULT_PREFS: AppPrefs = {
@@ -20,6 +23,9 @@ const DEFAULT_PREFS: AppPrefs = {
   editorFontSize: 16,
   darkMode: 'system',
   safariWarningDismissed: false,
+  googleDriveFolderId: null,
+  googleDriveSyncEnabled: false,
+  lastSyncTime: null,
 };
 
 @Injectable({ providedIn: 'root' })

@@ -67,6 +67,48 @@
       </mat-slider>
     </div>
   </section>
+
+  <section class="settings-section">
+    <h3 class="settings-section__title">Cloud Sync</h3>
+
+    <div class="setting-item">
+      <div class="setting-item__label">
+        <mat-icon>cloud_queue</mat-icon>
+        <span>Google Drive</span>
+      </div>
+      @if (!store.driveEnabled()) {
+      <button mat-stroked-button (click)="store.connectDrive()">
+        <mat-icon>login</mat-icon>
+        Connect
+      </button>
+      } @else {
+      <div class="sync-actions">
+        <button mat-flat-button color="primary" [disabled]="store.syncStatus() === 'syncing'" (click)="store.syncNow()">
+          <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+          <span>{{ store.syncStatus() === 'syncing' ? 'Syncing...' : 'Sync Now' }}</span>
+        </button>
+        <button mat-icon-button (click)="store.disconnectDrive()" matTooltip="Disconnect Google Drive"
+          [disabled]="store.syncStatus() === 'syncing'">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+      }
+    </div>
+
+    @if (store.prefs().lastSyncTime) {
+    <div class="setting-info">
+      <mat-icon>history</mat-icon>
+      <span>Last sync: {{ store.prefs().lastSyncTime | date:'medium' }}</span>
+    </div>
+    }
+
+    @if (store.syncStatus() === 'error') {
+    <div class="setting-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>Sync failed. Please try connecting again.</span>
+    </div>
+    }
+  </section>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

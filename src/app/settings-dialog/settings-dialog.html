@@ -84,17 +84,8 @@
       } @else {
       <div class="sync-actions">
         <button mat-flat-button color="primary" [disabled]="store.syncStatus() === 'syncing'" (click)="store.syncNow()">
-          @if (store.syncStatus() === 'syncing') {
-          <ng-container>
-            <mat-icon class="spinning">sync</mat-icon>
-            Syncing...
-          </ng-container>
-          } @else {
-          <ng-container>
-            <mat-icon>sync</mat-icon>
-            Sync Now
-          </ng-container>
-          }
+          <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+          <span>{{ store.syncStatus() === 'syncing' ? 'Syncing...' : 'Sync Now' }}</span>
         </button>
       </div>
       }

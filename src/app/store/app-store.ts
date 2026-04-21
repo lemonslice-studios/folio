@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal, effect } from '@angular/core';
 import { FsService } from '../services/fs.service';
 import { PrefsService, AppPrefs } from '../services/prefs.service';
+import { GoogleDriveService } from '../services/google-drive.service';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -60,6 +61,7 @@ Use \`---\` to start a new page. It works the same way as in slide mode.
 export class AppStore {
   private readonly fs = inject(FsService);
   private readonly prefsService = inject(PrefsService);
+  private readonly drive = inject(GoogleDriveService);
 
   readonly fileList = signal<string[]>([]);
   readonly currentFile = signal<string | null>(null);
@@ -91,6 +93,9 @@ export class AppStore {
     editorFontSize: 16,
     darkMode: 'system',
     safariWarningDismissed: false,
+    googleDriveFolderId: null,
+    googleDriveSyncEnabled: false,
+    lastSyncTime: null,
   });
 
   readonly selectedTab = signal(0);
@@ -99,6 +104,9 @@ export class AppStore {
   readonly appTheme = computed(() => this.prefs().appTheme);
   readonly editorWidth = signal(500);
   readonly previewVisible = signal(true);
+
+  readonly syncStatus = signal<'idle' | 'syncing' | 'error'>('idle');
+  readonly driveConnected = computed(() => this.drive.isConnected);
 
   constructor() {
     // Auto-save effect
@@ -127,6 +135,74 @@ export class AppStore {
       await this.openFile(list[0]);
     } else {
       await this.createFile('Welcome.md', SAMPLE_PROSE);
+    }
+  }
+
+  async connectDrive(): Promise<void> {
+    try {
+      await this.drive.login();
+      const folderId = await this.drive.getOrCreateFolder();
+      this.updatePrefs({ googleDriveFolderId: folderId, googleDriveSyncEnabled: true });
+    } catch (e) {
+      console.error('Failed to connect to Google Drive', e);
+      this.syncStatus.set('error');
+    }
+  }
+
+  async syncNow(): Promise<void> {
+    if (!this.drive.isConnected) {
+      await this.drive.login();
+    }
+
+    this.syncStatus.set('syncing');
+    try {
+      const folderId = this.prefs().googleDriveFolderId || (await this.drive.getOrCreateFolder());
+      if (!this.prefs().googleDriveFolderId) {
+        this.updatePrefs({ googleDriveFolderId: folderId });
+      }
+
+      // Load manifest
+      let manifest: Record<string, string> = {};
+      try {
+        if (await this.fs.exists('.sync-manifest.json')) {
+          manifest = JSON.parse(await this.fs.readFile('.sync-manifest.json'));
+        }
+      } catch (e) {
+        console.warn('Failed to load sync manifest', e);
+      }
+
+      const localFiles = await this.fs.listFiles();
+      const remoteFiles = await this.drive.listFiles(folderId);
+      const remoteMap = new Map(remoteFiles.map((f) => [f.name, f]));
+
+      // 1. Upload local files to Drive
+      for (const filename of localFiles) {
+        const content = await this.fs.readFile(filename);
+        const remoteFile = remoteMap.get(filename);
+        const driveId = manifest[filename] || remoteFile?.id;
+
+        const newDriveId = await this.drive.uploadFile(filename, content, folderId, driveId);
+        manifest[filename] = newDriveId;
+      }
+
+      // 2. Download remote files that aren't local
+      for (const remoteFile of remoteFiles) {
+        if (!localFiles.includes(remoteFile.name)) {
+          const content = await this.drive.downloadFile(remoteFile.id);
+          // We don't want to trigger auto-save during sync
+          await this.fs.writeFile(remoteFile.name, content);
+          manifest[remoteFile.name] = remoteFile.id;
+        }
+      }
+
+      // Save manifest
+      await this.fs.writeFile('.sync-manifest.json', JSON.stringify(manifest));
+      this.updatePrefs({ lastSyncTime: Date.now() });
+      await this.refreshList();
+      this.syncStatus.set('idle');
+    } catch (e) {
+      console.error('Sync failed', e);
+      this.syncStatus.set('error');
     }
   }
 

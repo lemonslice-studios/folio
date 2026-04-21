@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,7 @@ import { AppStore } from '../store/app-store';
 @Component({
   selector: 'app-settings-dialog',
   imports: [
+    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,

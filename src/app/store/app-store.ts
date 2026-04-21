@@ -250,6 +250,11 @@ export class AppStore {
               });
               // Proceed with sync if token was refreshed
               await this.performSync();
+            } else {
+              // Reset status if callback returns with error
+              if (this.syncStatus() === 'syncing') {
+                this.syncStatus.set('idle');
+              }
             }
           }
         });

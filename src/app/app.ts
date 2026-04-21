@@ -237,6 +237,13 @@ export class App {
     });
   }
 
+  private readonly isSystemDark = toSignal(
+    fromEvent(window.matchMedia('(prefers-color-scheme: dark)'), 'change').pipe(
+      map(e => (e as MediaQueryListEvent).matches),
+      startWith(window.matchMedia('(prefers-color-scheme: dark)').matches)
+    )
+  );
+
   constructor() {
     void this.store.init().then(() => {
       this.maybeShowSafariWarning();
@@ -254,6 +261,7 @@ export class App {
     effect(() => {
       const scheme = this.store.colorScheme();
       const theme = this.store.appTheme();
+      const isDark = this.isSystemDark(); // Track system theme changes
       const html = document.documentElement;
 
       if (scheme === 'system') {
@@ -265,19 +273,22 @@ export class App {
       html.setAttribute('data-theme', theme);
 
       // Update PWA title bar color (theme-color meta tag)
-      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (!metaThemeColor) {
-        metaThemeColor = document.createElement('meta');
-        metaThemeColor.setAttribute('name', 'theme-color');
-        document.head.appendChild(metaThemeColor);
-      }
+      // We use requestAnimationFrame to ensure the CSS variables have updated
+      requestAnimationFrame(() => {
+        let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (!metaThemeColor) {
+          metaThemeColor = document.createElement('meta');
+          metaThemeColor.setAttribute('name', 'theme-color');
+          document.head.appendChild(metaThemeColor);
+        }
 
-      // We'll use the surface-container color as the theme color
-      const style = getComputedStyle(html);
-      const color = style.getPropertyValue('--surface-container').trim();
-      if (color) {
-        metaThemeColor.setAttribute('content', color);
-      }
+        // We'll use the surface-container color as the theme color
+        const style = getComputedStyle(html);
+        const color = style.getPropertyValue('--surface-container').trim();
+        if (color) {
+          metaThemeColor.setAttribute('content', color);
+        }
+      });
     });
 
     // Update document title based on the current file

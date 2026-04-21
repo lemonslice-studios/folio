@@ -12,6 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EditorView } from '@codemirror/view';
 import { EditorState, Transaction } from '@codemirror/state';
+import { fromEvent } from 'rxjs';
 import { AppStore } from '../store/app-store';
 import { EditorService } from '../services/editor.service';
 import { createFolioExtensions } from './folio-editor';
@@ -38,10 +39,14 @@ export class EditorPaneComponent {
 
   private editorView: EditorView | null = null;
 
-  private readonly extensions = createFolioExtensions(
-    md => this.store.setMarkdown(md),
-    idx => this.store.goToSlide(idx)
-  );
+  private readonly extensions = [
+    ...createFolioExtensions(
+      md => this.store.setMarkdown(md),
+      idx => this.store.goToSlide(idx)
+    ),
+    // Add scroll margins to keep the cursor from hitting the very bottom (better mobile UX)
+    EditorView.scrollMargins.of(() => ({ bottom: 40 }))
+  ];
 
   constructor() {
     afterNextRender(() => {
@@ -53,6 +58,13 @@ export class EditorPaneComponent {
         parent: this.editorHost().nativeElement,
       });
     });
+
+    // Handle window resize (keyboard appearance/disappearance)
+    fromEvent(window, 'resize')
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.editorView?.requestMeasure();
+      });
 
     this.editorService.insert$.pipe(takeUntilDestroyed()).subscribe(val => {
       if (typeof val === 'string') {

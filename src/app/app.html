@@ -48,9 +48,13 @@
       @if (store.driveEnabled()) {
         <button mat-icon-button (click)="store.syncNow()" 
           [disabled]="store.syncStatus() === 'syncing'"
-          [matTooltip]="store.syncStatus() === 'syncing' ? 'Syncing...' : 'Sync with Google Drive'" 
+          [matTooltip]="store.syncStatus() === 'syncing' ? 'Syncing...' : store.syncStatus() === 'error' ? 'Sync error - Click to retry' : 'Sync with Google Drive'" 
           aria-label="Sync with Google Drive">
-          <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+          @if (store.syncStatus() === 'error') {
+            <mat-icon color="warn">sync_problem</mat-icon>
+          } @else {
+            <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+          }
         </button>
       }
 

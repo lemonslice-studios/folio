@@ -136,6 +136,13 @@ export class AppStore {
       }
     }
 
+    // Listen for system online status to trigger sync
+    window.addEventListener('online', () => {
+      if (this.driveEnabled()) {
+        this.backgroundSync();
+      }
+    });
+
     await this.refreshList();
     const list = this.fileList();
 
@@ -198,6 +205,73 @@ export class AppStore {
       }
     }
 
+    try {
+      await this.performSync();
+    } catch (e) {
+      console.error('Manual sync failed', e);
+      this.syncStatus.set('error');
+    }
+  }
+
+  async openFile(filename: string): Promise<void> {
+    const content = await this.fs.readFile(filename);
+    this.currentFile.set(filename);
+    this.currentMarkdown.set(content);
+    this.isDirty.set(false);
+    this.updatePrefs({ lastOpenFile: filename });
+
+    // Trigger silent background sync if Drive is enabled
+    if (this.driveEnabled()) {
+      this.backgroundSync();
+    }
+  }
+
+  /**
+   * Attempts a silent sync in the background.
+   * Unlike syncNow, it will not trigger an interactive login if silent refresh fails.
+   */
+  private async backgroundSync(): Promise<void> {
+    if (this.syncStatus() !== 'idle') return;
+
+    try {
+      if (!this.drive.isConnected) {
+        // Attempt truly silent refresh (no fallback to interactive login)
+        // We use the underlying GIS directly for a non-blocking check
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: (this.drive as any).CLIENT_ID,
+          scope: (this.drive as any).SCOPE,
+          prompt: 'none',
+          callback: async (response: google.accounts.oauth2.TokenResponse) => {
+            if (!response.error) {
+              this.drive.setToken(response.access_token);
+              this.updatePrefs({
+                googleDriveToken: response.access_token,
+                googleDriveTokenExpiresAt: Date.now() + (parseInt(response.expires_in) * 1000)
+              });
+              // Proceed with sync if token was refreshed
+              await this.performSync();
+            }
+          }
+        });
+        client.requestAccessToken();
+      } else {
+        await this.performSync();
+      }
+    } catch (e) {
+      // Background sync failures are silent by design
+      console.log('[Sync] Background sync skipped or failed', e);
+      if (this.syncStatus() === 'syncing') {
+        this.syncStatus.set('idle');
+      }
+    }
+  }
+
+  /**
+   * Extracted core sync logic to be shared between manual and background sync
+   */
+  private async performSync(): Promise<void> {
+    if (this.syncStatus() === 'syncing') return;
+    
     this.syncStatus.set('syncing');
     try {
       const folderId = this.prefs().googleDriveFolderId || (await this.drive.getOrCreateFolder());
@@ -296,11 +370,8 @@ export class AppStore {
           await this.openFile(list[0]);
         }
       }
-
+    } finally {
       this.syncStatus.set('idle');
-    } catch (e) {
-      console.error('Sync failed', e);
-      this.syncStatus.set('error');
     }
   }
 
@@ -332,14 +403,6 @@ export class AppStore {
     await this.refreshList();
     await this.openFile(finalName);
     return finalName;
-  }
-
-  async openFile(filename: string): Promise<void> {
-    const content = await this.fs.readFile(filename);
-    this.currentFile.set(filename);
-    this.currentMarkdown.set(content);
-    this.isDirty.set(false);
-    this.updatePrefs({ lastOpenFile: filename });
   }
 
   async deleteFile(filename: string): Promise<void> {

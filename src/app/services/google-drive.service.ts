@@ -2,7 +2,7 @@
 import { Injectable, signal } from '@angular/core';
 
 export class UnauthorizedError extends Error {
-  constructor() {
+  constructor(public details?: any) {
     super('Unauthorized');
     this.name = 'UnauthorizedError';
   }
@@ -21,7 +21,7 @@ export class GoogleDriveService {
 
   private async request(url: string, options: RequestInit = {}): Promise<Response> {
     const token = this.accessToken();
-    if (!token) throw new UnauthorizedError();
+    if (!token) throw new UnauthorizedError('No token available');
 
     const headers = {
       ...options.headers,
@@ -32,7 +32,7 @@ export class GoogleDriveService {
     
     if (response.status === 401) {
       this.accessToken.set(null);
-      throw new UnauthorizedError();
+      throw new UnauthorizedError(response.statusText);
     }
     
     if (!response.ok) {
@@ -49,23 +49,27 @@ export class GoogleDriveService {
    */
   async login(prompt: 'none' | '' = ''): Promise<{ token: string, expires_in: number }> {
     return new Promise((resolve, reject) => {
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: this.CLIENT_ID,
-        scope: this.SCOPE,
-        prompt: prompt,
-        callback: (response: google.accounts.oauth2.TokenResponse) => {
-          if (response.error) {
-            reject(response);
-          } else {
-            this.accessToken.set(response.access_token);
-            resolve({
-              token: response.access_token,
-              expires_in: parseInt(response.expires_in)
-            });
-          }
-        },
-      });
-      client.requestAccessToken();
+      try {
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: this.CLIENT_ID,
+          scope: this.SCOPE,
+          prompt: prompt,
+          callback: (response: google.accounts.oauth2.TokenResponse) => {
+            if (response.error) {
+              reject(response);
+            } else {
+              this.accessToken.set(response.access_token);
+              resolve({
+                token: response.access_token,
+                expires_in: parseInt(response.expires_in)
+              });
+            }
+          },
+        });
+        client.requestAccessToken();
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 

@@ -389,15 +389,15 @@ export class AppStore {
           });
           return await this.performSync(targetFile, true);
         } catch (authError: any) {
-          console.log('[Sync] Silent re-auth failed, session truly expired');
+          const msg = authError.error_description || authError.error || 'Session expired';
+          console.log('[Sync] Silent re-auth failed:', msg);
           this.syncStatus.set('idle');
-          this.updatePrefs({ lastSyncError: authError.message || 'Session expired' });
-          // We don't throw here to avoid console noise for background syncs.
-          // Manual syncNow handles the interactive fallback.
+          this.updatePrefs({ lastSyncError: `Session expired: ${msg}. Click 'Sync Now' to reconnect.` });
           return;
         }
       }
-      this.updatePrefs({ lastSyncError: (e as any).message || 'Sync error' });
+      const finalMsg = (e as any).error_description || (e as any).error || (e as any).message || 'Sync error';
+      this.updatePrefs({ lastSyncError: finalMsg });
       throw e;
     } finally {
       this.syncStatus.set('idle');

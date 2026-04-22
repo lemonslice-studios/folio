@@ -205,28 +205,49 @@ export class AppStore {
   }
 
   async syncNow(): Promise<void> {
+    const lastError = this.prefs().lastSyncError || '';
+    const needsInteraction = lastError.includes('interaction_required') || lastError.includes('immediate_failed');
+    
+    this.updatePrefs({ lastSyncError: null });
+    const expiresAt = this.prefs().googleDriveTokenExpiresAt;
+    const isExpired = expiresAt && Date.now() > (expiresAt - 60000); // 1 minute buffer
+
     try {
-      if (!this.drive.isConnected) {
-        // Try silent refresh first
-        try {
-          const result = await this.drive.login('none');
-          this.updatePrefs({
-            googleDriveToken: result.token,
-            googleDriveTokenExpiresAt: Date.now() + (result.expires_in * 1000)
-          });
-        } catch {
-          // Fallback to interactive
-          const result = await this.drive.login('');
-          this.updatePrefs({
-            googleDriveToken: result.token,
-            googleDriveTokenExpiresAt: Date.now() + (result.expires_in * 1000)
-          });
+      if (!this.drive.isConnected || isExpired || needsInteraction) {
+        console.log('[Sync] Token missing, expired, or interaction required. Refreshing...');
+        
+        let result: { token: string, expires_in: number } | null = null;
+        
+        // On mobile, if we know we need interaction, skip silent refresh 
+        // to preserve the user gesture context for the interactive popup.
+        if (!needsInteraction) {
+          try {
+            result = await this.drive.login('none');
+          } catch {
+            console.log('[Sync] Silent refresh failed, falling back to popup');
+          }
         }
+
+        if (!result) {
+          result = await this.drive.login('');
+        }
+
+        this.updatePrefs({
+          googleDriveToken: result.token,
+          googleDriveTokenExpiresAt: Date.now() + (result.expires_in * 1000),
+          lastSyncError: null
+        });
       }
       await this.performSync();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Manual sync failed', e);
       this.syncStatus.set('error');
+      const msg = e.error_description || e.error || e.message || 'Unknown error';
+      this.updatePrefs({ 
+        googleDriveToken: null,
+        googleDriveTokenExpiresAt: null,
+        lastSyncError: `Sync failed: ${msg}` 
+      });
     }
   }
 
@@ -392,7 +413,11 @@ export class AppStore {
           const msg = authError.error_description || authError.error || 'Session expired';
           console.log('[Sync] Silent re-auth failed:', msg);
           this.syncStatus.set('idle');
-          this.updatePrefs({ lastSyncError: `Session expired: ${msg}. Click 'Sync Now' to reconnect.` });
+          this.updatePrefs({ 
+            googleDriveToken: null,
+            googleDriveTokenExpiresAt: null,
+            lastSyncError: `Session expired: ${msg}. Click 'Sync Now' to reconnect.` 
+          });
           return;
         }
       }

@@ -30,7 +30,21 @@ export class FsService {
   }
 
   async writeFile(filename: string, content: string): Promise<void> {
-    await this.promises.writeFile(`/documents/${filename}`, content, { 
+    const fullPath = `/documents/${filename}`;
+    
+    // Optimization: Skip write if content is identical to avoid mtime update
+    try {
+      if (await this.exists(filename)) {
+        const existing = await this.promises.readFile(fullPath, { encoding: 'utf8' });
+        if (existing === content) {
+          return;
+        }
+      }
+    } catch (e) {
+      // If reading fails, proceed to write anyway
+    }
+
+    await this.promises.writeFile(fullPath, content, { 
       encoding: 'utf8',
       mode: 0o666 
     });

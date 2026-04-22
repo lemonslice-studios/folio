@@ -481,10 +481,10 @@ export class AppStore {
   }
 
   setMarkdown(value: string): void {
+    if (this.currentMarkdown() === value) return;
     this.currentMarkdown.set(value);
     this.isDirty.set(true);
   }
-
   setEditorWidth(width: number): void {
     const minWidth = 200;
     const maxWidth = window.innerWidth - 200;

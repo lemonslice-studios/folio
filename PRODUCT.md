@@ -89,10 +89,10 @@ Folio helps you turn ideas into polished presentations and documents with less f
 
 - Write calmly. Present beautifully.
 - Markdown, made presentable.
-- A quiet place to write slides.
+- A quiet place to write and make slides.
 - Your ideas, offline and ready.
 - From plain text to polished presentation.
-- The calm Markdown studio for slides and prose.
+- The calm writer studio for Markdown.
 
 ---
 

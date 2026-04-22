@@ -112,10 +112,8 @@ export class AppStore {
   readonly driveConnected = computed(() => this.drive.isConnected);
   readonly driveEnabled = computed(() => this.prefs().googleDriveSyncEnabled);
 
-  private autoSyncTimer: any = null;
-
   constructor() {
-    // Auto-save effect
+    // Auto-save effect (local storage only)
     effect(async () => {
       const markdown = this.currentMarkdown();
       const file = this.currentFile();
@@ -138,24 +136,6 @@ export class AppStore {
         this.drive.setToken(prefs.googleDriveToken);
       }
     }
-
-    // Listen for system online status to trigger sync
-    window.addEventListener('online', () => {
-      if (this.driveEnabled()) {
-        this.backgroundSync();
-      }
-    });
-
-    // Override Ctrl+S / Cmd+S for Quick Sync
-    window.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        if (this.driveEnabled()) {
-          if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
-          this.backgroundSync();
-        }
-      }
-    });
 
     await this.refreshList();
     const list = this.fileList();
@@ -264,28 +244,6 @@ export class AppStore {
     this.currentMarkdown.set(content);
     this.isDirty.set(false);
     this.updatePrefs({ lastOpenFile: filename });
-
-    // Trigger silent background sync if Drive is enabled
-    if (this.driveEnabled()) {
-      void this.backgroundSync();
-    }
-  }
-
-  /**
-   * Attempts a silent sync in the background.
-   */
-  private async backgroundSync(): Promise<void> {
-    if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
-    if (this.syncStatus() !== 'idle') return;
-    const current = this.currentFile();
-    if (!current) return;
-
-    try {
-      await this.performSync(current);
-    } catch (e) {
-      // Background sync failures are silent by design
-      console.log('[Sync] Background sync skipped or failed', e);
-    }
   }
 
   /**
@@ -504,14 +462,6 @@ export class AppStore {
   setMarkdown(value: string): void {
     this.currentMarkdown.set(value);
     this.isDirty.set(true);
-
-    // Auto-sync debounce (10 seconds)
-    if (this.driveEnabled()) {
-      if (this.autoSyncTimer) clearTimeout(this.autoSyncTimer);
-      this.autoSyncTimer = setTimeout(() => {
-        this.backgroundSync();
-      }, 10000);
-    }
   }
 
   setEditorWidth(width: number): void {

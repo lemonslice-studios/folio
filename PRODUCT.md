@@ -145,6 +145,7 @@ Folio helps you write, preview, and publish in one seamless Markdown workflow.
 ## Feature-led marketing bullets
 
 - Local-first and offline-capable
+- Controlled Google Drive synchronization
 - Real-time Markdown preview
 - Flow, page, and slide-friendly editing
 - Standard Markdown support

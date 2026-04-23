@@ -64,15 +64,13 @@ npm start                         # dev server → http://localhost:4200
 - **MarpX themes** — 16 professional themes bundled (cantor, einstein, socrates, …).
 - **Dark mode** — system / light / dark toggle; prose preview and syntax highlighting both respond.
 - **Mobile Optimized** — aggressive focus management ensures the virtual keyboard stays active during snippet insertion on tablets and Chromebooks.
-- **Cloud Sync** — optional, privacy-focused Google Drive synchronization. Syncs your "Folio Markdown" folder across devices with smart conflict resolution.
+- **Cloud Sync** — optional, privacy-focused Google Drive synchronization. Syncs your "Folio Markdown" folder across devices on demand.
 
 ### Cloud Sync features
 
 - **Privacy First** — uses the `drive.file` scope; Folio can only see and manage files it creates.
 - **Multi-device Sync** — uses a manifest and file timestamps to handle updates and deletions across multiple devices.
-- **Silent Background Sync** — automatically backs up your work when you switch documents, stop typing for 10 seconds, or regain internet connection.
 - **Smart Conflict Resolution** — uses a "Last Write Wins" strategy with a 2-second timestamp buffer to handle precision differences between systems.
-- **Persistent Connectivity** — securely stores access tokens in IndexedDB with official `prompt: 'none'` support for seamless re-authentication.
 
 ### Prose mode features
 

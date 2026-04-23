@@ -41,7 +41,6 @@ export class PreviewPaneComponent {
   protected readonly isPreviewLoading = signal(false);
   private reloadingTimeout?: any;
   private lastSrcdoc = '';
-  private lastTrigger = 0;
 
   /** 
    * Tracks document visibility and focus to force a re-render when the app 
@@ -94,6 +93,7 @@ export class PreviewPaneComponent {
         switchMap(() => timer(300).pipe(map(() => document.visibilityState === 'visible'))),
       )
       .subscribe(visible => {
+        this.isVisible.set(visible);
         if (visible && this.active()) {
           this.refreshTrigger.update(n => n + 1);
         }
@@ -126,10 +126,6 @@ export class PreviewPaneComponent {
       }
       this.lastSrcdoc = nextSrcdoc;
 
-      // Check if this render was triggered by a background resumption
-      const isResumption = trigger > this.lastTrigger;
-      this.lastTrigger = trigger;
-
       // Hide the iframe during reload to prevent flicker/jump if active.
       // If NOT active, we don't set loading=true so it doesn't get stuck hidden.
       if (isActive && visible) {
@@ -150,18 +146,12 @@ export class PreviewPaneComponent {
         this.proseScrollY = win?.pageYOffset ?? win?.scrollY ?? scrollEl?.scrollTop ?? bodyEl?.scrollTop ?? 0;
       }
 
-      // Aggressive Failsafe: If the iframe doesn't report back within 2000ms
+      // Aggressive Failsafe: If the iframe doesn't report back within 2000ms,
+      // do a full page reload. This is a workaround for iframe/renderer hangs.
       clearTimeout(this.reloadingTimeout);
       this.reloadingTimeout = setTimeout(() => {
         if (untracked(() => this.isPreviewLoading())) {
-          // If we are resuming from background and it's stuck, do a full page reload.
-          if (isResumption) {
-            window.location.reload();
-          } else {
-            // Otherwise (normal editing), just reveal the iframe and hope for the best.
-            this.isPreviewLoading.set(false);
-            this.isFrameReady.set(true);
-          }
+          window.location.reload();
         }
       }, 500);
 

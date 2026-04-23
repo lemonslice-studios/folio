@@ -21,7 +21,7 @@ export class ProseService {
       if (lang && hljs.getLanguage(lang)) {
         try {
           return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-        } catch {}
+        } catch { }
       }
       return '';
     },

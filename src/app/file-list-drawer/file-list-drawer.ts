@@ -35,7 +35,11 @@ export class FileListDrawerComponent {
   readonly closeDrawer = output<void>();
 
   async onNewSlides(): Promise<void> {
-    const filename = await this.store.createFile('Untitled Slides.slides.md', SAMPLE_MARKDOWN, true);
+    const filename = await this.store.createFile(
+      'Untitled Slides.slides.md',
+      SAMPLE_MARKDOWN,
+      true,
+    );
     this.showNewFileSnackBar(filename, true);
     this.closeDrawer.emit();
   }
@@ -82,7 +86,7 @@ export class FileListDrawerComponent {
     link.download = `folio-export-${new Date().toISOString().split('T')[0]}.zip`;
     link.click();
     URL.revokeObjectURL(url);
-    
+
     this.snackBar.open(`Exported ${files.length} files to ZIP`, 'Dismiss', { duration: 3000 });
     this.closeDrawer.emit();
   }
@@ -94,7 +98,7 @@ export class FileListDrawerComponent {
 
   async onDelete(event: Event, file: string): Promise<void> {
     event.stopPropagation(); // Don't select the file when deleting
-    
+
     const content = await this.fs.readFile(file);
     await this.store.deleteFile(file);
 
@@ -111,10 +115,11 @@ export class FileListDrawerComponent {
 
   onShowSettings(): void {
     this.dialog.open(SettingsDialogComponent, {
-      width: '90vw',
-      maxWidth: '500px',
+      width: 'min(95vw, 600px)',
+      maxWidth: '600px',
       maxHeight: '90vh',
-      panelClass: 'folio-settings-dialog'
+      panelClass: 'folio-settings-dialog',
+      autoFocus: false,
     });
     this.closeDrawer.emit();
   }

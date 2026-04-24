@@ -17,7 +17,17 @@ export class AiService {
 
     const systemPrompt = `You are an expert Markdown and Marp slide editor. 
 Your task is to modify the provided Markdown content based on the user's instructions.
-Return ONLY the modified Markdown content. Do not include any explanations, preamble, or markdown code blocks (unless they are part of the content itself).
+
+CRITICAL INSTRUCTIONS:
+1. Return ONLY the modified Markdown content. Do not include any explanations, preamble, or markdown code blocks (unless they are part of the content itself).
+2. For Marp slides, the document MUST start with front matter containing "marp: true". 
+   Example:
+   ---
+   marp: true
+   ---
+3. If the user asks for slides or the current content is already a slide deck, ensure "marp: true" is preserved or added to the front matter.
+4. Separate slides using "---".
+
 Current content:
 ${currentContent}`;
 

@@ -21,7 +21,7 @@ import { AppStore } from '../store/app-store';
 import { EditorService } from '../services/editor.service';
 import { createFolioExtensions } from './folio-editor';
 import { CheatBarComponent, CheatItem } from './cheat-bar/cheat-bar';
-import { AiPromptDialogComponent } from '../ai-prompt-dialog/ai-prompt-dialog';
+import { AiPromptDialogComponent, AiPromptResult } from '../ai-prompt-dialog/ai-prompt-dialog';
 
 @Component({
   selector: 'app-editor-pane',
@@ -135,15 +135,27 @@ export class EditorPaneComponent {
   }
 
   protected openAiPrompt(): void {
-    const dialogRef = this.dialog.open(AiPromptDialogComponent, {
-      width: '100%',
-      maxWidth: '600px',
-      autoFocus: 'textarea',
-    });
+    const dialogRef = this.dialog.open<AiPromptDialogComponent, any, AiPromptResult>(
+      AiPromptDialogComponent,
+      {
+        width: '100%',
+        maxWidth: '600px',
+        autoFocus: 'textarea',
+      },
+    );
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (typeof result === 'string') {
-        this.store.setMarkdown(result);
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        if (result.createNewDocument) {
+          const currentFile = this.store.currentFile() || 'Untitled.md';
+          const isSlides = this.store.documentType() === 'slides';
+          const baseName = currentFile.replace(/\.slides\.md$/, '').replace(/\.md$/, '');
+          const newName = `${baseName} (AI)${isSlides ? '.slides.md' : '.md'}`;
+
+          await this.store.createFile(newName, result.content, isSlides);
+        } else {
+          this.store.setMarkdown(result.content);
+        }
       }
     });
   }

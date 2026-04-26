@@ -14,11 +14,8 @@
               <mat-icon>palette</mat-icon>
               <span>Theme</span>
             </div>
-            <mat-button-toggle-group
-              [value]="currentAppTheme()"
-              (change)="store.setAppTheme($event.value)"
-              aria-label="App theme"
-            >
+            <mat-button-toggle-group [value]="currentAppTheme()" (change)="store.setAppTheme($event.value)"
+              aria-label="App theme">
               <mat-button-toggle value="quiet">Quiet</mat-button-toggle>
               <mat-button-toggle value="clean">Clean</mat-button-toggle>
             </mat-button-toggle-group>
@@ -29,11 +26,8 @@
               <mat-icon>font_download</mat-icon>
               <span>Font Family</span>
             </div>
-            <mat-button-toggle-group
-              [value]="currentFontFamily()"
-              (change)="store.setFontFamily($event.value)"
-              aria-label="Font family"
-            >
+            <mat-button-toggle-group [value]="currentFontFamily()" (change)="store.setFontFamily($event.value)"
+              aria-label="Font family">
               <mat-button-toggle value="sans-serif">Sans Serif</mat-button-toggle>
               <mat-button-toggle value="serif">Serif</mat-button-toggle>
             </mat-button-toggle-group>
@@ -43,19 +37,15 @@
             <div class="setting-item__label">
               <mat-icon>{{
                 currentColorScheme() === 'dark'
-                  ? 'dark_mode'
-                  : currentColorScheme() === 'light'
-                    ? 'light_mode'
-                    : 'brightness_auto'
-              }}</mat-icon>
+                ? 'dark_mode'
+                : currentColorScheme() === 'light'
+                ? 'light_mode'
+                : 'brightness_auto'
+                }}</mat-icon>
               <span>Mode</span>
             </div>
-            <mat-button-toggle-group
-              [value]="currentColorScheme()"
-              (change)="store.setDarkMode($event.value)"
-              class="icon-group"
-              aria-label="Color scheme"
-            >
+            <mat-button-toggle-group [value]="currentColorScheme()" (change)="store.setDarkMode($event.value)"
+              class="icon-group" aria-label="Color scheme">
               <mat-button-toggle value="system" matTooltip="System">
                 <mat-icon>brightness_auto</mat-icon>
               </mat-button-toggle>
@@ -82,18 +72,14 @@
               <span>Font Size ({{ currentEditorFontSize() }}px)</span>
             </div>
             <mat-slider min="12" max="32" step="1" discrete showTickMarks>
-              <input
-                matSliderThumb
-                [value]="currentEditorFontSize()"
-                (valueChange)="store.setEditorFontSize($event)"
-              />
+              <input matSliderThumb [value]="currentEditorFontSize()" (valueChange)="store.setEditorFontSize($event)" />
             </mat-slider>
           </div>
         </section>
       </div>
     </mat-tab>
 
-    <mat-tab label="Advanced">
+    <mat-tab label="Sync">
       <div class="tab-content">
         <section class="settings-section">
           <h3 class="settings-section__title">Cloud Sync</h3>
@@ -104,49 +90,46 @@
               <span>Google Drive</span>
             </div>
             @if (!store.driveEnabled()) {
-              <button mat-stroked-button (click)="store.connectDrive()">
-                <mat-icon>login</mat-icon>
-                Connect
-              </button>
+            <button mat-stroked-button (click)="store.connectDrive()">
+              <mat-icon>login</mat-icon>
+              Connect
+            </button>
             } @else {
-              <div class="sync-actions">
-                <button
-                  mat-flat-button
-                  color="primary"
-                  [disabled]="store.syncStatus() === 'syncing'"
-                  (click)="store.syncNow()"
-                >
-                  <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
-                  <span>{{ store.syncStatus() === 'syncing' ? 'Syncing...' : 'Sync Now' }}</span>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="store.disconnectDrive()"
-                  matTooltip="Disconnect Google Drive"
-                  [disabled]="store.syncStatus() === 'syncing'"
-                >
-                  <mat-icon>logout</mat-icon>
-                </button>
-              </div>
+            <div class="sync-actions">
+              <button mat-flat-button color="primary" [disabled]="store.syncStatus() === 'syncing'"
+                (click)="store.syncNow()">
+                <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+                <span>{{ store.syncStatus() === 'syncing' ? 'Syncing...' : 'Sync Now' }}</span>
+              </button>
+              <button mat-icon-button (click)="store.disconnectDrive()" matTooltip="Disconnect Google Drive"
+                [disabled]="store.syncStatus() === 'syncing'">
+                <mat-icon>logout</mat-icon>
+              </button>
+            </div>
             }
           </div>
 
           @if (store.prefs().lastSyncTime) {
-            <div class="setting-info">
-              <mat-icon>history</mat-icon>
-              <span>Last sync: {{ store.prefs().lastSyncTime | date: 'medium' }}</span>
-            </div>
+          <div class="setting-info">
+            <mat-icon>history</mat-icon>
+            <span>Last sync: {{ store.prefs().lastSyncTime | date: 'medium' }}</span>
+          </div>
           }
 
           @if (store.syncStatus() === 'error' || store.prefs().lastSyncError) {
-            <div class="setting-error">
-              <mat-icon>error_outline</mat-icon>
-              <span>{{
-                store.prefs().lastSyncError || 'Sync failed. Please try connecting again.'
+          <div class="setting-error">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{
+              store.prefs().lastSyncError || 'Sync failed. Please try connecting again.'
               }}</span>
-            </div>
+          </div>
           }
         </section>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="AI">
+      <div class="tab-content">
 
         <section class="settings-section">
           <h3 class="settings-section__title">AI Integration (Gemini)</h3>
@@ -158,15 +141,9 @@
             </div>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Enter API Key</mat-label>
-              <input
-                matInput
-                type="password"
-                [ngModel]="store.prefs().geminiApiKey"
-                (ngModelChange)="store.setGeminiApiKey($event)"
-                placeholder="AIza..."
-              />
-              <mat-hint
-                >Uses model <code>gemini-flash-lite-latest</code>. Get a key at
+              <input matInput type="password" [ngModel]="store.prefs().geminiApiKey"
+                (ngModelChange)="store.setGeminiApiKey($event)" placeholder="AIza..." />
+              <mat-hint>Uses model <code>gemini-flash-lite-latest</code>. Get a key at
                 <a href="https://aistudio.google.com/app/apikey" target="_blank">AI Studio</a>
               </mat-hint>
             </mat-form-field>

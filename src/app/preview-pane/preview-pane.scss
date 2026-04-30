@@ -1,3 +1,5 @@
+@use '../shared' as *;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -36,19 +38,42 @@
   }
 }
 
-// ── Slide navigation bar ──────────────────────────────────────────────────────
+// ── Utility Dock ─────────────────────────────────────────────────────────────
 
-.slide-nav,
-.prose-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom));
-  flex-shrink: 0;
-  background: var(--surface-container);
-  border-top: 1px solid var(--outline);
+.dock-container {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  pointer-events: none;
+  
+  // Entrance animation
+  animation: dock-entrance 0.2s ease-out;
+}
+
+@keyframes dock-entrance {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.utility-dock {
+  @extend .utility-dock;
+  
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+.dock-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--outline);
+  margin: 0 0.25rem;
 }
 
 .slide-counter,
@@ -56,56 +81,46 @@
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
   color: var(--on-surface);
-  min-width: 4rem;
+  min-width: 3.5rem;
   text-align: center;
   user-select: none;
 }
 
-.prose-info {
-  button {
-    color: var(--on-surface-variant);
+.prose-info-content {
+  padding: 0 0.5rem;
+}
+
+// ── Integrated Dock Buttons ──────────────────────────────────────────────────
+
+.present-button,
+.prose-toggle-button {
+  height: 40px !important;
+  border-radius: 20px !important;
+  background-color: var(--color-volt) !important;
+  color: #18181F !important;
+  font-weight: 600 !important;
+  padding: 0 1rem 0 0.75rem !important;
+
+  mat-icon {
+    margin-right: 4px;
+    color: #18181F !important;
   }
 }
 
-// ── Present / Toggle FABs ──────────────────────────────────────────────────
+// ── Back FAB ─────────────────────────────────────────────────────────────────
 
-.present-fab,
-.prose-toggle-fab,
 .back-fab {
   position: absolute;
-  bottom: 3.5rem; // sits just above the nav bar
-  right: 2rem;
-}
-
-.back-fab {
-  right: auto;
-  left: 1rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
   background-color: var(--surface-container-high) !important;
   color: var(--on-surface) !important;
   border: 1px solid var(--outline-variant);
-  z-index: 20;
+  z-index: 110;
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
-  }
-}
-
-.present-fab {
-  background-color: var(--color-volt) !important;
-  color: #18181F !important;
-
-  mat-icon {
-    color: #18181F !important;
-  }
-}
-
-.prose-toggle-fab {
-  background-color: var(--color-volt) !important;
-  color: #18181F !important;
-
-  mat-icon {
-    color: #18181F !important;
   }
 }

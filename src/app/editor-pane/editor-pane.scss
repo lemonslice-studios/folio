@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: var(--surface);
+  background: transparent;
   position: relative;
 }
 
@@ -25,14 +25,14 @@
 .ai-fab {
   position: absolute;
   right: 1.5rem;
-  bottom: calc(1.5rem + 52px + env(safe-area-inset-bottom));
-  z-index: 10;
+  bottom: 1.5rem;
+  z-index: 110;
   background-color: var(--color-plasma) !important;
   color: white !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 600px) {
     right: 1rem;
-    bottom: calc(1rem + 52px + env(safe-area-inset-bottom));
+    bottom: 5.5rem; // Stack above the dock on very narrow screens
   }
 }

@@ -1,3 +1,4 @@
+@use 'app/shared' as *;
 @use '@angular/material' as mat;
 
 // ── Angular Material theme ───────────────────────────────────────────────────
@@ -69,11 +70,13 @@ html[data-color-scheme="dark"] {
 
   :root:not([data-color-scheme="light"]),
   [data-theme="quiet"]:not([data-color-scheme="light"]) {
-    --surface: #111116;
-    --surface-container: #1C1C24;
-    --on-surface: #E8E8F2;
-    --outline: #2E2E3E;
-    --cm-separator-bg: #1C1C24;
+  --surface: #111116;
+  --surface-container: #1C1C24;
+  --surface-container-high: #282832;
+  --on-surface: #E8E8F2;
+  --outline: #2E2E3E;
+  --cm-separator-bg: #1C1C24;
+
     --cm-separator-color: #C8FF00;
     --cm-color-heading: #E8E8F2;
     --cm-color-emphasis: #FF6B85;
@@ -98,14 +101,18 @@ html[data-color-scheme="dark"] {
   --cm-color-meta: #9E72FF;
 }
 
+
 // Forced light for Quiet theme
 [data-theme="quiet"][data-color-scheme="light"],
 [data-color-scheme="light"]:not([data-theme="clean"]) {
   --surface: #F8F8FC;
   --surface-container: #EFEFF5;
+  --surface-container-high: #E5E5ED;
   --on-surface: #18181F;
   --outline: #C8C8D8;
 }
+
+// ── Shared UI Primitives ─────────────────────────────────────────────────────
 
 // ── Theme: CLEAN (Modern white/black with orange accent) ───────────────────────
 

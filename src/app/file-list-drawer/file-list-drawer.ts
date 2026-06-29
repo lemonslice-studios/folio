@@ -50,6 +50,37 @@ export class FileListDrawerComponent {
     this.closeDrawer.emit();
   }
 
+  async onImportFile(): Promise<void> {
+    // Create a hidden file input to let the user pick a local file
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.md,.markdown,text/markdown,text/plain';
+    input.multiple = false;
+
+    // Wait for selection
+    const file: File | null = await new Promise((resolve) => {
+      input.onchange = () => resolve(input.files ? input.files[0] : null);
+      input.click();
+    });
+
+    if (!file) return;
+
+    const text = await file.text();
+
+    // Detect slide vs prose by filename or frontmatter
+    const frontmatterMatch = text.trimStart().match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    let isSlides = false;
+    if (file.name.endsWith('.slides.md')) {
+      isSlides = true;
+    } else if (frontmatterMatch && /marp:\s*true/m.test(frontmatterMatch[1])) {
+      isSlides = true;
+    }
+
+    const filename = await this.store.createFile(file.name, text, isSlides);
+    this.showNewFileSnackBar(filename, isSlides);
+    this.closeDrawer.emit();
+  }
+
   private showNewFileSnackBar(filename: string, isSlides: boolean): void {
     const snackBarRef = this.snackBar.open(`Created ${filename}`, 'Clear content', {
       duration: 5000,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, computed, DestroyRef, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { AppStore } from '../../store/app-store';
@@ -103,6 +103,40 @@ const IMAGE_ITEMS_SLIDES: readonly CheatItem[] = [
 export class CheatBarComponent {
   protected readonly store = inject(AppStore);
   readonly insert = output<CheatItem>();
+
+  // Hidden when focus-mode is active (document-level class)
+  protected readonly hidden = (() => {
+    const s = signal(false);
+    return s;
+  })();
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+
+    const update = () => {
+      const h = !!(document.documentElement.classList.contains('focus-mode') || (document.body && document.body.classList.contains('focus-mode')));
+      this.hidden.set(h);
+    };
+
+    update();
+
+    const obs = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === 'attributes' && (m.target === document.documentElement || m.target === document.body)) {
+          update();
+        }
+      }
+    });
+
+    try {
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+      if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    } catch (e) {
+      // ignore (SSR / restricted environments)
+    }
+
+    destroyRef.onDestroy(() => obs.disconnect());
+  }
   
   protected readonly categories = computed(() => {
     const type = this.store.documentType();

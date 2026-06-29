@@ -58,7 +58,8 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'app-root',
-    '(window:mouseup)': 'onDragEnd()'
+    '(window:mouseup)': 'onDragEnd()',
+    '(window:keydown)': 'onWindowKeydown($event)'
   },
 })
 export class App {
@@ -88,9 +89,13 @@ export class App {
   );
 
   protected readonly isDragging = signal(false);
-
+ 
   protected readonly isEditingTitle = signal(false);
   protected readonly editValue = signal('');
+
+  // Focus mode: hide chrome so only editor remains
+  protected readonly isFocusMode = signal(false);
+
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -213,7 +218,7 @@ export class App {
   protected onPrintPdf(): void {
     this.exportService.print(this.store.currentMarkdown());
   }
-
+ 
   protected onShowHelp(): void {
     this.dialog.open(HelpDialogComponent, {
       width: '90vw',
@@ -221,6 +226,43 @@ export class App {
       maxHeight: '90vh',
       panelClass: 'folio-help-dialog'
     });
+  }
+
+  protected toggleFocus(): void {
+   const next = !this.isFocusMode();
+   this.isFocusMode.set(next);
+
+   if (next) {
+     // Add a document-level class so elements rendered outside the app container (e.g., overlays)
+     // can also be hidden by CSS when focus mode is active. Apply to both <html> and <body>.
+     try {
+       document.documentElement.classList.add('focus-mode');
+       if (document.body) document.body.classList.add('focus-mode');
+     } catch (e) {
+       console.warn('Failed to set focus-mode class on document root', e);
+     }
+
+     const snack = this.snackBar.open('Focus mode: press Shift+Esc to exit', 'Exit', { duration: 5000 });
+     snack.onAction().subscribe(() => this.isFocusMode.set(false));
+   } else {
+     try {
+       document.documentElement.classList.remove('focus-mode');
+       if (document.body) document.body.classList.remove('focus-mode');
+     } catch (e) {
+       console.warn('Failed to remove focus-mode class from document root', e);
+     }
+     this.snackBar.open('Exited focus mode', 'Dismiss', { duration: 2000 });
+   }
+  }
+
+  protected onWindowKeydown(event: KeyboardEvent): void {
+   // Toggle focus mode with Shift+Escape
+   if (event.key === 'Escape' && event.shiftKey) {
+     // Prevent interfering when renaming title input
+     // If an input is focused and the title is being edited, allow Escape to cancel that first
+     this.toggleFocus();
+     event.preventDefault();
+   }
   }
 
   private maybeShowSafariWarning(): void {

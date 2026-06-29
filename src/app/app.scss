@@ -6,6 +6,57 @@
   overflow: hidden;
 }
 
+/* Document-level focus-mode (body) to catch overlays/portal elements */
+body.focus-mode .toolbar,
+body.focus-mode .file-drawer,
+body.focus-mode .split-pane__divider,
+body.focus-mode .split-pane__preview,
+body.focus-mode app-preview-pane,
+body.focus-mode .mat-fab,
+body.focus-mode .mat-mini-fab,
+body.focus-mode .new-fab,
+body.focus-mode app-cheat-bar,
+body.focus-mode .cheat-bar,
+body.focus-mode .ai-fab,
+body.focus-mode app-editor-pane app-cheat-bar,
+body.focus-mode app-editor-pane .cheat-bar,
+body.focus-mode app-editor-pane .ai-fab,
+body.focus-mode .editor-pane .cheat-bar,
+body.focus-mode .editor-pane .ai-fab {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Ensure app-level focus mode still hides chrome when the component toggles it (mat-drawer-container app-container). */
+.app-container.focus-mode .toolbar,
+.app-container.focus-mode .file-drawer {
+  display: none !important;
+}
+
+.app-container.focus-mode .split-pane__divider,
+.app-container.focus-mode .split-pane__preview,
+.app-container.focus-mode app-preview-pane {
+  display: none !important;
+}
+
+.app-container.focus-mode .mat-fab,
+.app-container.focus-mode .mat-mini-fab,
+.app-container.focus-mode .new-fab {
+  display: none !important;
+}
+
+.app-container.focus-mode .split-pane {
+  grid-template-columns: 1fr !important;
+}
+
+.app-container.focus-mode .tab-group,
+.app-container.focus-mode .tab-group .mat-tab-body {
+  display: block !important; /* let editor tab expand */
+}
+
+/* Cheat bar and editor FABs are now hidden via runtime checks; keep body-level fallbacks only. */
+
 .app-container {
   height: 100% !important;
   background: var(--surface);

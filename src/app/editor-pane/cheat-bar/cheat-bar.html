@@ -1,4 +1,5 @@
-<div class="cheat-bar" role="toolbar" aria-label="Markdown snippet shortcuts">
+@if (!hidden()) {
+  <div class="cheat-bar" role="toolbar" aria-label="Markdown snippet shortcuts">
   @for (cat of categories(); track cat.label) {
     <button
       mat-button
@@ -19,4 +20,5 @@
       }
     </mat-menu>
   }
-</div>
+  </div>
+}

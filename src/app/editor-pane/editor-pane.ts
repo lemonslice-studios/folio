@@ -8,6 +8,7 @@ import {
   inject,
   input,
   viewChild,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EditorView } from '@codemirror/view';
@@ -34,9 +35,12 @@ import { AiPromptDialogComponent, AiPromptResult } from '../ai-prompt-dialog/ai-
   ],
   template: `
     <div #editorHost class="editor-host"></div>
-    <app-cheat-bar (insert)="onCheatInsert($event)" />
+
+    @if (!isFocusHidden()) {
+      <app-cheat-bar (insert)="onCheatInsert($event)" />
+    }
     
-    @if (store.prefs().geminiApiKey) {
+    @if (store.prefs().geminiApiKey && !isFocusHidden()) {
       <button mat-fab class="ai-fab" (click)="openAiPrompt()" matTooltip="Ask Gemini">
         <mat-icon>auto_awesome</mat-icon>
       </button>
@@ -54,6 +58,12 @@ export class EditorPaneComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly editorHost = viewChild.required<ElementRef<HTMLDivElement>>('editorHost');
+
+  // Local flag to hide editor floating controls when focus-mode is active
+  protected readonly isFocusHidden = (() => {
+    const s = signal(false);
+    return s;
+  })();
 
   private editorView: EditorView | null = null;
 
@@ -104,6 +114,24 @@ export class EditorPaneComponent {
         view.dispatch({ selection: { anchor: end }, scrollIntoView: true });
       }
     });
+
+    // Observe focus-mode class on document to hide floating controls
+    ((): void => {
+      const update = () => {
+        const h = !!(document.documentElement.classList.contains('focus-mode') || (document.body && document.body.classList.contains('focus-mode')));
+        this.isFocusHidden.set(h);
+      };
+
+      update();
+      const obs = new MutationObserver(() => update());
+      try {
+        obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      } catch (e) {
+        // ignore
+      }
+      this.destroyRef.onDestroy(() => obs.disconnect());
+    })();
 
     effect(() => {
       const md = this.store.currentMarkdown();

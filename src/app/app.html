@@ -1,4 +1,4 @@
-<mat-drawer-container class="app-container">
+<mat-drawer-container class="app-container" [class.focus-mode]="isFocusMode()">
   <mat-drawer #drawer mode="over" class="file-drawer">
     <app-file-list-drawer (closeDrawer)="drawer.close()"></app-file-list-drawer>
   </mat-drawer>
@@ -76,11 +76,15 @@
         </button>
       </mat-menu>
 
-      @if (isWide() && store.documentType() === 'prose') {
+      @if (isWide()) {
         <button mat-icon-button (click)="store.togglePreview()" 
           [matTooltip]="store.previewVisible() ? 'Hide Preview' : 'Show Preview'"
           aria-label="Toggle preview visibility">
           <mat-icon>{{ store.previewVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+
+        <button mat-icon-button (click)="toggleFocus()" aria-label="Focus editor" matTooltip="Focus (Shift+Esc)">
+          <mat-icon>adjust</mat-icon>
         </button>
       }
 

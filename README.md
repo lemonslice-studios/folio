@@ -49,11 +49,13 @@ npm start                         # dev server → http://localhost:4200
 
 - **Multi-document support** — automatically switch between Slides and Prose modes.
 - **Split-pane layout** — editor left, preview right on wide screens (≥ 840 px); Edit / Preview tabs on narrow.
-- **Prose Preview Toggle** — hide the preview panel in Prose mode on desktop to focus entirely on writing.
+- **Preview toggle** — hide the preview panel on desktop to focus entirely on writing (also available for slides).
+- **New import options** — "New → Import File" to create a document from a local file, and "New → From Clipboard" to create a document from clipboard text. Filenames are normalized; if frontmatter contains `marp: true` the file will be saved as `.slides.md`.
+- **Focus mode** — toolbar "adjust" button (desktop) and Shift+Esc toggle a distraction-free mode that hides the app chrome, preview, and floating tools. The Focus button is hidden on small screens; a toast shows how to exit.
 - **Post-it Theme** — a calm, lavender-inspired light theme with vibrant "Volt" green accents for primary actions.
 - **Live Marp preview** — typing in the editor re-renders slides in real time.
 - **Paginated Prose preview** — powered by Paged.js, supports standard Markdown and page breaks via `---`.
-- **Smart Editor Shortcuts** — "Cheat bar" and Cheatsheet support selection wrapping (bold, italic, links) and smart cursor placement.
+- **Smart Editor Shortcuts** — "Cheat bar" and Cheatsheet support selection wrapping (bold, italic, links) and smart cursor placement. The cheat bar is hidden in Focus mode.
 - **File management** — create, open, and delete files via a Material 3 sidebar; M3 list items with explicit actions and Undo support.
 - **Inline renaming** — click the filename in the app bar to rename; commits on Enter/blur, cancels on Escape.
 - **Persistence** — all files saved locally via `lightning-fs` (IndexedDB POSIX fs); preferences stored in a dedicated IndexedDB store.

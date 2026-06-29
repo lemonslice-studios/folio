@@ -81,6 +81,36 @@ export class FileListDrawerComponent {
     this.closeDrawer.emit();
   }
 
+  async onFromClipboard(): Promise<void> {
+    // Read text from the clipboard and create a new document from it
+    if (!navigator.clipboard || typeof navigator.clipboard.readText !== 'function') {
+      this.snackBar.open('Clipboard API not available in this browser', 'Dismiss', { duration: 3000 });
+      return;
+    }
+
+    let text = '';
+    try {
+      text = await navigator.clipboard.readText();
+    } catch (e) {
+      console.warn('Failed to read clipboard', e);
+      this.snackBar.open('Unable to read clipboard. Grant permission or paste manually.', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    if (!text) {
+      this.snackBar.open('Clipboard is empty', 'Dismiss', { duration: 2000 });
+      return;
+    }
+
+    // Detect slide vs prose by frontmatter
+    const frontmatterMatch = text.trimStart().match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    const isSlides = !!(frontmatterMatch && /marp:\s*true/m.test(frontmatterMatch[1]));
+
+    const filename = await this.store.createFile('Clipboard.md', text, isSlides);
+    this.showNewFileSnackBar(filename, isSlides);
+    this.closeDrawer.emit();
+  }
+
   private showNewFileSnackBar(filename: string, isSlides: boolean): void {
     const snackBarRef = this.snackBar.open(`Created ${filename}`, 'Clear content', {
       duration: 5000,

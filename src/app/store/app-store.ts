@@ -433,25 +433,16 @@ export class AppStore {
     content: string = SAMPLE_PROSE,
     isSlides: boolean = false,
   ): Promise<string> {
-    let finalName = filename;
+    // Normalize filename by removing any existing extension and applying the desired suffix
     const suffix = isSlides ? '.slides.md' : '.md';
 
-    // Ensure the correct extension based on isSlides
-    if (isSlides) {
-      if (!finalName.endsWith('.slides.md')) {
-        finalName = finalName.replace(/\.md$/, '') + '.slides.md';
-      }
-    } else {
-      if (finalName.endsWith('.slides.md')) {
-        finalName = finalName.replace(/\.slides\.md$/, '') + '.md';
-      } else if (!finalName.endsWith('.md')) {
-        finalName += '.md';
-      }
-    }
+    // Strip trailing .slides.md, .md, or any other single extension like .txt, .markdown
+    const baseName = filename.replace(/(\.slides\.md|\.md|(\.[^.]+))$/i, '');
+
+    let finalName = `${baseName}${suffix}`;
 
     // Simple collision avoidance
     let counter = 1;
-    const baseName = finalName.slice(0, -suffix.length);
     while (await this.fs.exists(finalName)) {
       finalName = `${baseName} (${counter++})${suffix}`;
     }

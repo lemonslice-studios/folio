@@ -17,10 +17,22 @@ import { EMOJI_SHORTCODES } from './emoji-shortcodes';
 // ── Completion Data ─────────────────────────────────────────────────────────
 
 const MARPX_THEMES = [
-  'cantor', 'church', 'copernicus', 'einstein',
-  'frankfurt', 'galileo', 'gauss', 'gropius',
-  'gödel', 'haskell', 'hobbes', 'lorca',
-  'marpx', 'newton', 'socrates', 'sparta'
+  'cantor',
+  'church',
+  'copernicus',
+  'einstein',
+  'frankfurt',
+  'galileo',
+  'gauss',
+  'gropius',
+  'gödel',
+  'haskell',
+  'hobbes',
+  'lorca',
+  'marpx',
+  'newton',
+  'socrates',
+  'sparta',
 ];
 const BUILTIN_THEMES = ['default', 'gaia', 'uncover'];
 const ALL_THEMES = [...BUILTIN_THEMES, ...MARPX_THEMES].sort();
@@ -121,12 +133,12 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   if (themeMatch) {
     return {
       from: line.from + lineTextBefore.lastIndexOf(themeMatch[1]),
-      options: ALL_THEMES.map(t => ({
+      options: ALL_THEMES.map((t) => ({
         label: t,
         type: 'keyword',
-        detail: MARPX_THEMES.includes(t) ? 'X' : ''
+        detail: MARPX_THEMES.includes(t) ? 'X' : '',
       })),
-      filter: true
+      filter: true,
     };
   }
 
@@ -135,13 +147,13 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   if (tagMatch) {
     return {
       from: line.from + lineTextBefore.lastIndexOf(tagMatch[1]),
-      options: MARPX_TAGS.map(t => ({
+      options: MARPX_TAGS.map((t) => ({
         label: t.label,
         type: 'type',
         detail: 'MarpX Tag',
-        apply: t.label + '></' + t.label + '>'
+        apply: t.label + '></' + t.label + '>',
       })),
-      filter: true
+      filter: true,
     };
   }
 
@@ -149,16 +161,16 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   const commentMatch = lineTextBefore.match(/<!--\s*(_?\w*)$/);
   if (commentMatch) {
     const isLocal = commentMatch[1].startsWith('_');
-    const options = (isLocal ? LOCAL_DIRECTIVES : [...GLOBAL_DIRECTIVES, ...LOCAL_DIRECTIVES]);
+    const options = isLocal ? LOCAL_DIRECTIVES : [...GLOBAL_DIRECTIVES, ...LOCAL_DIRECTIVES];
     return {
       from: line.from + lineTextBefore.lastIndexOf(commentMatch[1]),
-      options: options.map(d => ({
+      options: options.map((d) => ({
         label: d.label,
         type: 'property',
         detail: d.detail,
-        apply: d.label + ': '
+        apply: d.label + ': ',
       })),
-      filter: true
+      filter: true,
     };
   }
 
@@ -168,13 +180,13 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
     if (isStartOfLine || context.explicit) {
       return {
         from: word.from,
-        options: GLOBAL_DIRECTIVES.map(d => ({
+        options: GLOBAL_DIRECTIVES.map((d) => ({
           label: d.label,
           type: 'property',
           detail: d.detail,
-          apply: d.label + ': '
+          apply: d.label + ': ',
         })),
-        filter: true
+        filter: true,
       };
     }
   }
@@ -185,7 +197,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
     const langStart = line.from + fenceMatch[1].length;
     return {
       from: langStart,
-      options: CODE_FENCE_LANGUAGES.map(l => ({
+      options: CODE_FENCE_LANGUAGES.map((l) => ({
         label: l.label,
         type: 'keyword',
         detail: l.detail,
@@ -201,7 +213,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   if (emojiMatch && emojiMatch.from !== emojiMatch.to) {
     return {
       from: emojiMatch.from,
-      options: EMOJI_SHORTCODES.map(e => ({
+      options: EMOJI_SHORTCODES.map((e) => ({
         label: `:${e.code}: ${e.emoji}`,
         type: 'text',
         apply: `:${e.code}:`,
@@ -216,10 +228,10 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   const snippetPrefix = context.matchBefore(/[#!$*=\^:`-]*/);
   if (context.explicit || (snippetPrefix && snippetPrefix.from !== snippetPrefix.to)) {
     const isSlides = isInFrontMatter || fullText.includes('marp: true');
-    const options = SNIPPETS.filter(s => {
+    const options = SNIPPETS.filter((s) => {
       if (!isSlides && s.apply.includes('bg')) return false;
       return true;
-    }).map(s => {
+    }).map((s) => {
       if (!isSlides && s.label === '![bg] Background') {
         return { ...s, label: '![alt] Image', apply: '![alt](url)', detail: 'Standard image' };
       }
@@ -227,14 +239,14 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
         label: s.label,
         type: 'text',
         apply: s.apply,
-        detail: s.detail
+        detail: s.detail,
       };
     });
 
     return {
       from: snippetPrefix ? snippetPrefix.from : context.pos,
       options: options,
-      filter: true
+      filter: true,
     };
   }
 
@@ -245,8 +257,7 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
 
 const marpHighlightStyle = HighlightStyle.define([
   {
-    tag: [tags.heading1, tags.heading2, tags.heading3,
-    tags.heading4, tags.heading5, tags.heading6],
+    tag: [tags.heading1, tags.heading2, tags.heading3, tags.heading4, tags.heading5, tags.heading6],
     color: 'var(--cm-color-heading)',
     fontWeight: 'bold',
   },
@@ -255,11 +266,12 @@ const marpHighlightStyle = HighlightStyle.define([
   { tag: tags.monospace, color: 'var(--cm-color-code)' },
   {
     tag: [tags.comment, tags.blockComment, tags.lineComment],
-    color: 'var(--cm-color-comment)', fontStyle: 'italic'
+    color: 'var(--cm-color-comment)',
+    fontStyle: 'italic',
   },
   {
     tag: [tags.meta, tags.keyword, tags.propertyName],
-    color: 'var(--cm-color-meta)'
+    color: 'var(--cm-color-meta)',
   },
   { tag: tags.url, color: 'var(--cm-color-code)' },
 ]);
@@ -295,7 +307,7 @@ const separatorPlugin = ViewPlugin.fromClass(
       }
     }
   },
-  { decorations: v => v.decorations },
+  { decorations: (v) => v.decorations },
 );
 
 const folioBaseTheme = EditorView.theme({
@@ -372,8 +384,51 @@ const folioBaseTheme = EditorView.theme({
   'li[aria-selected] .cm-completionDetail': {
     color: 'white',
     opacity: '1',
-  }
+  },
 });
+
+export function isValidUrl(str: string): boolean {
+  try {
+    const url = new URL(str.trim());
+    return (
+      url.protocol === 'http:' ||
+      url.protocol === 'https:' ||
+      url.protocol === 'file:' ||
+      url.protocol === 'data:'
+    );
+  } catch {
+    const trimmed = str.trim();
+    return /^https?:\/\/[^\s$.?#].[^\s]*$/i.test(trimmed);
+  }
+}
+
+export function isImageUrl(urlStr: string): boolean {
+  const trimmed = urlStr.trim();
+  if (trimmed.toLowerCase().startsWith('data:image/')) {
+    return true;
+  }
+  try {
+    const url = new URL(trimmed);
+    const pathname = url.pathname.toLowerCase();
+    const imageExtensions = [
+      '.png',
+      '.jpg',
+      '.jpeg',
+      '.gif',
+      '.svg',
+      '.webp',
+      '.bmp',
+      '.ico',
+      '.tiff',
+      '.tif',
+      '.avif',
+    ];
+    return imageExtensions.some((ext) => pathname.endsWith(ext));
+  } catch {
+    const cleanStr = trimmed.toLowerCase();
+    return /\.(png|jpg|jpeg|gif|svg|webp|bmp|ico|tiff|tif|avif)(\?.*)?(#.*)?$/.test(cleanStr);
+  }
+}
 
 export function createFolioExtensions(
   onChange: (content: string) => void,
@@ -388,9 +443,73 @@ export function createFolioExtensions(
     separatorPlugin,
     EditorView.lineWrapping,
     autocompletion({
-      override: [marpCompletionSource]
+      override: [marpCompletionSource],
     }),
-    EditorView.updateListener.of(update => {
+    EditorView.domEventHandlers({
+      dragover(event) {
+        const types = event.dataTransfer?.types;
+        if (types && (types.includes('text/uri-list') || types.includes('text/plain'))) {
+          event.preventDefault();
+          if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'copy';
+          }
+        }
+      },
+      drop(event, view) {
+        if (!event.dataTransfer) return false;
+
+        let url = '';
+        const uriList = event.dataTransfer.getData('text/uri-list');
+        if (uriList) {
+          const lines = uriList
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line && !line.startsWith('#'));
+          if (lines.length > 0) {
+            url = lines[0];
+          }
+        }
+
+        if (!url) {
+          const plainText = event.dataTransfer.getData('text/plain')?.trim();
+          if (plainText && isValidUrl(plainText)) {
+            url = plainText;
+          }
+        }
+
+        if (url && isValidUrl(url)) {
+          event.preventDefault();
+
+          const isImage = isImageUrl(url);
+          const insertion = isImage ? `![alt](${url})` : `[link](${url})`;
+
+          const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
+          const insertPos = pos !== null ? pos : view.state.selection.main.head;
+
+          let selStart = insertPos;
+          let selEnd = insertPos;
+          if (isImage) {
+            selStart = insertPos + 2;
+            selEnd = insertPos + 5;
+          } else {
+            selStart = insertPos + 1;
+            selEnd = insertPos + 5;
+          }
+
+          view.dispatch({
+            changes: { from: insertPos, to: insertPos, insert: insertion },
+            selection: { anchor: selStart, head: selEnd },
+            scrollIntoView: true,
+            userEvent: 'input.type',
+          });
+
+          setTimeout(() => view.focus(), 0);
+          return true;
+        }
+        return false;
+      },
+    }),
+    EditorView.updateListener.of((update) => {
       if (update.docChanged) {
         onChange(update.state.doc.toString());
       }

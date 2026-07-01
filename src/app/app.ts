@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -59,7 +68,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
   host: {
     class: 'app-root',
     '(window:mouseup)': 'onDragEnd()',
-    '(window:keydown)': 'onWindowKeydown($event)'
+    '(window:keydown)': 'onWindowKeydown($event)',
   },
 })
 export class App {
@@ -74,28 +83,23 @@ export class App {
   private readonly shouldShowSafariWarning = shouldShowApplePlatformWarning;
 
   readonly isWide = toSignal(
-    this.breakpointObserver.observe('(min-width: 840px)').pipe(
-      map(r => r.matches),
-    ),
+    this.breakpointObserver.observe('(min-width: 840px)').pipe(map((r) => r.matches)),
     { initialValue: false },
   );
 
-  protected readonly colorSchemeIcon = computed(
-    () => COLOR_SCHEME_ICON[this.store.colorScheme()],
-  );
+  protected readonly colorSchemeIcon = computed(() => COLOR_SCHEME_ICON[this.store.colorScheme()]);
 
   protected readonly colorSchemeLabel = computed(
     () => COLOR_SCHEME_LABEL[this.store.colorScheme()],
   );
 
   protected readonly isDragging = signal(false);
- 
+
   protected readonly isEditingTitle = signal(false);
   protected readonly editValue = signal('');
 
   // Focus mode: hide chrome so only editor remains
   protected readonly isFocusMode = signal(false);
-
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -112,7 +116,7 @@ export class App {
     const diffX = this.touchStartX - endX;
     const diffY = Math.abs(this.touchStartY - endY);
 
-    // Threshold: at least 50px horizontal, and horizontal must be 
+    // Threshold: at least 50px horizontal, and horizontal must be
     // significantly larger than vertical (to ignore scroll).
     if (Math.abs(diffX) > 50 && Math.abs(diffX) > diffY) {
       if (diffX > 0 && this.store.selectedTab() === 0) {
@@ -127,7 +131,8 @@ export class App {
 
   protected readonly displayedFileName = computed(() => {
     const current = this.store.currentFile();
-    if (!current) return this.store.documentType() === 'slides' ? 'New Presentation' : 'New Document';
+    if (!current)
+      return this.store.documentType() === 'slides' ? 'New Presentation' : 'New Document';
 
     if (current.endsWith('.slides.md')) return current.slice(0, -10);
     if (current.endsWith('.md')) return current.slice(0, -3);
@@ -218,51 +223,38 @@ export class App {
   protected onPrintPdf(): void {
     this.exportService.print(this.store.currentMarkdown());
   }
- 
+
   protected onShowHelp(): void {
     this.dialog.open(HelpDialogComponent, {
       width: '90vw',
       maxWidth: '850px',
       maxHeight: '90vh',
-      panelClass: 'folio-help-dialog'
+      panelClass: 'folio-help-dialog',
     });
   }
 
   protected toggleFocus(): void {
-   const next = !this.isFocusMode();
-   this.isFocusMode.set(next);
+    const next = !this.isFocusMode();
+    this.isFocusMode.set(next);
 
-   if (next) {
-     // Add a document-level class so elements rendered outside the app container (e.g., overlays)
-     // can also be hidden by CSS when focus mode is active. Apply to both <html> and <body>.
-     try {
-       document.documentElement.classList.add('focus-mode');
-       if (document.body) document.body.classList.add('focus-mode');
-     } catch (e) {
-       console.warn('Failed to set focus-mode class on document root', e);
-     }
-
-     const snack = this.snackBar.open('Focus mode: press Shift+Esc to exit', 'Exit', { duration: 5000 });
-     snack.onAction().subscribe(() => this.isFocusMode.set(false));
-   } else {
-     try {
-       document.documentElement.classList.remove('focus-mode');
-       if (document.body) document.body.classList.remove('focus-mode');
-     } catch (e) {
-       console.warn('Failed to remove focus-mode class from document root', e);
-     }
-     this.snackBar.open('Exited focus mode', 'Dismiss', { duration: 2000 });
-   }
+    if (next) {
+      const snack = this.snackBar.open('Focus mode: press Shift+Esc to exit', 'Exit', {
+        duration: 5000,
+      });
+      snack.onAction().subscribe(() => this.isFocusMode.set(false));
+    } else {
+      this.snackBar.open('Exited focus mode', 'Dismiss', { duration: 2000 });
+    }
   }
 
   protected onWindowKeydown(event: KeyboardEvent): void {
-   // Toggle focus mode with Shift+Escape
-   if (event.key === 'Escape' && event.shiftKey) {
-     // Prevent interfering when renaming title input
-     // If an input is focused and the title is being edited, allow Escape to cancel that first
-     this.toggleFocus();
-     event.preventDefault();
-   }
+    // Toggle focus mode with Shift+Escape
+    if (event.key === 'Escape' && event.shiftKey) {
+      // Prevent interfering when renaming title input
+      // If an input is focused and the title is being edited, allow Escape to cancel that first
+      this.toggleFocus();
+      event.preventDefault();
+    }
   }
 
   private maybeShowSafariWarning(): void {
@@ -270,21 +262,24 @@ export class App {
       return;
     }
 
-    this.dialog.open(SafariWarningDialogComponent, {
-      width: 'min(92vw, 560px)',
-      maxWidth: '560px',
-      panelClass: 'folio-warning-dialog',
-      autoFocus: false,
-    }).afterClosed().subscribe(() => {
-      this.store.dismissSafariWarning();
-    });
+    this.dialog
+      .open(SafariWarningDialogComponent, {
+        width: 'min(92vw, 560px)',
+        maxWidth: '560px',
+        panelClass: 'folio-warning-dialog',
+        autoFocus: false,
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.store.dismissSafariWarning();
+      });
   }
 
   private readonly isSystemDark = toSignal(
     fromEvent(window.matchMedia('(prefers-color-scheme: dark)'), 'change').pipe(
-      map(e => (e as MediaQueryListEvent).matches),
-      startWith(window.matchMedia('(prefers-color-scheme: dark)').matches)
-    )
+      map((e) => (e as MediaQueryListEvent).matches),
+      startWith(window.matchMedia('(prefers-color-scheme: dark)').matches),
+    ),
   );
 
   constructor() {
@@ -296,6 +291,22 @@ export class App {
     effect(() => {
       if (this.isEditingTitle()) {
         setTimeout(() => this.titleInput()?.nativeElement.focus(), 0);
+      }
+    });
+
+    // Sync focus-mode class on document root and body when focus mode changes
+    effect(() => {
+      const active = this.isFocusMode();
+      try {
+        if (active) {
+          document.documentElement.classList.add('focus-mode');
+          if (document.body) document.body.classList.add('focus-mode');
+        } else {
+          document.documentElement.classList.remove('focus-mode');
+          if (document.body) document.body.classList.remove('focus-mode');
+        }
+      } catch (e) {
+        console.warn('Failed to sync focus-mode class on document root', e);
       }
     });
 

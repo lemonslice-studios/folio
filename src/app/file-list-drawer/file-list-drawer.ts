@@ -9,6 +9,7 @@ import { AppStore, SAMPLE_MARKDOWN, SAMPLE_PROSE } from '../store/app-store';
 import { SettingsDialogComponent } from '../settings-dialog/settings-dialog';
 import { FsService } from '../services/fs.service';
 import { EditorService } from '../services/editor.service';
+import { AiPromptDialogComponent, AiPromptResult } from '../ai-prompt-dialog/ai-prompt-dialog';
 import JSZip from 'jszip';
 
 @Component({
@@ -50,6 +51,34 @@ export class FileListDrawerComponent {
     this.closeDrawer.emit();
   }
 
+  onNewWithAi(): void {
+    const dialogRef = this.dialog.open<
+      AiPromptDialogComponent,
+      { forceCreateNewDocument: boolean },
+      AiPromptResult
+    >(AiPromptDialogComponent, {
+      width: '100%',
+      maxWidth: '600px',
+      autoFocus: 'textarea',
+      data: { forceCreateNewDocument: true },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result && result.content) {
+        const content = result.content.trim();
+        const hasFrontMatter = content.startsWith('---');
+        const isSlides = hasFrontMatter && /marp:\s*true/i.test(content);
+
+        const defaultName = isSlides
+          ? 'AI Generated Presentation.slides.md'
+          : 'AI Generated Document.md';
+        const filename = await this.store.createFile(defaultName, result.content, isSlides);
+        this.showNewFileSnackBar(filename, isSlides);
+        this.closeDrawer.emit();
+      }
+    });
+  }
+
   async onImportFile(): Promise<void> {
     // Create a hidden file input to let the user pick a local file
     const input = document.createElement('input');
@@ -84,7 +113,9 @@ export class FileListDrawerComponent {
   async onFromClipboard(): Promise<void> {
     // Read text from the clipboard and create a new document from it
     if (!navigator.clipboard || typeof navigator.clipboard.readText !== 'function') {
-      this.snackBar.open('Clipboard API not available in this browser', 'Dismiss', { duration: 3000 });
+      this.snackBar.open('Clipboard API not available in this browser', 'Dismiss', {
+        duration: 3000,
+      });
       return;
     }
 
@@ -93,7 +124,11 @@ export class FileListDrawerComponent {
       text = await navigator.clipboard.readText();
     } catch (e) {
       console.warn('Failed to read clipboard', e);
-      this.snackBar.open('Unable to read clipboard. Grant permission or paste manually.', 'Dismiss', { duration: 4000 });
+      this.snackBar.open(
+        'Unable to read clipboard. Grant permission or paste manually.',
+        'Dismiss',
+        { duration: 4000 },
+      );
       return;
     }
 

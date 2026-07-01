@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,9 +37,13 @@ export class AiPromptDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<AiPromptDialogComponent, AiPromptResult>);
   private readonly ai = inject(AiService);
   private readonly store = inject(AppStore);
+  private readonly data = inject<{ forceCreateNewDocument?: boolean }>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
 
+  protected readonly forceCreateNewDocument = !!this.data?.forceCreateNewDocument;
   protected readonly prompt = signal('');
-  protected readonly createNewDocument = signal(false);
+  protected readonly createNewDocument = signal(this.forceCreateNewDocument);
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -50,7 +54,7 @@ export class AiPromptDialogComponent {
     this.error.set(null);
 
     try {
-      const currentMarkdown = this.store.currentMarkdown();
+      const currentMarkdown = this.forceCreateNewDocument ? '' : this.store.currentMarkdown();
       const modifiedContent = await this.ai.generateContent(this.prompt(), currentMarkdown);
       this.dialogRef.close({
         content: modifiedContent,

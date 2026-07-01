@@ -1,19 +1,31 @@
 <div class="drawer-header">
   <div class="header-actions">
-    <a mat-icon-button 
-       href="https://buymeacoffee.com/lemonslice" 
-       target="_blank" 
-       rel="noopener noreferrer"
-       aria-label="Support the developer" 
-       matTooltip="Buy me a coffee">
+    <a
+      mat-icon-button
+      href="https://buymeacoffee.com/lemonslice"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Support the developer"
+      matTooltip="Buy me a coffee"
+    >
       <mat-icon>coffee</mat-icon>
     </a>
 
-    <button mat-icon-button (click)="onDownloadAll()" aria-label="Download all files as ZIP" matTooltip="Download all (ZIP)">
+    <button
+      mat-icon-button
+      (click)="onDownloadAll()"
+      aria-label="Download all files as ZIP"
+      matTooltip="Download all (ZIP)"
+    >
       <mat-icon>file_download</mat-icon>
     </button>
 
-    <button mat-icon-button (click)="onShowSettings()" aria-label="Open settings" matTooltip="Settings">
+    <button
+      mat-icon-button
+      (click)="onShowSettings()"
+      aria-label="Open settings"
+      matTooltip="Settings"
+    >
       <mat-icon>settings</mat-icon>
     </button>
   </div>
@@ -21,27 +33,31 @@
 
 <div class="presentation-list">
   @for (file of store.fileList(); track file) {
-    <div class="presentation-card"
-         [class.active]="store.currentFile() === file"
-         (click)="onFileClick(file)">
-      
+    <div
+      class="presentation-card"
+      [class.active]="store.currentFile() === file"
+      (click)="onFileClick(file)"
+    >
       @if (store.currentFile() === file) {
         <div class="active-indicator"></div>
       }
-      
+
       <mat-icon class="file-icon">
         {{ file.endsWith('.slides.md') ? 'slideshow' : 'description' }}
       </mat-icon>
       <span class="filename">{{ file }}</span>
-      
+
       <div class="actions">
         @if (store.currentFile() === file && store.isDirty()) {
           <div class="dirty-indicator" matTooltip="Unsaved changes"></div>
         }
-        
-        <button mat-icon-button class="delete-button" 
-                (click)="onDelete($event, file)" 
-                matTooltip="Delete document">
+
+        <button
+          mat-icon-button
+          class="delete-button"
+          (click)="onDelete($event, file)"
+          matTooltip="Delete document"
+        >
           <mat-icon>delete_outline</mat-icon>
         </button>
       </div>
@@ -50,12 +66,13 @@
     <div class="empty-state">
       <p>No documents yet.</p>
       <div class="empty-actions">
-        <button mat-flat-button (click)="onNewProse()">
-          Create prose
-        </button>
-        <button mat-flat-button (click)="onNewSlides()">
-          Create slides
-        </button>
+        @if (store.prefs().geminiApiKey) {
+          <button mat-flat-button color="tertiary" (click)="onNewWithAi()">
+            Create with Gemini
+          </button>
+        }
+        <button mat-flat-button (click)="onNewProse()">Create prose</button>
+        <button mat-flat-button (click)="onNewSlides()">Create slides</button>
       </div>
     </div>
   }
@@ -66,7 +83,7 @@
     <mat-icon>add</mat-icon>
     New
   </button>
-  
+
   <mat-menu #createMenu="matMenu">
     <button mat-menu-item (click)="onNewProse()">
       <mat-icon>description</mat-icon>
@@ -84,5 +101,11 @@
       <mat-icon>content_paste</mat-icon>
       <span>From Clipboard</span>
     </button>
+    @if (store.prefs().geminiApiKey) {
+      <button mat-menu-item (click)="onNewWithAi()">
+        <mat-icon>auto_awesome</mat-icon>
+        <span>Create with Gemini</span>
+      </button>
+    }
   </mat-menu>
 </div>

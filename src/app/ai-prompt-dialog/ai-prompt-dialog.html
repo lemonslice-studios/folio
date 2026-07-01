@@ -5,8 +5,13 @@
 
 <mat-dialog-content class="prompt-content">
   <p class="description">
-    Describe how you want to modify your slides or document. 
-    Gemini will rewrite the content for you.
+    @if (forceCreateNewDocument) {
+      Describe the document or presentation you want to create. Gemini will generate the initial
+      content for you.
+    } @else {
+      Describe how you want to modify your slides or document. Gemini will rewrite the content for
+      you.
+    }
   </p>
 
   <mat-form-field appearance="outline" class="full-width">
@@ -23,13 +28,15 @@
     <mat-hint>Press Ctrl+Enter to submit</mat-hint>
   </mat-form-field>
 
-  <mat-checkbox
-    [checked]="createNewDocument()"
-    (change)="createNewDocument.set($event.checked)"
-    [disabled]="isLoading()"
-  >
-    Create as new document
-  </mat-checkbox>
+  @if (!forceCreateNewDocument) {
+    <mat-checkbox
+      [checked]="createNewDocument()"
+      (change)="createNewDocument.set($event.checked)"
+      [disabled]="isLoading()"
+    >
+      Create as new document
+    </mat-checkbox>
+  }
 
   @if (error()) {
     <div class="error-message">

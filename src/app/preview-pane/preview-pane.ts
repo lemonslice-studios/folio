@@ -42,9 +42,9 @@ export class PreviewPaneComponent {
   private reloadingTimeout?: any;
   private lastSrcdoc = '';
 
-  /** 
-   * Tracks document visibility and focus to force a re-render when the app 
-   * is resumed from the background. Mobile browsers often discard iframe 
+  /**
+   * Tracks document visibility and focus to force a re-render when the app
+   * is resumed from the background. Mobile browsers often discard iframe
    * content or defer loading when hidden.
    */
   private readonly isVisible = signal(document.visibilityState === 'visible');
@@ -59,10 +59,10 @@ export class PreviewPaneComponent {
   private readonly rendered = toSignal(
     combineLatest([
       toObservable(this.store.currentMarkdown),
-      toObservable(this.store.documentType)
+      toObservable(this.store.documentType),
     ]).pipe(
       switchMap(([md, type], index) => {
-        const debounceTime = index === 0 ? 0 : (type === 'prose' ? 600 : 300);
+        const debounceTime = index === 0 ? 0 : type === 'prose' ? 600 : 300;
         return timer(debounceTime).pipe(map(() => ({ md, type })));
       }),
       map(({ md, type }) => {
@@ -74,28 +74,43 @@ export class PreviewPaneComponent {
       }),
     ),
     {
-      initialValue: this.store.documentType() === 'slides'
-        ? { type: 'slides' as const, ...this.marpService.render(this.store.currentMarkdown()) }
-        : { type: 'prose' as const, ...this.proseService.render(this.store.currentMarkdown()) }
+      initialValue:
+        this.store.documentType() === 'slides'
+          ? { type: 'slides' as const, ...this.marpService.render(this.store.currentMarkdown()) }
+          : { type: 'prose' as const, ...this.proseService.render(this.store.currentMarkdown()) },
     },
   );
 
   constructor() {
+    // Ensure the iframe content window gets focus when entering fullscreen mode
+    // so keyboard event handlers inside the preview receive keystrokes immediately.
+    fromEvent(document, 'fullscreenchange')
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        const iframe = this.iframeRef()?.nativeElement;
+        if (iframe && document.fullscreenElement === iframe) {
+          iframe.contentWindow?.focus();
+          // Focus again after small delays to counter browser focus resetting during transition
+          setTimeout(() => iframe.contentWindow?.focus(), 50);
+          setTimeout(() => iframe.contentWindow?.focus(), 150);
+        }
+      });
+
     // Force re-render on visibility/focus change (background -> foreground) or tab activation.
     merge(
       fromEvent(document, 'visibilitychange'),
       fromEvent(window, 'focus'),
       fromEvent(window, 'pageshow'),
-      toObservable(this.active).pipe(filter(v => v))
+      toObservable(this.active).pipe(filter((v) => v)),
     )
       .pipe(
         takeUntilDestroyed(),
         switchMap(() => timer(300).pipe(map(() => document.visibilityState === 'visible'))),
       )
-      .subscribe(visible => {
+      .subscribe((visible) => {
         this.isVisible.set(visible);
         if (visible && this.active()) {
-          this.refreshTrigger.update(n => n + 1);
+          this.refreshTrigger.update((n) => n + 1);
         }
       });
 
@@ -116,9 +131,18 @@ export class PreviewPaneComponent {
       let nextSrcdoc = '';
 
       if (result.type === 'slides') {
-        nextSrcdoc = this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
+        nextSrcdoc =
+          this.marpService.buildSrcdoc(result.html, result.css, false, appTheme) + reloadMeta;
       } else {
-        nextSrcdoc = this.proseService.buildSrcdoc(result.html, false, proseMode, colorScheme, appTheme, this.store.prefs().fontFamily) + reloadMeta;
+        nextSrcdoc =
+          this.proseService.buildSrcdoc(
+            result.html,
+            false,
+            proseMode,
+            colorScheme,
+            appTheme,
+            this.store.prefs().fontFamily,
+          ) + reloadMeta;
       }
 
       if (nextSrcdoc === this.lastSrcdoc) {
@@ -134,7 +158,7 @@ export class PreviewPaneComponent {
       this.isFrameReady.set(false);
 
       // If we already had a "ready" message for this specific trigger (race condition),
-      // we might need to clear it, but usually the srcdoc swap will 
+      // we might need to clear it, but usually the srcdoc swap will
       // trigger a new 'ready' message from the new document anyway.
 
       if (result.type === 'slides') {
@@ -143,7 +167,8 @@ export class PreviewPaneComponent {
         const win = iframe.nativeElement.contentWindow;
         const scrollEl = iframe.nativeElement.contentDocument?.documentElement;
         const bodyEl = iframe.nativeElement.contentDocument?.body;
-        this.proseScrollY = win?.pageYOffset ?? win?.scrollY ?? scrollEl?.scrollTop ?? bodyEl?.scrollTop ?? 0;
+        this.proseScrollY =
+          win?.pageYOffset ?? win?.scrollY ?? scrollEl?.scrollTop ?? bodyEl?.scrollTop ?? 0;
       }
 
       // Aggressive Failsafe: If the iframe doesn't report back within 2000ms,
@@ -162,15 +187,19 @@ export class PreviewPaneComponent {
     effect(() => {
       if (this.store.documentType() !== 'slides' || !this.active() || !this.isFrameReady()) return;
       const idx = this.store.currentSlideIndex();
-      this.iframeRef()?.nativeElement.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: idx }, '*');
+      this.iframeRef()?.nativeElement.contentWindow?.postMessage(
+        { folioIdentifier: 'folio-preview', slideIndex: idx },
+        '*',
+      );
     });
 
     // Receive messages from the preview iframe.
     fromEvent<MessageEvent>(window, 'message')
       .pipe(takeUntilDestroyed())
-      .subscribe(e => {
+      .subscribe((e) => {
         const iframe = this.iframeRef()?.nativeElement;
-        const isFromOurIframe = e.source === iframe?.contentWindow || e.data?.folioIdentifier === 'folio-preview';
+        const isFromOurIframe =
+          e.source === iframe?.contentWindow || e.data?.folioIdentifier === 'folio-preview';
         if (!isFromOurIframe) return;
 
         if (e.data?.type === 'ready') {
@@ -185,7 +214,11 @@ export class PreviewPaneComponent {
           }
         }
 
-        if (e.data?.pageCount !== undefined || e.data?.type === 'flowLoaded' || e.data?.slideIndex !== undefined) {
+        if (
+          e.data?.pageCount !== undefined ||
+          e.data?.type === 'flowLoaded' ||
+          e.data?.slideIndex !== undefined
+        ) {
           if (e.data?.pageCount !== undefined) {
             this.store.setSlideCount(e.data.pageCount);
           }
@@ -212,7 +245,10 @@ export class PreviewPaneComponent {
   protected onFrameLoad(): void {
     const iframe = this.iframeRef()?.nativeElement;
     if (!iframe) return;
-    iframe.contentWindow?.postMessage({ folioIdentifier: 'folio-preview', slideIndex: this.store.currentSlideIndex() }, '*');
+    iframe.contentWindow?.postMessage(
+      { folioIdentifier: 'folio-preview', slideIndex: this.store.currentSlideIndex() },
+      '*',
+    );
 
     if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow') {
       iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
@@ -228,7 +264,21 @@ export class PreviewPaneComponent {
   }
 
   protected present(): void {
-    this.iframeRef()?.nativeElement.requestFullscreen();
+    const iframe = this.iframeRef()?.nativeElement;
+    if (iframe) {
+      const res = iframe.requestFullscreen();
+      if (res instanceof Promise) {
+        res
+          .then(() => {
+            iframe.contentWindow?.focus();
+          })
+          .catch(() => {
+            iframe.contentWindow?.focus();
+          });
+      } else {
+        iframe.contentWindow?.focus();
+      }
+    }
   }
 
   protected toggleProseMode(): void {

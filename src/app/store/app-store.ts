@@ -498,6 +498,15 @@ export class AppStore {
     this.currentMarkdown.set(value);
     this.isDirty.set(true);
   }
+
+  async saveCurrentFile(): Promise<void> {
+    const file = this.currentFile();
+    const markdown = this.currentMarkdown();
+    if (file) {
+      await this.fs.writeFile(file, markdown);
+      this.isDirty.set(false);
+    }
+  }
   setEditorWidth(width: number): void {
     const minWidth = 200;
     const maxWidth = window.innerWidth - 200;

@@ -247,6 +247,17 @@ export class App {
     }
   }
 
+  protected async triggerSave(): Promise<void> {
+    const file = this.store.currentFile();
+    if (!file) return;
+    try {
+      await this.store.saveCurrentFile();
+      this.snackBar.open('Saved to local storage', 'Dismiss', { duration: 2000 });
+    } catch (e: any) {
+      this.snackBar.open(`Save failed: ${e.message || e}`, 'Dismiss', { duration: 3000 });
+    }
+  }
+
   protected onWindowKeydown(event: KeyboardEvent): void {
     // Toggle focus mode with Shift+Escape
     if (event.key === 'Escape' && event.shiftKey) {
@@ -254,6 +265,12 @@ export class App {
       // If an input is focused and the title is being edited, allow Escape to cancel that first
       this.toggleFocus();
       event.preventDefault();
+    }
+
+    // Save shortcut: Ctrl+S or Cmd+S
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      void this.triggerSave();
     }
   }
 

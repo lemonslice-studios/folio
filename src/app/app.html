@@ -12,50 +12,37 @@
 
       <div class="toolbar__title-container">
         @if (isEditingTitle()) {
-          <input 
-            #titleInput
-            type="text" 
-            class="toolbar__title-input"
-            [value]="editValue()"
-            (input)="editValue.set(titleInput.value)"
-            (blur)="finishRename()"
-            (keydown)="onTitleKeydown($event)"
-            aria-label="Rename document"
-          >
+        <input #titleInput type="text" class="toolbar__title-input" [value]="editValue()"
+          (input)="editValue.set(titleInput.value)" (blur)="finishRename()" (keydown)="onTitleKeydown($event)"
+          aria-label="Rename document">
         } @else {
-          <button 
-            mat-button 
-            class="toolbar__file-chip" 
-            (click)="onTitleClick()" 
-            aria-label="Rename document"
-            matTooltip="Rename document"
-          >
-            <mat-icon class="toolbar__file-icon">
-              {{ store.currentFile()?.endsWith('.slides.md') ? 'slideshow' : 'description' }}
-            </mat-icon>
-            <span class="toolbar__filename">{{ displayedFileName() }}</span>
-          </button>
+        <button mat-button class="toolbar__file-chip" (click)="onTitleClick()" aria-label="Rename document"
+          matTooltip="Rename document">
+          <mat-icon class="toolbar__file-icon">
+            {{ store.currentFile()?.endsWith('.slides.md') ? 'slideshow' : 'description' }}
+          </mat-icon>
+          <span class="toolbar__filename">{{ displayedFileName() }}</span>
+        </button>
         }
 
       </div>
 
       @if (store.isDirty()) {
-        <div class="toolbar__dirty-indicator" matTooltip="Unsaved changes"></div>
+      <div class="toolbar__dirty-indicator" matTooltip="Unsaved changes"></div>
       }
 
       <span class="toolbar__spacer"></span>
 
       @if (store.driveEnabled()) {
-        <button mat-icon-button (click)="store.syncNow()" 
-          [disabled]="store.syncStatus() === 'syncing'"
-          [matTooltip]="store.syncStatus() === 'syncing' ? 'Syncing...' : store.syncStatus() === 'error' ? 'Sync error - Click to retry' : 'Sync with Google Drive'" 
-          aria-label="Sync with Google Drive">
-          @if (store.syncStatus() === 'error') {
-            <mat-icon color="warn">sync_problem</mat-icon>
-          } @else {
-            <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
-          }
-        </button>
+      <button mat-icon-button (click)="store.syncNow()" [disabled]="store.syncStatus() === 'syncing'"
+        [matTooltip]="store.syncStatus() === 'syncing' ? 'Syncing...' : store.syncStatus() === 'error' ? 'Sync error - Click to retry' : 'Sync with Google Drive'"
+        aria-label="Sync with Google Drive">
+        @if (store.syncStatus() === 'error') {
+        <mat-icon color="warn">sync_problem</mat-icon>
+        } @else {
+        <mat-icon [class.spinning]="store.syncStatus() === 'syncing'">sync</mat-icon>
+        }
+      </button>
       }
 
       <button mat-icon-button [matMenuTriggerFor]="exportMenu" aria-label="Export document" matTooltip="Export">
@@ -77,15 +64,14 @@
       </mat-menu>
 
       @if (isWide()) {
-        <button mat-icon-button (click)="store.togglePreview()" 
-          [matTooltip]="store.previewVisible() ? 'Hide Preview' : 'Show Preview'"
-          aria-label="Toggle preview visibility">
-          <mat-icon>{{ store.previewVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
+      <button mat-icon-button (click)="store.togglePreview()"
+        [matTooltip]="store.previewVisible() ? 'Hide Preview' : 'Show Preview'" aria-label="Toggle preview visibility">
+        <mat-icon>{{ store.previewVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
 
-        <button mat-icon-button (click)="toggleFocus()" aria-label="Focus editor" matTooltip="Focus (Shift+Esc)">
-          <mat-icon>adjust</mat-icon>
-        </button>
+      <button mat-icon-button (click)="toggleFocus()" aria-label="Focus editor" matTooltip="Focus (Shift+Esc)">
+        <mat-icon>adjust</mat-icon>
+      </button>
       }
 
       <button mat-icon-button (click)="onShowHelp()" aria-label="Show cheatsheet" matTooltip="Help">
@@ -94,41 +80,29 @@
     </mat-toolbar>
 
     @if (isWide()) {
-      <div #splitPane class="split-pane" role="main" 
-        [class.is-dragging]="isDragging()"
-        [class.preview-hidden]="!store.previewVisible() && store.documentType() === 'prose'"
-        [style.grid-template-columns]="(store.previewVisible() || store.documentType() === 'slides') ? (store.editorWidth() + 'px 1px 1fr') : '1fr'">
-        
-        <div class="split-pane__shield" [class.active]="isDragging()"></div>
+    <div #splitPane class="split-pane" role="main" [class.is-dragging]="isDragging()"
+      [class.preview-hidden]="!store.previewVisible() && store.documentType() === 'prose'"
+      [style.grid-template-columns]="(store.previewVisible() || store.documentType() === 'slides') ? (store.editorWidth() + 'px 1px 1fr') : '1fr'">
 
-        <app-editor-pane class="split-pane__editor" />
-        <div
-          class="split-pane__divider"
-          role="separator"
-          aria-orientation="vertical"
-          cdkDrag
-          cdkDragLockAxis="x"
-          (mousedown)="onDragStart()"
-          (cdkDragStarted)="onDragStart()"
-          (cdkDragEnded)="onDragEnd()"
-          (cdkDragMoved)="onResize($event)"
-        ></div>
-        <app-preview-pane class="split-pane__preview" [active]="true" />
-      </div>
+      <div class="split-pane__shield" [class.active]="isDragging()"></div>
+
+      <app-editor-pane class="split-pane__editor" />
+      <div class="split-pane__divider" role="separator" aria-orientation="vertical" cdkDrag cdkDragLockAxis="x"
+        (mousedown)="onDragStart()" (cdkDragStarted)="onDragStart()" (cdkDragEnded)="onDragEnd()"
+        (cdkDragMoved)="onResize($event)"></div>
+      <app-preview-pane class="split-pane__preview" [active]="true" />
+    </div>
     } @else {
-      <mat-tab-group class="tab-group" animationDuration="200ms" role="main"
-        aria-label="Editor and Preview tabs"
-        [selectedIndex]="store.selectedTab()"
-        (selectedIndexChange)="store.setSelectedTab($event)"
-        (touchstart)="onTouchStart($event)"
-        (touchend)="onTouchEnd($event)">
-        <mat-tab label="Edit">
-          <app-editor-pane [active]="store.selectedTab() === 0" />
-        </mat-tab>
-        <mat-tab label="Preview">
-          <app-preview-pane [active]="store.selectedTab() === 1" (backToEditor)="store.setSelectedTab(0)" />
-        </mat-tab>
-      </mat-tab-group>
+    <mat-tab-group class="tab-group" animationDuration="200ms" role="main" aria-label="Editor and Preview tabs"
+      [selectedIndex]="store.selectedTab()" (selectedIndexChange)="store.setSelectedTab($event)"
+      (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+      <mat-tab label="Edit">
+        <app-editor-pane [active]="store.selectedTab() === 0" />
+      </mat-tab>
+      <mat-tab label="Preview">
+        <app-preview-pane [active]="store.selectedTab() === 1" (backToEditor)="store.setSelectedTab(0)" />
+      </mat-tab>
+    </mat-tab-group>
     }
   </mat-drawer-content>
 </mat-drawer-container>

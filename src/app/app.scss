@@ -288,3 +288,32 @@ mat-drawer-content.app-content {
     height: 100%;
   }
 }
+
+.app-footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  background: var(--surface-container);
+  border-top: 1px solid var(--outline);
+  font-size: 10px;
+  color: var(--on-surface-variant);
+  opacity: 0.8;
+  z-index: 10;
+
+  a {
+    color: var(--color-plasma);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .separator {
+    color: var(--outline);
+  }
+}

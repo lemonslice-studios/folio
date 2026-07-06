@@ -174,6 +174,10 @@ Folio follows **Quiet Tech** constraints — every feature must satisfy:
 
 ---
 
-## License
+## License & Legal
 
 This project is released under the **MIT License**. See [LICENSE](LICENSE) for the full text.
+
+For information regarding data safety and application terms of service, see:
+- [Privacy Policy](PRIVACY.md)
+- [Terms of Service](APPTOS.md)

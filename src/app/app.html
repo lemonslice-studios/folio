@@ -81,8 +81,8 @@
 
     @if (isWide()) {
     <div #splitPane class="split-pane" role="main" [class.is-dragging]="isDragging()"
-      [class.preview-hidden]="!store.previewVisible() && store.documentType() === 'prose'"
-      [style.grid-template-columns]="(store.previewVisible() || store.documentType() === 'slides') ? (store.editorWidth() + 'px 1px 1fr') : '1fr'">
+      [class.preview-hidden]="!store.previewVisible()"
+      [style.grid-template-columns]="store.previewVisible() ? (store.editorWidth() + 'px 1px 1fr') : '1fr'">
 
       <div class="split-pane__shield" [class.active]="isDragging()"></div>
 

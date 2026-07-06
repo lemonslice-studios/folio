@@ -69,6 +69,7 @@ const COLOR_SCHEME_LABEL: Record<string, string> = {
     class: 'app-root',
     '(window:mouseup)': 'onDragEnd()',
     '(window:keydown)': 'onWindowKeydown($event)',
+    '(window:popstate)': 'onPopState($event)',
   },
 })
 export class App {
@@ -258,6 +259,12 @@ export class App {
     }
   }
 
+  protected onPopState(event: PopStateEvent): void {
+    if (this.isFocusMode()) {
+      this.isFocusMode.set(false);
+    }
+  }
+
   protected onWindowKeydown(event: KeyboardEvent): void {
     // Toggle focus mode with Shift+Escape
     if (event.key === 'Escape' && event.shiftKey) {
@@ -318,9 +325,19 @@ export class App {
         if (active) {
           document.documentElement.classList.add('focus-mode');
           if (document.body) document.body.classList.add('focus-mode');
+
+          // Push history state if not already in focus state to intercept back button
+          if (!history.state?.isFocusMode) {
+            history.pushState({ isFocusMode: true }, '');
+          }
         } else {
           document.documentElement.classList.remove('focus-mode');
           if (document.body) document.body.classList.remove('focus-mode');
+
+          // Pop history state if we are exiting focus mode programmatically
+          if (history.state?.isFocusMode) {
+            history.back();
+          }
         }
       } catch (e) {
         console.warn('Failed to sync focus-mode class on document root', e);

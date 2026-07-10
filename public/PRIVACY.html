@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html data-theme="quiet" data-font-family="sans-serif">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRIVACY</title>
+<style>
+  /* ── Colour tokens (Theme-aware) ── */
+  
+  /* Quiet Theme - Light (Base) */
+  [data-theme="quiet"] {
+    --prose-bg:       #ffffff;
+    --prose-canvas:   #f3f0ff;
+    --prose-text:     #1d1b20;
+    --prose-muted:    #555555;
+    --prose-border:   #dfd9f2;
+    --prose-code-bg:  #f5f5f5;
+    --prose-quote-border: #aaaaaa;
+  }
+
+  /* Quiet Theme - Dark (Explicit) */
+  [data-theme="quiet"][data-color-scheme="dark"],
+  [data-theme="quiet"][data-color-scheme="system"][data-system-dark="true"] {
+    --prose-bg:       #1c1b1f;
+    --prose-canvas:   #111116;
+    --prose-text:     #e6e0e9;
+    --prose-muted:    #a09aac;
+    --prose-border:   #2e2e3e;
+    --prose-code-bg:  #2b2930;
+    --prose-quote-border: #6b6573;
+  }
+
+  /* Clean Theme - Light (Base) */
+  [data-theme="clean"] {
+    --prose-bg:       #ffffff;
+    --prose-canvas:   #f2f2f7;
+    --prose-text:     #000000;
+    --prose-muted:    #8e8e93;
+    --prose-border:   #d1d1d6;
+    --prose-code-bg:  #f2f2f7;
+    --prose-quote-border: #c7c7cc;
+  }
+
+  /* Clean Theme - Dark (Explicit) */
+  [data-theme="clean"][data-color-scheme="dark"],
+  [data-theme="clean"][data-color-scheme="system"][data-system-dark="true"] {
+    --prose-bg:       #000000;
+    --prose-canvas:   #1c1c1e;
+    --prose-text:     #ffffff;
+    --prose-muted:    #8e8e93;
+    --prose-border:   #38383a;
+    --prose-code-bg:  #1c1c1e;
+    --prose-quote-border: #38383a;
+  }
+
+  
+  @media (prefers-color-scheme: dark) {
+    [data-theme="quiet"] {
+      --prose-bg:       #1c1b1f;
+      --prose-canvas:   #111116;
+      --prose-text:     #e6e0e9;
+      --prose-muted:    #a09aac;
+      --prose-border:   #2e2e3e;
+      --prose-code-bg:  #2b2930;
+      --prose-quote-border: #6b6573;
+    }
+    [data-theme="clean"] {
+      --prose-bg:       #000000;
+      --prose-canvas:   #1c1c1e;
+      --prose-text:     #ffffff;
+      --prose-muted:    #8e8e93;
+      --prose-border:   #38383a;
+      --prose-code-bg:  #1c1c1e;
+      --prose-quote-border: #38383a;
+    }
+  }
+
+
+  /* ── Base ── */
+  html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--prose-bg);
+    color: var(--prose-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color-scheme: light dark;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  html[data-font-family="serif"], 
+  html[data-font-family="serif"] body,
+  html[data-font-family="serif"] h1,
+  html[data-font-family="serif"] h2,
+  html[data-font-family="serif"] h3,
+  html[data-font-family="serif"] h4,
+  html[data-font-family="serif"] h5,
+  html[data-font-family="serif"] h6,
+  html[data-font-family="serif"] .markdown-body h1,
+  html[data-font-family="serif"] .markdown-body h2,
+  html[data-font-family="serif"] .markdown-body h3 {
+    font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* ── Prose body ── */
+  .markdown-body {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    max-width: 840px; margin: 0 auto; padding: 4rem 2rem;
+  }
+
+  .markdown-body p, .markdown-body ul, .markdown-body ol,
+  .markdown-body blockquote, .markdown-body pre, .markdown-body table {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Headings ── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: inherit;
+    line-height: 1.2;
+    color: var(--prose-text);
+  }
+  .markdown-body h1 { font-size: 2rem;   font-weight: 400; margin: 2rem 0 1rem; }
+  .markdown-body h2 { font-size: 1.5rem; font-weight: 400; margin: 1.5rem 0 1rem; }
+  .markdown-body h3 { font-size: 1.25rem; font-weight: 500; margin: 1.2rem 0 0.8rem; }
+
+  p { margin: 0 0 0.9em; }
+
+  .markdown-body strong, .markdown-body b { font-weight: 600; }
+  .markdown-body em, .markdown-body i { font-style: italic; }
+
+  .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; }
+  .markdown-body li { margin-bottom: 0.5rem; }
+  .markdown-body li > p { margin-bottom: 0.25rem; }
+
+  /* ── Code ── */
+  pre, code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+  }
+  code {
+    background: var(--prose-code-bg);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: var(--prose-code-bg);
+    padding: 0.8em 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  pre code { background: none; padding: 0; }
+
+  /* ── Blockquote ── */
+  blockquote {
+    border-left: 3px solid var(--prose-quote-border);
+    margin-left: 0;
+    padding-left: 1em;
+    color: var(--prose-muted);
+    font-style: italic;
+  }
+
+  /* ── Table ── */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1em;
+  }
+  th, td {
+    border: 1px solid var(--prose-border);
+    padding: 0.4em 0.7em;
+    text-align: left;
+  }
+  th { background: var(--prose-code-bg); }
+
+  /* ── Misc ── */
+  img { max-width: 100%; height: auto; }
+
+  a { color: inherit; }
+
+  /* KaTeX MathML — block centering only; browser renders the math natively */
+  .katex-block { text-align: center; margin: 1rem 0; overflow-x: auto; }
+  .katex-block .katex { display: inline-block; }
+
+  /* ── Syntax highlighting (highlight.js) ── */
+  :root {
+    --hljs-keyword:  #6366f1;
+    --hljs-string:   #059669;
+    --hljs-comment:  #9ca3af;
+    --hljs-number:   #d97706;
+    --hljs-type:     #0891b2;
+    --hljs-builtin:  #7c3aed;
+    --hljs-attr:     #0369a1;
+    --hljs-title:    #1d4ed8;
+    --hljs-meta:     #64748b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --hljs-keyword:  #818cf8;
+      --hljs-string:   #34d399;
+      --hljs-comment:  #6b7280;
+      --hljs-number:   #fbbf24;
+      --hljs-type:     #22d3ee;
+      --hljs-builtin:  #a78bfa;
+      --hljs-attr:     #38bdf8;
+      --hljs-title:    #93c5fd;
+      --hljs-meta:     #94a3b8;
+    }
+  }
+  html[data-color-scheme="light"] {
+    --hljs-keyword:  #6366f1;
+    --hljs-string:   #059669;
+    --hljs-comment:  #9ca3af;
+    --hljs-number:   #d97706;
+    --hljs-type:     #0891b2;
+    --hljs-builtin:  #7c3aed;
+    --hljs-attr:     #0369a1;
+    --hljs-title:    #1d4ed8;
+    --hljs-meta:     #64748b;
+  }
+  html[data-color-scheme="dark"] {
+    --hljs-keyword:  #818cf8;
+    --hljs-string:   #34d399;
+    --hljs-comment:  #6b7280;
+    --hljs-number:   #fbbf24;
+    --hljs-type:     #22d3ee;
+    --hljs-builtin:  #a78bfa;
+    --hljs-attr:     #38bdf8;
+    --hljs-title:    #93c5fd;
+    --hljs-meta:     #94a3b8;
+  }
+
+  .hljs-keyword, .hljs-operator, .hljs-reserved        { color: var(--hljs-keyword); font-weight: 500; }
+  .hljs-string, .hljs-template-string,
+  .hljs-template-tag, .hljs-regexp                     { color: var(--hljs-string); }
+  .hljs-comment, .hljs-quote                            { color: var(--hljs-comment); font-style: italic; }
+  .hljs-number, .hljs-literal, .hljs-symbol,
+  .hljs-link                                            { color: var(--hljs-number); }
+  .hljs-type, .hljs-class, .hljs-variable.language_    { color: var(--hljs-type); }
+  .hljs-built_in, .hljs-function                        { color: var(--hljs-builtin); }
+  .hljs-attr, .hljs-selector-attr,
+  .hljs-selector-pseudo                                 { color: var(--hljs-attr); }
+  .hljs-title, .hljs-title.class_,
+  .hljs-title.function_                                 { color: var(--hljs-title); }
+  .hljs-meta, .hljs-selector-tag,
+  .hljs-selector-id, .hljs-selector-class              { color: var(--hljs-meta); }
+  .hljs-addition    { color: var(--hljs-string); background: color-mix(in srgb, var(--hljs-string) 12%, transparent); }
+  .hljs-deletion    { color: #ef4444; background: color-mix(in srgb, #ef4444 12%, transparent); }
+
+  .mermaid-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 1em 0;
+  }
+
+  .task-list-item { list-style-type: none !important; }
+  .task-list-item-checkbox { margin: 0 0.5em 0.25em -1.4em !important; vertical-align: middle !important; }
+
+  
+  @page { size: A4 portrait; margin: 20mm 22mm; }
+
+  hr {
+    break-before: page;
+    border: none;
+    height: 0;
+    margin: 0;
+    visibility: hidden;
+  }
+
+  body { background: var(--prose-bg); }
+  .markdown-body { background: var(--prose-bg); }
+
+  .pagedjs_page, .pagedjs_sheet, .pagedjs_pagebox, .pagedjs_area {
+    background: var(--prose-bg) !important;
+    color: var(--prose-text) !important;
+  }
+
+  .pagedjs_page {
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    margin: 0 auto 24px;
+    border: 1px solid var(--prose-border);
+  }
+  .pagedjs_page { box-shadow: none; margin: 0; border: none; }
+
+</style>
+</head>
+<body>
+<div class="markdown-body">
+<h1>Privacy Policy</h1>
+<p><strong>Effective Date:</strong> July 6, 2026</p>
+<p>This Privacy Policy explains how <strong>Folio</strong> (“we”, “our”, or “the App”), a local-first Markdown and slide editing application developed by <strong>Lemonslice Studios</strong>, collects, uses, and protects your information.</p>
+<p>Folio is designed with “Quiet Tech” principles: it is local-first, offline-capable, and respects your digital privacy. <strong>We do not run backend servers, we do not collect any personal data, and we do not use tracking or analytics tools.</strong></p>
+<hr>
+<h2>1. Core Architecture &amp; Local-First Data Storage</h2>
+<p>By default, all data you input into Folio stays completely on your local device.</p>
+<ul>
+<li><strong>Documents and Themes:</strong> Your Markdown files, custom slides, and configured layouts are stored locally in your browser’s IndexedDB (using <code>lightning-fs</code>).</li>
+<li><strong>User Preferences:</strong> Any application settings or local configurations are stored locally in browser-level preferences.</li>
+<li><strong>No Server Intermediary:</strong> We do not host your documents, and we do not have access to your local storage or files.</li>
+</ul>
+<hr>
+<h2>2. Google Drive Synchronization (Optional)</h2>
+<p>Folio offers an optional cloud synchronization feature to sync your files across devices. If you choose to connect your Google Account:</p>
+<ul>
+<li><strong>Authorization and Scopes:</strong> Folio requests access using the <code>https://www.googleapis.com/auth/drive.file</code> OAuth 2.0 scope. This is a restricted, privacy-focused scope that only grants Folio the ability to create, read, and write files that <em>this specific application</em> creates or that you explicitly open with it. Folio cannot access or view any other files in your Google Drive.</li>
+<li><strong>Direct Browser-to-Google Communication:</strong> All authentication and API requests are executed client-side directly within your web browser. No files, metadata, or authentication credentials are ever sent to Lemonslice Studios, or any third-party server.</li>
+<li><strong>Token Management:</strong> Your Google OAuth 2.0 access tokens are held temporarily in your browser’s active memory (RAM) to perform the API requests. They are cleared when you log out, close the tab, or reload the application.</li>
+</ul>
+<hr>
+<h2>3. Google Gemini AI Integration (Optional)</h2>
+<p>Folio includes an optional AI-powered editing assistant using Google Gemini models:</p>
+<ul>
+<li><strong>Bring Your Own Key (BYOK):</strong> To use this feature, you must provide your own Gemini API key obtained via Google AI Studio.</li>
+<li><strong>Key and Request Storage:</strong> Your API key is stored locally on your device in IndexedDB. When you request an AI operation (such as rewriting or summarizing text), the App communicates directly with Google’s Generative Language API (<code>generativelanguage.googleapis.com</code>).</li>
+<li><strong>Privacy:</strong> Your API keys, prompts, and generated content are never sent to Lemonslice Studios. They are subject to Google’s terms and privacy policies for the Generative Language API.</li>
+</ul>
+<hr>
+<h2>4. Third-Party Services</h2>
+<p>Because Folio is a Progressive Web App (PWA) that integrates optional external services, your interactions with those services are governed by their respective privacy policies:</p>
+<ul>
+<li><strong>Google Identity Services &amp; Google Drive:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></li>
+<li><strong>Google Gemini API:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></li>
+</ul>
+<hr>
+<h2>5. Security of Your Data</h2>
+<p>Since Folio stores all data on your local device or syncs it directly to your personal Google Drive:</p>
+<ul>
+<li>You are solely responsible for securing your physical device, browser environment, and Google Account credentials.</li>
+<li>We recommend locking your device and using secure browser instances to prevent unauthorized local access to your data.</li>
+</ul>
+<hr>
+<h2>6. Children’s Privacy</h2>
+<p>Folio does not collect, store, or process any personal data. It is safe for use by individuals of all ages.</p>
+<hr>
+<h2>7. Changes to this Privacy Policy</h2>
+<p>We may update this Privacy Policy from time to time. Any changes will be reflected by updating this document within the public Git repository. Your continued use of the App after updates are published constitutes your acceptance of the revised policy.</p>
+<hr>
+<h2>8. Contact &amp; Support</h2>
+<p>If you have any questions or concerns about this Privacy Policy or Folio’s privacy practices, please contact us by opening an issue on our GitHub repository:</p>
+<ul>
+<li><strong>GitHub Repository:</strong> <a href="https://github.com/lemonslice-studios/folio" target="_blank" rel="noopener">https://github.com/lemonslice-studios/folio</a></li>
+</ul>
+
+</div>
+
+</body>
+</html>

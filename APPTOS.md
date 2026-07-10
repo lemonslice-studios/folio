@@ -2,7 +2,7 @@
 
 **Last Updated:** July 6, 2026
 
-Welcome to **Folio** ("the App"), a local-first Markdown and slide editing application developed by **Lemonslice Studios**. By accessing or using the App (hosted at [https://lemonslice-studios.github.io/folio/](https://lemonslice-studios.github.io/folio/) or run locally), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
+Welcome to **Folio** ("the App"), a local-first Markdown and slide editing application developed by **Lemonslice Studios**. By accessing or using the App (hosted at [https://folio.lemonslice.de/](https://folio.lemonslice.de/) or run locally), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
 
 ---
 

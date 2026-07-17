@@ -167,14 +167,18 @@ export class PreviewPaneComponent {
       // For prose, proseScrollY is kept up to date via 'scroll' messages from
       // the sandboxed iframe — it cannot be read directly across the boundary.
 
-      // Aggressive Failsafe: If the iframe doesn't report back within 2000ms,
-      // do a full page reload. This is a workaround for iframe/renderer hangs.
+      // Failsafe: if the iframe doesn't report back, do a full page reload.
+      // This is a workaround for iframe/renderer hangs. Slides/flow post
+      // 'ready' at DOMContentLoaded, but paged mode only reports after
+      // Paged.js has re-fragmented the whole document — which scales with
+      // document size — so it gets a much larger window.
+      const isPaged = result.type === 'prose' && proseMode === 'paged';
       clearTimeout(this.reloadingTimeout);
       this.reloadingTimeout = setTimeout(() => {
         if (untracked(() => this.isPreviewLoading())) {
           window.location.reload();
         }
-      }, 1000);
+      }, isPaged ? 15000 : 2000);
 
       iframe.nativeElement.srcdoc = nextSrcdoc;
     });

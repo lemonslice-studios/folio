@@ -6,7 +6,8 @@ import { full as emojiPlugin } from 'markdown-it-emoji';
 import hljs from 'highlight.js';
 import { configureMarkdownPlugins } from './configure-markdown';
 import { mathPlugin } from './markdown-math';
-import { loadMermaidScript } from './mermaid-loader';
+import { loadMermaidScript, loadPagedScript } from './mermaid-loader';
+import { escapeHtml } from './marp.service';
 
 export type ColorScheme = 'system' | 'light' | 'dark';
 
@@ -28,11 +29,13 @@ export class ProseService {
   });
 
   private mermaidContent = '';
+  private pagedContent = '';
 
   constructor() {
     configureMarkdownPlugins(this.md);
     this.md.use(emojiPlugin).use(mathPlugin);
     loadMermaidScript().then(s => (this.mermaidContent = s));
+    loadPagedScript().then(s => (this.pagedContent = s));
   }
 
   render(markdown: string): { html: string } {
@@ -61,9 +64,14 @@ export class ProseService {
     const hasMermaid = html.includes('class="mermaid"');
     const htmlAttr = standalone ? ` data-theme="${appTheme}" data-font-family="${fontFamily}"` : ` data-theme="${appTheme}" data-font-family="${fontFamily}" data-color-scheme="${colorScheme}" data-system-dark="${isSystemDark}"`;
 
-    const mermaidTag = standalone && this.mermaidContent
+    // Inline scripts whenever available: the sandboxed preview iframe bypasses
+    // the service worker, so src references would fail offline.
+    const mermaidTag = this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
+    const pagedTag = this.pagedContent
+      ? `<script>${this.pagedContent}</script>`
+      : `<script src="js/paged.polyfill.min.js"></script>`;
 
     const mermaidThemeExpr = standalone ? "'default'" : `(document.documentElement.dataset.colorScheme === 'dark' ||
                (document.documentElement.dataset.colorScheme === 'system' && document.documentElement.dataset.systemDark === 'true'))
@@ -74,7 +82,7 @@ export class ProseService {
     const mermaidConfig = (isPrint_: boolean) => `{
       startOnLoad: false,
       theme: ${isPrint_ ? "'default'" : mermaidThemeExpr},
-      securityLevel: 'loose',
+      securityLevel: 'strict',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       flowchart: { useMaxWidth: false, htmlLabels: true }
     }`;
@@ -139,6 +147,25 @@ ${standalone ? '' : `
       var mq = window.matchMedia('(prefers-color-scheme: dark)');
       if (mq.addEventListener) mq.addEventListener('change', syncSystemTheme);
       else mq.addListener(syncSystemTheme);
+
+      // ── Scroll Bridge ──
+      // The iframe is sandboxed (opaque origin), so the parent cannot read or
+      // set the scroll position directly; it is exchanged via postMessage.
+      var scrollPending = false;
+      window.addEventListener('scroll', function() {
+        if (scrollPending) return;
+        scrollPending = true;
+        requestAnimationFrame(function() {
+          scrollPending = false;
+          window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'scroll', y: window.pageYOffset }, '*');
+        });
+      }, { passive: true });
+
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'scrollTo' && typeof e.data.y === 'number') {
+          window.scrollTo({ top: e.data.y, behavior: 'instant' });
+        }
+      });
 `}
     })();
     </script>`;
@@ -205,7 +232,7 @@ ${standalone ? '' : `
     window.PagedConfig = { auto: false };
 </script>
 ${hasMermaid ? mermaidTag : ''}
-<script src="js/paged.polyfill.min.js"></script>
+${pagedTag}
 <script>
 window.addEventListener('DOMContentLoaded', function() {
   window.PagedPolyfill.preview().then(function(flow) {
@@ -257,6 +284,15 @@ window.addEventListener('message', function(e) {
     var scripts = clone.querySelectorAll('script');
     scripts.forEach(function(s) { s.parentNode.removeChild(s); });
     window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'rendered-html', html: '<!DOCTYPE html>\\n' + clone.outerHTML }, '*');
+  }
+});
+` : ''}
+${isPrint ? `
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'folio-print') {
+    window.focus();
+    window.print();
+    window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printDone' }, '*');
   }
 });
 ` : ''}
@@ -349,7 +385,7 @@ ${linkHandlerScript}`;
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
+<title>${escapeHtml(title)}</title>
 <style>
   /* ── Colour tokens (Theme-aware) ── */
   

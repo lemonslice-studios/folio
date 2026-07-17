@@ -40,6 +40,9 @@ export class ExportService {
   private renderMermaidToSvg(srcdoc: string): Promise<string> {
     return new Promise((resolve) => {
       const iframe = document.createElement('iframe');
+      // Opaque origin: exported markdown may contain arbitrary HTML which must
+      // not run with access to the app's IndexedDB (files, API keys, tokens).
+      iframe.setAttribute('sandbox', 'allow-scripts');
       iframe.style.position = 'fixed';
       iframe.style.left = '-9999px';
       iframe.style.top = '0';
@@ -91,6 +94,10 @@ export class ExportService {
     }
     
     const printFrame = document.createElement('iframe');
+    // Sandboxed like the preview; allow-modals is needed for window.print(),
+    // which the frame invokes itself on receiving the 'folio-print' message
+    // (the parent cannot call print() across the sandbox boundary).
+    printFrame.setAttribute('sandbox', 'allow-scripts allow-modals');
     printFrame.style.position = 'fixed';
     printFrame.style.right = '0';
     printFrame.style.bottom = '0';
@@ -99,24 +106,32 @@ export class ExportService {
     printFrame.style.border = '0';
     document.body.appendChild(printFrame);
 
+    const cleanup = () => {
+      if (!document.body.contains(printFrame)) return;
+      document.body.removeChild(printFrame);
+      window.removeEventListener('message', onPrintMessage);
+    };
+
     let hasPrinted = false;
     const doPrint = () => {
       if (hasPrinted) return;
       hasPrinted = true;
-      printFrame.contentWindow?.focus();
-      printFrame.contentWindow?.print();
-      setTimeout(() => {
-        document.body.removeChild(printFrame);
-        window.removeEventListener('message', onPrintReady);
-      }, 1000);
+      printFrame.contentWindow?.postMessage({ type: 'folio-print' }, '*');
+      // Fallback: remove the frame eventually even if 'printDone' never arrives
+      // (the frame must stay alive while the print dialog is open).
+      setTimeout(cleanup, 120000);
     };
 
-    const onPrintReady = (e: MessageEvent) => {
-      if (e.source !== printFrame.contentWindow || e.data?.type !== 'printReady') return;
-      doPrint();
+    const onPrintMessage = (e: MessageEvent) => {
+      if (e.source !== printFrame.contentWindow) return;
+      if (e.data?.type === 'printReady') {
+        doPrint();
+      } else if (e.data?.type === 'printDone') {
+        setTimeout(cleanup, 100);
+      }
     };
 
-    window.addEventListener('message', onPrintReady);
+    window.addEventListener('message', onPrintMessage);
 
     printFrame.srcdoc = fullHtml;
     

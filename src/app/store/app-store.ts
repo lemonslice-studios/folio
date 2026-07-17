@@ -95,8 +95,6 @@ export class AppStore {
     safariWarningDismissed: false,
     googleDriveFolderId: null,
     googleDriveSyncEnabled: false,
-    googleDriveToken: null,
-    googleDriveTokenExpiresAt: null,
     lastSyncTime: null,
     lastSyncError: null,
     geminiApiKey: null,
@@ -131,13 +129,6 @@ export class AppStore {
     this.prefs.set(prefs);
     this.selectedTab.set(prefs.lastTab);
 
-    // Initialize Drive connection from persisted token if valid
-    if (prefs.googleDriveToken && prefs.googleDriveTokenExpiresAt) {
-      if (Date.now() < prefs.googleDriveTokenExpiresAt) {
-        this.drive.setToken(prefs.googleDriveToken);
-      }
-    }
-
     await this.refreshList();
     const list = this.fileList();
 
@@ -152,13 +143,11 @@ export class AppStore {
 
   async connectDrive(): Promise<void> {
     try {
-      const result = await this.drive.login();
+      await this.drive.login();
       const folderId = await this.drive.getOrCreateFolder();
       this.updatePrefs({
         googleDriveFolderId: folderId,
         googleDriveSyncEnabled: true,
-        googleDriveToken: result.token,
-        googleDriveTokenExpiresAt: Date.now() + result.expires_in * 1000,
       });
     } catch (e) {
       console.error('Failed to connect to Google Drive', e);
@@ -167,12 +156,10 @@ export class AppStore {
   }
 
   async disconnectDrive(): Promise<void> {
-    this.drive.logout();
+    this.drive.logout(true);
     this.updatePrefs({
       googleDriveFolderId: null,
       googleDriveSyncEnabled: false,
-      googleDriveToken: null,
-      googleDriveTokenExpiresAt: null,
       lastSyncTime: null,
     });
     // Remove manifest
@@ -189,8 +176,7 @@ export class AppStore {
     this.updatePrefs({ lastSyncError: null });
     this.syncStatus.set('syncing');
 
-    const expiresAt = this.prefs().googleDriveTokenExpiresAt;
-    const isExpired = expiresAt && Date.now() > expiresAt - 60000;
+    const isExpired = this.drive.isTokenExpired;
     const lastError = this.prefs().lastSyncError || '';
     const needsInteraction =
       lastError.includes('interaction_required') || lastError.includes('immediate_failed');
@@ -203,13 +189,9 @@ export class AppStore {
       if (!this.drive.isConnected || isExpired || needsInteraction) {
         console.log('[Sync] Token missing, expired, or interaction required. Triggering popup...');
 
-        const result = await this.drive.login(''); // Trigger interactive popup immediately
+        await this.drive.login(''); // Trigger interactive popup immediately
 
-        this.updatePrefs({
-          googleDriveToken: result.token,
-          googleDriveTokenExpiresAt: Date.now() + result.expires_in * 1000,
-          lastSyncError: null,
-        });
+        this.updatePrefs({ lastSyncError: null });
       }
 
       await this.performSync();
@@ -220,8 +202,6 @@ export class AppStore {
       const msg = e.error_description || e.error || e.message || 'Unknown error';
       this.drive.logout();
       this.updatePrefs({
-        googleDriveToken: null,
-        googleDriveTokenExpiresAt: null,
         lastSyncError: `Sync failed: ${msg}. Click 'Sync Now' to reconnect.`,
       });
     } finally {
@@ -408,11 +388,7 @@ export class AppStore {
       if (e instanceof UnauthorizedError && !isRetry) {
         console.log('[Sync] Unauthorized, attempting silent re-auth...');
         try {
-          const result = await this.drive.login('none');
-          this.updatePrefs({
-            googleDriveToken: result.token,
-            googleDriveTokenExpiresAt: Date.now() + result.expires_in * 1000,
-          });
+          await this.drive.login('none');
           return await this.performSync(targetFile, true);
         } catch (authError: any) {
           const msg = authError.error_description || authError.error || 'Session expired';

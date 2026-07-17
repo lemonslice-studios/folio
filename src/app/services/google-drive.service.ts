@@ -18,6 +18,31 @@ export class GoogleDriveService {
   private readonly SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
   private accessToken = signal<string | null>(null);
+  private tokenExpiresAt: number | null = null;
+  private gisLoading: Promise<void> | null = null;
+
+  /**
+   * Load the Google Identity Services script on demand. It is intentionally
+   * not referenced in index.html so that no request is made to Google servers
+   * unless the user actively uses Drive sync.
+   */
+  private ensureGisLoaded(): Promise<void> {
+    if (typeof google !== 'undefined' && google.accounts?.oauth2) {
+      return Promise.resolve();
+    }
+    return (this.gisLoading ??= new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => {
+        this.gisLoading = null;
+        script.remove();
+        reject(new Error('Failed to load Google Identity Services'));
+      };
+      document.head.appendChild(script);
+    }));
+  }
 
   private async request(url: string, options: RequestInit = {}): Promise<Response> {
     const token = this.accessToken();
@@ -48,6 +73,7 @@ export class GoogleDriveService {
    * @param prompt - 'none' for silent refresh (no popup), '' for default popup.
    */
   async login(prompt: 'none' | '' = ''): Promise<{ token: string, expires_in: number }> {
+    await this.ensureGisLoaded();
     return new Promise((resolve, reject) => {
       try {
         const client = google.accounts.oauth2.initTokenClient({
@@ -58,12 +84,16 @@ export class GoogleDriveService {
             if (response.error) {
               // On error, also clear our local signal just in case
               this.accessToken.set(null);
+              this.tokenExpiresAt = null;
               reject(response);
             } else {
+              const expiresIn = parseInt(response.expires_in);
+              // Token is held in memory only — never persisted to storage.
               this.accessToken.set(response.access_token);
+              this.tokenExpiresAt = Date.now() + expiresIn * 1000;
               resolve({
                 token: response.access_token,
-                expires_in: parseInt(response.expires_in)
+                expires_in: expiresIn
               });
             }
           },
@@ -75,12 +105,22 @@ export class GoogleDriveService {
     });
   }
 
-  setToken(token: string | null) {
-    this.accessToken.set(token);
+  /** True when there is no token or it expires within the next minute. */
+  get isTokenExpired(): boolean {
+    return !this.tokenExpiresAt || Date.now() > this.tokenExpiresAt - 60000;
   }
 
-  logout() {
+  logout(revoke: boolean = false) {
+    const token = this.accessToken();
+    if (revoke && token && typeof google !== 'undefined' && google.accounts?.oauth2) {
+      try {
+        google.accounts.oauth2.revoke(token, () => {});
+      } catch (e) {
+        console.warn('Failed to revoke Google access token', e);
+      }
+    }
     this.accessToken.set(null);
+    this.tokenExpiresAt = null;
   }
 
   get isConnected() {

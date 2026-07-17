@@ -3,6 +3,15 @@ import Marp from '@marp-team/marp-core';
 import { configureMarkdownPlugins } from './configure-markdown';
 import { loadMermaidScript } from './mermaid-loader';
 
+/** Escape text for safe interpolation into srcdoc markup (e.g. <title>). */
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 const MARPX_THEMES = [
   'cantor', 'church', 'copernicus', 'einstein',
   'frankfurt', 'galileo', 'gauss', 'gropius',
@@ -56,7 +65,9 @@ export class MarpService {
    */
   buildSrcdoc(html: string, css: string = '', isPrint: boolean = false, appTheme: 'quiet' | 'clean' = 'quiet', standalone: boolean = false, title: string = 'Folio Presentation'): string {
     const hasMermaid = html.includes('class="mermaid"');
-    const mermaidTag = standalone && this.mermaidContent
+    // Inline mermaid whenever available: the sandboxed preview iframe bypasses
+    // the service worker, so a src reference would fail offline.
+    const mermaidTag = this.mermaidContent
       ? `<script>${this.mermaidContent}</script>`
       : `<script src="js/mermaid.min.js"></script>`;
 
@@ -98,7 +109,7 @@ ${hasMermaid ? mermaidTag : ''}
   var MERMAID_CONFIG = {
     startOnLoad: false,
     theme: 'default',
-    securityLevel: 'loose',
+    securityLevel: 'strict',
     fontFamily: 'ui-sans-serif, system-ui, sans-serif',
     fontSize: 20,
     flowchart: { useMaxWidth: false, htmlLabels: true },
@@ -135,6 +146,17 @@ window.addEventListener('message', function(e) {
 });
 </script>
 ` : ''}
+${isPrint ? `
+<script>
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'folio-print') {
+    window.focus();
+    window.print();
+    window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printDone' }, '*');
+  }
+});
+</script>
+` : ''}
 ${linkHandlerScript}`;
     } else if (standalone) {
       mermaidInit = ''; // Pure HTML/CSS export, no scripts needed
@@ -150,7 +172,7 @@ ${(hasMermaid && !standalone) ? mermaidTag : ''}
     mermaid.initialize({
       startOnLoad: false,
       theme: 'default',
-      securityLevel: 'loose',
+      securityLevel: 'strict',
       fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       fontSize: 20,
       flowchart: { useMaxWidth: false, htmlLabels: true },
@@ -275,7 +297,7 @@ ${linkHandlerScript}`;
 <html ${htmlAttr}>
 <head>
 <meta charset="utf-8">
-<title>${title}</title>
+<title>${escapeHtml(title)}</title>
 <style>${css}</style>
 <style>
   html, body, .marpit {

@@ -13,7 +13,8 @@ export class AiService {
 
     const requestedModel = 'gemini-flash-lite-latest';
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${requestedModel}:generateContent?key=${apiKey}`;
+    // Key goes in a header, not the URL, so it cannot leak via logs or history.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${requestedModel}:generateContent`;
 
     const systemPrompt = `You are an expert Markdown and Marp slide editor. 
 Your task is to modify the provided Markdown content based on the user's instructions.
@@ -58,6 +59,7 @@ ${currentContent}`;
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify(body),
     });

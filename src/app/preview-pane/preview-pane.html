@@ -1,7 +1,10 @@
 <div class="preview-pane">
   <div class="slide-container">
+    <!-- sandbox WITHOUT allow-same-origin: markdown may contain arbitrary HTML
+         (Marp html:true), so the preview must not run in the app's origin where
+         it could reach IndexedDB (files, API keys, tokens). -->
     <iframe #previewFrame class="slide-frame" [class.reloading]="isPreviewLoading()" title="Slide preview"
-      (load)="onFrameLoad()"></iframe>
+      sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" (load)="onFrameLoad()"></iframe>
   </div>
 
   @if (!active()) {

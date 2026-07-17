@@ -25,7 +25,16 @@
       "Bash(ls /d/projects/my/folio/node_modules/katex/dist/*.d.ts)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('types:', d.get\\('types'\\)\\); print\\('exports:', list\\(d.get\\('exports',{}\\).keys\\(\\)\\)[:5]\\)\")",
       "Bash(npx tsc:*)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(mv inter-500-1.woff2 inter-500.woff2)",
+      "Bash(mv inter-600-2.woff2 inter-600.woff2)",
+      "Bash(mv jetbrains-mono-500-1.woff2 jetbrains-mono-500.woff2)",
+      "Bash(sed -i 's/inter-500-1/inter-500/; s/inter-600-2/inter-600/; s/jetbrains-mono-500-1/jetbrains-mono-500/' fonts.css)",
+      "Bash(npm audit *)",
+      "Bash(npm update *)",
+      "Bash(git stash *)",
+      "Bash(npm start *)",
+      "Bash(npx -y playwright@1.54.0 install chromium --only-shell)"
     ]
   }
 }

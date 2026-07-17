@@ -39,6 +39,8 @@ Because Folio is a Progressive Web App (PWA) that integrates optional external s
 * **Google Identity Services & Google Drive:** [Google Privacy Policy](https://policies.google.com/privacy)
 * **Google Gemini API:** [Google Privacy Policy](https://policies.google.com/privacy)
 
+The app itself (interface, fonts, and icons) is fully self-hosted and makes no requests to third-party servers. One exception: a few of the optional bundled slide themes (e.g. *marpx*, *hobbes*) load their display fonts from Google Fonts when a presentation using them is rendered. If you do not use those themes, no such request is made.
+
 ---
 
 ## 5. Security of Your Data

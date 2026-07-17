@@ -163,13 +163,9 @@ export class PreviewPaneComponent {
 
       if (result.type === 'slides') {
         this.store.setSlideCount(result.slideCount);
-      } else {
-        const win = iframe.nativeElement.contentWindow;
-        const scrollEl = iframe.nativeElement.contentDocument?.documentElement;
-        const bodyEl = iframe.nativeElement.contentDocument?.body;
-        this.proseScrollY =
-          win?.pageYOffset ?? win?.scrollY ?? scrollEl?.scrollTop ?? bodyEl?.scrollTop ?? 0;
       }
+      // For prose, proseScrollY is kept up to date via 'scroll' messages from
+      // the sandboxed iframe — it cannot be read directly across the boundary.
 
       // Aggressive Failsafe: If the iframe doesn't report back within 2000ms,
       // do a full page reload. This is a workaround for iframe/renderer hangs.
@@ -178,7 +174,7 @@ export class PreviewPaneComponent {
         if (untracked(() => this.isPreviewLoading())) {
           window.location.reload();
         }
-      }, 500);
+      }, 1000);
 
       iframe.nativeElement.srcdoc = nextSrcdoc;
     });
@@ -198,9 +194,11 @@ export class PreviewPaneComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((e) => {
         const iframe = this.iframeRef()?.nativeElement;
-        const isFromOurIframe =
-          e.source === iframe?.contentWindow || e.data?.folioIdentifier === 'folio-preview';
-        if (!isFromOurIframe) return;
+        if (e.source !== iframe?.contentWindow) return;
+
+        if (e.data?.type === 'scroll' && typeof e.data.y === 'number') {
+          this.proseScrollY = e.data.y;
+        }
 
         if (e.data?.type === 'ready') {
           this.isFrameReady.set(true);
@@ -227,7 +225,7 @@ export class PreviewPaneComponent {
             const targetY = this.proseScrollY;
             const win = iframe?.contentWindow;
             const restore = () => {
-              win?.scrollTo({ top: targetY, behavior: 'instant' });
+              win?.postMessage({ type: 'scrollTo', y: targetY }, '*');
               this.isPreviewLoading.set(false);
               clearTimeout(this.reloadingTimeout);
             };
@@ -251,7 +249,7 @@ export class PreviewPaneComponent {
     );
 
     if (this.store.documentType() === 'prose' && this.store.proseViewMode() === 'flow') {
-      iframe.contentWindow?.scrollTo({ top: this.proseScrollY, behavior: 'instant' });
+      iframe.contentWindow?.postMessage({ type: 'scrollTo', y: this.proseScrollY }, '*');
     }
   }
 

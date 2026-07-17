@@ -32,9 +32,8 @@
       "name": "fonts",
       "installMode": "prefetch",
       "resources": {
-        "urls": [
-          "https://fonts.googleapis.com/css2?family=Inter*",
-          "https://fonts.googleapis.com/css2?family=JetBrains+Mono*"
+        "files": [
+          "/fonts/**"
         ]
       }
     }

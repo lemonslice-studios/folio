@@ -11,8 +11,6 @@ export interface AppPrefs {
   safariWarningDismissed: boolean;
   googleDriveFolderId: string | null;
   googleDriveSyncEnabled: boolean;
-  googleDriveToken: string | null;
-  googleDriveTokenExpiresAt: number | null;
   lastSyncTime: number | null;
   lastSyncError: string | null;
   geminiApiKey: string | null;
@@ -29,8 +27,6 @@ const DEFAULT_PREFS: AppPrefs = {
   safariWarningDismissed: false,
   googleDriveFolderId: null,
   googleDriveSyncEnabled: false,
-  googleDriveToken: null,
-  googleDriveTokenExpiresAt: null,
   lastSyncTime: null,
   lastSyncError: null,
   geminiApiKey: null,
@@ -58,6 +54,16 @@ export class PrefsService {
       request.onsuccess = async () => {
         this.db = request.result;
         const prefs = await this.get();
+        // OAuth tokens used to be persisted here; scrub them from existing
+        // installs — tokens are now held in memory only.
+        if (prefs) {
+          const legacy = prefs as unknown as Record<string, unknown>;
+          if ('googleDriveToken' in legacy || 'googleDriveTokenExpiresAt' in legacy) {
+            delete legacy['googleDriveToken'];
+            delete legacy['googleDriveTokenExpiresAt'];
+            await this.save(prefs);
+          }
+        }
         resolve({ ...DEFAULT_PREFS, ...prefs });
       };
 

@@ -44,14 +44,14 @@
 *
 */
 
-@import "default";
+@import 'default';
 
 /**>--------------------------------------------------------------*/
 /**--   Fonts from CDN Fonts                                   >--*/
 /**--   Styles: "Fira Sans Condensed"                          >--*/
 /**>--------------------------------------------------------------*/
 /* Font: "Fira Sans Condensed" */
-@import url("https://fonts.cdnfonts.com/css/fira-sans-condensed?styles=19730");
+@import url('https://fonts.cdnfonts.com/css/fira-sans-condensed?styles=19730');
 
 /**>--------------------------------------------------------------*/
 /**--   Fonts from Web Font Free                               >--*/
@@ -71,10 +71,10 @@
 /* @import url("https://fonts.cdnfonts.com/css/charter-itc-tt"); */
 
 /* Font: Fautina, "Fira Sans", "Source Sans 3" */
-@import url("https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300..800;1,300..800&family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 
 /* Font: "Source Sans Pro" */
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&family=Zilla+Slab:wght@300;400;600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&family=Zilla+Slab:wght@300;400;600&display=swap');
 
 /* "Open Sans" */
 /* @import url("https://fonts.googleapis.com/css2?Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"); */
@@ -85,9 +85,7 @@
 /* "Bitter" */
 /* @import url('https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&display=swap'); */
 
-
 :root {
-
   /** -----------------------<------------------------>---------------------- */
   /** WARNING: The parameter (container-type: normal) was used to allow       */
   /**          the numbering of figures and tables. Be warned that it may     */
@@ -126,7 +124,7 @@
   --gray-800: #121212;
   --gray-900: #0a0a0a;
   --gray-1000: #3e3f42;
-  --gray-1100: #E4E3DF;
+  --gray-1100: #e4e3df;
 
   /* Blue */
   --blue-100: #55acee;
@@ -134,7 +132,7 @@
   --blue-300: #215987;
   --blue-400: #1d2733;
   --blue-500: #00204a;
-  --blue-600: #123A53;
+  --blue-600: #123a53;
 
   /* Orange */
   --orange-100: #ffbd6d;
@@ -233,16 +231,16 @@
 
   /*------------< Overall theme parameters >---------------------------------*/
 
-  --marpx-theme-font-family: "Fira Sans Light", Faustina, Bookerly, Lora, sans-serif;
+  --marpx-theme-font-family: 'Fira Sans Light', Faustina, Bookerly, Lora, sans-serif;
   --marpx-theme-font-size: 22pt;
   --marpx-theme-letter-spacing: -0.0125px;
-  --marpx-theme-figure-captiontext: "Figure ";
+  --marpx-theme-figure-captiontext: 'Figure ';
   --marpx-theme-figure-captiontext-color: var(--scarletRed-500);
   --marpx-theme-h1-font-size: 32pt;
-  --marpx-theme-table-captiontext: "Table ";
+  --marpx-theme-table-captiontext: 'Table ';
   --marpx-theme-table-captiontext-color: var(--scarletRed-500);
 
-  --marpx-theme-brandlogo: " (2025)";
+  --marpx-theme-brandlogo: ' (2025)';
 
   --marpx-theme-color: #3e6ceb;
   --marpx-theme-h1-color: var(--blueViolet-500);
@@ -264,7 +262,6 @@
   --marpx-theme-chapter-background-color: hsl(224, 65%, 75%);
   --marpx-theme-chapter-h1-font-color: #ffffff;
   --marpx-theme-chapter-h2-font-color: #ffffff;
-  
 
   /*-------------------< TITLE SLIDE >-----------------------------*/
 
@@ -327,33 +324,29 @@
   --marpx-table-hover-color: #474619;
   --marpx-table-hover-background-color: #eaf779;
 
-  --marpx-calc-toc-font-color: color-mix(in srgb,
-      var(--marpx-theme-toc-color),
-      white 35%);
-  --marpx-calc-toc-marker-color: color-mix(in srgb,
-      var(--marpx-theme-toc-color),
-      black 30%);
-  --marpx-calc-toc-hover-color: color-mix(in srgb,
-      var(--marpx-theme-toc-color),
-      gray 40%);
-  --marpx-calc-toc-hoover-background-color: color-mix(in srgb,
-      var(--marpx-theme-toc-color),
-      white 85%);
+  --marpx-calc-toc-font-color: color-mix(in srgb, var(--marpx-theme-toc-color), white 35%);
+  --marpx-calc-toc-marker-color: color-mix(in srgb, var(--marpx-theme-toc-color), black 30%);
+  --marpx-calc-toc-hover-color: color-mix(in srgb, var(--marpx-theme-toc-color), gray 40%);
+  --marpx-calc-toc-hoover-background-color: color-mix(
+    in srgb,
+    var(--marpx-theme-toc-color),
+    white 85%
+  );
 }
 
-img[alt~="center"] {
+img[alt~='center'] {
   display: block;
   margin: 0 auto;
 }
 
-img[alt~="end-bg"] {
+img[alt~='end-bg'] {
   position: absolute;
   top: 0;
   left: 0;
   z-index: -2;
 }
 
-img[alt~="title-bg"] {
+img[alt~='title-bg'] {
   position: absolute;
   top: 0;
   left: 65.3%;
@@ -362,7 +355,7 @@ img[alt~="title-bg"] {
 
 li {
   /* Espaço de 20 pixels entre cada item */
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
 }
 
 section {
@@ -386,7 +379,7 @@ section::after {
   border-radius: 100px;
   bottom: 22px;
   color: var(--marpx-theme-color);
-  content: attr(data-marpit-pagination) "/" attr(data-marpit-pagination-total);
+  content: attr(data-marpit-pagination) '/' attr(data-marpit-pagination-total);
   font-size: 14pt;
   left: 50px;
   margin: 0;
@@ -426,7 +419,7 @@ footer {
 }
 
 footer::before {
-  content: " ";
+  content: ' ';
 }
 
 /* BRAND LOGO */
@@ -447,7 +440,6 @@ h1 {
 
   /* Inhibited due to the form of italic and bold text linking - 19.dez.2025 */
   /* display: flex;  */
-
 
   justify-content: flex-end;
   align-items: center;
@@ -483,18 +475,18 @@ h3 > em::after {
    content: "\00a0"; 
 } */
 
-h1>strong,
-h1>em,
-h2>strong,
-h2>em,
-h3>strong,
-h3>em,
-h4>strong,
-h4>em,
-h5>strong,
-h5>em,
-h6>strong,
-h6>em {
+h1 > strong,
+h1 > em,
+h2 > strong,
+h2 > em,
+h3 > strong,
+h3 > em,
+h4 > strong,
+h4 > em,
+h5 > strong,
+h5 > em,
+h6 > strong,
+h6 > em {
   /* padding: 0.01em 0.01em 0em 0.01em; */ /* 19.dez.2025 */
   color: var(--marpx-theme-h1-bold-color);
   font-weight: bold !important;
@@ -519,17 +511,17 @@ li::marker {
   color: var(--marpx-theme-marker-color);
 }
 
-section>video {
+section > video {
   max-height: 100%;
 }
 
-section>figure {
+section > figure {
   margin: 0;
   margin-bottom: 10px;
   max-height: calc(100% - 48px);
 }
 
-section>figure.center {
+section > figure.center {
   margin: 0 auto;
   margin-bottom: 10px;
   display: block;
@@ -555,7 +547,7 @@ footnote {
   margin-top: auto;
 }
 
-footnote>ol {
+footnote > ol {
   margin-bottom: 0;
 }
 
@@ -564,14 +556,14 @@ footnote>ol {
 ?-----------------------< SLIDE LAYOUTS >----------------------- 
 !================================================================================
 */
-section>div.multicolumn,
+section > div.multicolumn,
 section.multicolumn {
   display: grid;
   grid-auto-flow: column;
   grid-gap: 10px;
 }
 
-section>div.multicolumn.vcenter,
+section > div.multicolumn.vcenter,
 section.multicolumn.vcenter {
   align-items: center;
 }
@@ -584,7 +576,7 @@ section.cols {
 }
 
 /* The following is a layout for individual column areas in normal slides. */
-section>div.cols {
+section > div.cols {
   display: flex;
   gap: 1rem;
   flex-direction: row;
@@ -592,7 +584,7 @@ section>div.cols {
 
 /* It is optional to use the same column behavior. */
 /*.cols > .col { */
-.cols>div {
+.cols > div {
   flex: 1 1 0;
 }
 
@@ -604,25 +596,25 @@ section.rows {
   flex-direction: column;
 }
 
-section>div.rows {
+section > div.rows {
   display: flex;
   gap: 1rem;
   flex-direction: column;
 }
 
 /* grid layouts */
-section>div.grid-tlr,
+section > div.grid-tlr,
 section.grid-tlr {
   display: grid;
-  grid-template-areas: "top top" "left right";
+  grid-template-areas: 'top top' 'left right';
   grid-template-columns: 1fr 1fr;
   gap: 5px 10px;
 }
 
-section>div.grid-lrb,
+section > div.grid-lrb,
 section.grid-lrb {
   display: grid;
-  grid-template-areas: "left right" "bottom bottom";
+  grid-template-areas: 'left right' 'bottom bottom';
   grid-template-columns: 1fr 1fr;
   gap: 5px 10px;
 }
@@ -644,10 +636,10 @@ section.grid-lrb {
 }
 
 /* adjust h1 for the flex elements */
-section.multicolumn>h1,
-section.cols>h1,
-section.rows>h1,
-section.grid>h1 {
+section.multicolumn > h1,
+section.cols > h1,
+section.rows > h1,
+section.grid > h1 {
   margin-left: 80px;
 }
 
@@ -662,9 +654,8 @@ section.title-bg {
   background-color: var(--marpx-title_academic-background-color);
 }
 
-
-section.title>h1,
-section.title-bg>h1 {
+section.title > h1,
+section.title-bg > h1 {
   position: absolute;
   top: 34%;
   margin: 0px;
@@ -684,8 +675,8 @@ section.title-bg>h1 {
   align-items: flex-end;
 }
 
-section.title>h2,
-section.title-bg>h2 {
+section.title > h2,
+section.title-bg > h2 {
   position: absolute;
   top: 65.27%;
   margin: 0px;
@@ -709,8 +700,8 @@ section.title-bg::after {
   opacity: 0;
 }
 
-section.title>header,
-section.title-bg>header {
+section.title > header,
+section.title-bg > header {
   position: absolute;
   bottom: 140px;
   margin: 0px;
@@ -721,8 +712,8 @@ section.title-bg>header {
   font-weight: 200;
 }
 
-section.title>footer,
-section.title-bg>footer {
+section.title > footer,
+section.title-bg > footer {
   opacity: 0;
 }
 
@@ -739,7 +730,7 @@ section.title-academic {
 }
 
 section.title-academic .title,
-section.title-academic>h1 {
+section.title-academic > h1 {
   width: 95%;
   padding-bottom: 15px !important;
   /* distance from the title to the underline below it */
@@ -752,13 +743,13 @@ section.title-academic>h1 {
   border-bottom: 1px solid var(--marpx-title_academic-border-color) !important;
 }
 
-section.title-academic .title>strong {
+section.title-academic .title > strong {
   /* color: var(--marpx-theme-h1-bold-color) !important; */
   color: red !important;
   font-weight: bold;
 }
 
-section.title-academic>h1 {
+section.title-academic > h1 {
   top: 25pt;
   height: 0%;
   position: relative;
@@ -767,7 +758,7 @@ section.title-academic>h1 {
 }
 
 section.title-academic .subtitle,
-section.title-academic>h2 {
+section.title-academic > h2 {
   color: var(--marpx-title_academic-subtitle-color);
 
   font-size: var(--marpx-title_academic-subtitle-size);
@@ -780,26 +771,26 @@ section.title-academic>h2 {
   padding-bottom: 120px;
 }
 
-section.title-academic>h2 {
+section.title-academic > h2 {
   top: 18pt;
   width: 95% !important;
   position: relative;
 }
 
 section.title-academic .author,
-section.title-academic>h3 {
+section.title-academic > h3 {
   color: var(--marpx-title_academic-author-color) !important;
   font-size: var(--marpx-title_academic-author-size);
   font-weight: bold !important;
 }
 
 section.title-academic .date,
-section.title-academic>h4 {
+section.title-academic > h4 {
   font-size: var(--marpx-title_academic-date-size);
 }
 
 section.title-academic .organization,
-section.title-academic>h5 {
+section.title-academic > h5 {
   font-size: var(--marpx-title_academic-institute-size);
 }
 
@@ -846,7 +837,7 @@ section.chapter-alt {
   background-color: white;
 }
 
-section.chapter-alt>h1 {
+section.chapter-alt > h1 {
   top: 38px;
   position: absolute;
   color: white;
@@ -866,18 +857,18 @@ section.chapter-alt>h1 {
 !================================================================================
 */
 /* Autor, Akad. Grad */
-section.chapter-alt>header,
-section.chapter>header {
+section.chapter-alt > header,
+section.chapter > header {
   opacity: 0;
 }
 
 /* Datum */
-section.chapter-alt>footer,
-section.chapter>footer {
+section.chapter-alt > footer,
+section.chapter > footer {
   opacity: 0;
 }
 
-section.chapter>h1 {
+section.chapter > h1 {
   position: absolute;
   top: 38px;
   color: var(--marpx-theme-chapter-h1-font-color);
@@ -890,20 +881,20 @@ section.chapter>h1 {
   align-items: flex-end;
 }
 
-section.chapter-alt>h1::after,
-section.chapter>h1::after {
+section.chapter-alt > h1::after,
+section.chapter > h1::after {
   background: none repeat scroll 0 0 white;
   bottom: 10px;
   left: -50px;
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   height: 8px;
   width: 200px;
 }
 
-section.chapter-alt>h2,
-section.chapter>h2 {
+section.chapter-alt > h2,
+section.chapter > h2 {
   position: absolute;
   top: 53.5%;
   color: var(--marpx-theme-chapter-h2-font-color);
@@ -937,7 +928,7 @@ section.toc a {
 /* paulo.cunha 12.01.2026 */
 section.toc li {
   /* Espaço de 20 pixels entre cada item */
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
 }
 
 section.toc li::marker {
@@ -975,43 +966,43 @@ section.toc::before {
 
   color: white;
   background-color: var(--marpx-theme-toc-color);
-  content: "Agenda";
+  content: 'Agenda';
 }
 
-section[lang|="en"].toc::before {
-  content: "Contents";
+section[lang|='en'].toc::before {
+  content: 'Contents';
 }
 
-section[lang|="pt"].toc::before {
-  content: "Conteúdo";
+section[lang|='pt'].toc::before {
+  content: 'Conteúdo';
 }
 
-section[lang|="de"].toc::before {
-  content: "Inhalt";
+section[lang|='de'].toc::before {
+  content: 'Inhalt';
 }
 
-section[lang|="es"].toc::before {
-  content: "Contenido";
+section[lang|='es'].toc::before {
+  content: 'Contenido';
 }
 
-section[lang|="fr"].toc::before {
-  content: "Contenu";
+section[lang|='fr'].toc::before {
+  content: 'Contenu';
 }
 
-section[lang|="it"].toc::before {
-  content: "Contenuto";
+section[lang|='it'].toc::before {
+  content: 'Contenuto';
 }
 
-section[lang|="ru"].toc::before {
-  content: "Содержание";
+section[lang|='ru'].toc::before {
+  content: 'Содержание';
 }
 
-section[lang|="ja"].toc::before {
-  content: "目次";
+section[lang|='ja'].toc::before {
+  content: '目次';
 }
 
-section[lang|="zh"].toc::before {
-  content: "内容";
+section[lang|='zh'].toc::before {
+  content: '内容';
 }
 
 /* 
@@ -1032,16 +1023,16 @@ section.end-bg {
   --fgColor-accent: white;
 }
 
-section.end>h1,
-section.end-bg>h1 {
+section.end > h1,
+section.end-bg > h1 {
   color: white;
   font-size: 60pt;
   height: 152px;
   align-items: flex-end;
 }
 
-section.end>h2,
-section.end-bg>h2 {
+section.end > h2,
+section.end-bg > h2 {
   color: white;
 }
 
@@ -1056,11 +1047,11 @@ section.end-bg::before {
 
 /* no footer */
 section.end-bg::after,
-section.end-bg>header,
-section.end-bg>footer,
+section.end-bg > header,
+section.end-bg > footer,
 section.end::after,
-section.end>header,
-section.end>footer {
+section.end > header,
+section.end > footer {
   visibility: hidden;
 }
 
@@ -1072,7 +1063,7 @@ section.end>footer {
 section.totalpages::after {
   color: var(--marpx-theme-color);
   font-size: 14pt;
-  content: attr(data-marpit-pagination) "/" attr(data-marpit-pagination-total);
+  content: attr(data-marpit-pagination) '/' attr(data-marpit-pagination-total);
   position: absolute;
   padding: 0px;
   padding-bottom: 24px;
@@ -1086,7 +1077,7 @@ section.totalpages::after {
 ?-----------------------< TITLE COPYRIGHT >----------------------- 
 !================================================================================
 */
-section.copyright>footer {
+section.copyright > footer {
   opacity: 100%;
   bottom: 1%;
   left: 1%;
@@ -1097,7 +1088,7 @@ section.copyright>footer {
 ?-----------------------< TITLE ADDITIONAL-LOGOS >----------------------- 
 !================================================================================
 */
-section.logos>div.additional-logos {
+section.logos > div.additional-logos {
   background-color: #ffffff;
   display: block;
   position: absolute;
@@ -1112,7 +1103,7 @@ section.logos>div.additional-logos {
   max-width: 61%;
 }
 
-section.logos>div.additional-logos>p {
+section.logos > div.additional-logos > p {
   display: flex;
   justify-content: left;
   text-align: left;
@@ -1124,7 +1115,7 @@ section.logos>div.additional-logos>p {
   max-width: inherit;
 }
 
-section.logos>div.additional-logos>p>img {
+section.logos > div.additional-logos > p > img {
   flex: 1;
   padding: 0;
   margin: 0;
@@ -1147,17 +1138,17 @@ section.nobrand {
   background-color: #ffffff;
 }
 
-section.blank>h1 {
+section.blank > h1 {
   visibility: visible; /* 19.dez.2025 */
 }
 
-section.blank>header,
-section.nobrand>header {
+section.blank > header,
+section.nobrand > header {
   visibility: hidden;
 }
 
-section.blank>footer,
-section.nobrand>footer {
+section.blank > footer,
+section.nobrand > footer {
   visibility: hidden;
 }
 
@@ -1182,7 +1173,7 @@ div.callout {
   mix-blend-mode: normal;
 }
 
-div.callout>h1 {
+div.callout > h1 {
   position: relative;
   font-size: 18pt;
   font-weight: 700;
@@ -1193,9 +1184,9 @@ div.callout>h1 {
   height: unset;
 }
 
-div.callout>ul,
-div.callout>ol,
-div.callout>p {
+div.callout > ul,
+div.callout > ol,
+div.callout > p {
   margin-top: 0px;
   margin-bottom: 6px;
 }
@@ -1206,17 +1197,17 @@ div.callout.slim {
   font-size: 14pt;
 }
 
-div.callout.slim>h1 {
+div.callout.slim > h1 {
   font-size: 16pt;
   padding: 0px 0px 0pt 0px;
 }
 
-div.callout>h1::before {
+div.callout > h1::before {
   margin-right: 4pt;
 }
 
-div.callout>h1,
-div.callout.info>h1 {
+div.callout > h1,
+div.callout.info > h1 {
   color: #4b96e7;
 }
 
@@ -1226,7 +1217,7 @@ div.callout.info {
   border-color: #82a8d1;
 }
 
-div.callout.warning>h1 {
+div.callout.warning > h1 {
   color: #e67300;
 }
 
@@ -1235,7 +1226,7 @@ div.callout.warning {
   border-color: #c99e73;
 }
 
-div.callout.note>h1 {
+div.callout.note > h1 {
   color: #086ddd;
 }
 
@@ -1244,7 +1235,7 @@ div.callout.note {
   border-color: #88a2be;
 }
 
-div.callout.abstract>h1 {
+div.callout.abstract > h1 {
   color: #16c4c2;
 }
 
@@ -1253,7 +1244,7 @@ div.callout.abstract {
   border-color: #4a8a89;
 }
 
-div.callout.todo>h1 {
+div.callout.todo > h1 {
   color: #4b96e7;
 }
 
@@ -1262,7 +1253,7 @@ div.callout.todo {
   border-color: #7694b4;
 }
 
-div.callout.tip>h1 {
+div.callout.tip > h1 {
   color: #16c4c2;
 }
 
@@ -1271,7 +1262,7 @@ div.callout.tip {
   border-color: #279795;
 }
 
-div.callout.success>h1 {
+div.callout.success > h1 {
   color: #22c061;
 }
 
@@ -1280,7 +1271,7 @@ div.callout.success {
   border-color: #4aa06b;
 }
 
-div.callout.question>h1 {
+div.callout.question > h1 {
   color: #e5b92a;
 }
 
@@ -1289,7 +1280,7 @@ div.callout.question {
   border-color: #ccb875;
 }
 
-div.callout.failure>h1 {
+div.callout.failure > h1 {
   color: #ff001e;
 }
 
@@ -1298,7 +1289,7 @@ div.callout.failure {
   border-color: #b14d4d;
 }
 
-div.callout.danger>h1,
+div.callout.danger > h1,
 div.callout.danger strong {
   color: #ffd000;
 }
@@ -1309,7 +1300,7 @@ div.callout.danger {
   color: #ffffff;
 }
 
-div.callout.bug>h1 {
+div.callout.bug > h1 {
   color: #ff9100;
 }
 
@@ -1319,7 +1310,7 @@ div.callout.bug {
   border-color: #c09e05;
 }
 
-div.callout.example>h1 {
+div.callout.example > h1 {
   color: #7852ee;
 }
 
@@ -1328,7 +1319,7 @@ div.callout.example {
   border-color: #9d8ec7;
 }
 
-div.callout.quote>h1 {
+div.callout.quote > h1 {
   color: #a7a7a7;
 }
 
@@ -1342,7 +1333,7 @@ div.callout.quote {
 ?-----------------------< BESPOKE PROGRESS BAR >----------------------- 
 !================================================================================
 */
-@import url("data:text/css, .bespoke-marp-parent { top: 0 !important; } .bespoke-progress-parent { position: absolute; bottom: 0 !important; z-index:100; background:none !important; height:3px !important; }");
+@import url('data:text/css, .bespoke-marp-parent { top: 0 !important; } .bespoke-progress-parent { position: absolute; bottom: 0 !important; z-index:100; background:none !important; height:3px !important; }');
 
 /*
 !================================================================================
@@ -1353,7 +1344,7 @@ figcaption,
 tabcaption,
 .figcaption,
 .tabcaption {
-  font-family: "Fira Sans";
+  font-family: 'Fira Sans';
   font-size: 14pt;
   font-weight: normal;
   color: var(--marpx-theme-font-color);
@@ -1365,8 +1356,7 @@ figcaption::before,
   counter-increment: figure_cnt;
   font-weight: bold;
   color: var(--marpx-theme-figure-captiontext-color);
-  content: var(--marpx-theme-figure-captiontext) var(--page-number) "."
-    counter(figure_cnt) ": ";
+  content: var(--marpx-theme-figure-captiontext) var(--page-number) '.' counter(figure_cnt) ': ';
 }
 
 tabcaption::before,
@@ -1374,8 +1364,7 @@ tabcaption::before,
   counter-increment: table_cnt;
   font-weight: bold;
   color: var(--marpx-theme-table-captiontext-color);
-  content: var(--marpx-theme-table-captiontext) var(--page-number) "."
-    counter(table_cnt) ": ";
+  content: var(--marpx-theme-table-captiontext) var(--page-number) '.' counter(table_cnt) ': ';
 }
 
 .highlight {
@@ -1407,12 +1396,10 @@ section.quote {
 }
 
 section.quote h1 {
-
   position: relative;
   top: -100px;
   height: 0px;
   text-align: center;
-  
 }
 
 section.quote p {
@@ -1422,7 +1409,7 @@ section.quote p {
   letter-spacing: -0.23pt;
   font-size: 1.4em !important;
   text-align: center;
-  line-height: 1.10em;
+  line-height: 1.1em;
   font-family: var(--marpx-quote-font-family) !important;
   /*  font-style: oblique; */
   padding-top: auto;
@@ -1459,7 +1446,7 @@ section.quote.dark p {
   background-color: var(--marpx-quote_dark-color-paragraph-background);
   letter-spacing: 0.1pt;
   text-align: center;
-  line-height: 1.10em;
+  line-height: 1.1em;
   padding-top: auto;
   padding-bottom: auto;
   padding-left: 85px;
@@ -1520,7 +1507,7 @@ tr:hover {
 section.references {
   background: var(--marpx-references-background-color);
   color: var(--marpx-references-color);
-  font-family: "Fira Sans Light", sans-serif;
+  font-family: 'Fira Sans Light', sans-serif;
   padding: 150px 48px;
   line-height: 1.15;
 }
@@ -1532,14 +1519,14 @@ section.references li {
 
 section.references strong {
   color: var(--marpx-references-bold-color);
-  font-family: "Fira Sans Regular", sans-serif;
+  font-family: 'Fira Sans Regular', sans-serif;
 }
 
 section.references h1,
 section.references h2 {
   color: var(--marpx-references-header-color);
   margin-bottom: 16px;
-  font-family: "Fira Sans Regular", sans-serif;
+  font-family: 'Fira Sans Regular', sans-serif;
   /* border-bottom: 1px solid #0606ee; */
 }
 
@@ -1550,7 +1537,7 @@ section.references .multicolumn {
   align-items: start;
 }
 
-section.references .multicolumn>div {
+section.references .multicolumn > div {
   padding: 0 0px;
   /* Ensures content is aligned with the top */
   vertical-align: top;
@@ -1577,8 +1564,8 @@ section.black-slide {
   color: white !important;
 }
 
-section.slide.black>h1,
-section.black-slide>h1 {
+section.slide.black > h1,
+section.black-slide > h1 {
   color: white;
 }
 
@@ -1606,8 +1593,8 @@ section.white-slide {
   background-color: white !important;
 }
 
-section.slide.white>h1,
-section.white-slide>h1 {
+section.slide.white > h1,
+section.white-slide > h1 {
   color: black;
 }
 
@@ -1655,7 +1642,6 @@ ol {
   margin-bottom: 15px;
 }
 
-
 /*
 !================================================================================
 ?-----------------------< CONTAINER >----------------------- 
@@ -1679,7 +1665,6 @@ ol {
 */
 
 box {
-
   border: 0px solid black;
   /* cria a borda */
   padding: 15px;
@@ -1698,7 +1683,6 @@ box {
 }
 
 bbox {
-
   border: 1px solid black;
   /* cria a borda */
   padding: 25px;
@@ -1717,7 +1701,6 @@ bbox {
 }
 
 .box {
-
   border: 1px solid black;
   /* cria a borda */
   padding: 10px;

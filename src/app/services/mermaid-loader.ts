@@ -13,8 +13,8 @@ function loadScriptContent(path: string): Promise<string> {
   let cached = cache.get(path);
   if (!cached) {
     cached = fetch(path)
-      .then(r => (r.ok ? r.text() : ''))
-      .then(s => s.replace(/<\/script/gi, '<\\/script'))
+      .then((r) => (r.ok ? r.text() : ''))
+      .then((s) => s.replace(/<\/script/gi, '<\\/script'))
       .catch(() => '');
     cache.set(path, cached);
   }

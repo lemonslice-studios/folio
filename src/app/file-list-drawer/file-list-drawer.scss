@@ -38,13 +38,15 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
   user-select: none;
   min-height: 48px;
 
   &:hover {
     background-color: var(--surface-container);
-    
+
     .delete-button {
       opacity: 1;
     }
@@ -56,7 +58,7 @@
 
   &.active {
     background-color: var(--surface-container-high);
-    
+
     .file-icon {
       color: var(--color-plasma);
     }
@@ -113,9 +115,11 @@
     width: 32px;
     height: 32px;
     padding: 4px;
-    transition: opacity 0.2s, color 0.2s;
+    transition:
+      opacity 0.2s,
+      color 0.2s;
     color: var(--on-surface);
-    
+
     &:hover {
       color: var(--color-neon-coral);
       background-color: rgba(255, 77, 109, 0.1);
@@ -164,7 +168,7 @@
 
 .new-fab {
   background-color: var(--color-volt) !important;
-  color: #18181F !important;
+  color: #18181f !important;
   box-shadow: none !important;
   border-radius: 12px !important; // Match item radius
 }

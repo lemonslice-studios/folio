@@ -40,6 +40,8 @@ Folio Slides supports three built-in Marp themes:
 Hit the **▶ Present** button to go full-screen.
 `;
 
+export const MINIMAL_SLIDES_MARKDOWN = `---\nmarp: true\n---\n\n`;
+
 export const SAMPLE_PROSE = `# Hello, Folio
 
 Folio is a local-first Markdown text and slide editor.
@@ -98,6 +100,7 @@ export class AppStore {
     lastSyncTime: null,
     lastSyncError: null,
     geminiApiKey: null,
+    includeStarterContent: true,
   });
 
   readonly selectedTab = signal(0);
@@ -137,7 +140,8 @@ export class AppStore {
     } else if (list.length > 0) {
       await this.openFile(list[0]);
     } else {
-      await this.createFile('Welcome.md', SAMPLE_PROSE);
+      const content = prefs.includeStarterContent ? SAMPLE_PROSE : '';
+      await this.createFile('Welcome.md', content);
     }
   }
 
@@ -531,6 +535,10 @@ export class AppStore {
 
   setGeminiApiKey(key: string | null): void {
     this.updatePrefs({ geminiApiKey: key });
+  }
+
+  setIncludeStarterContent(enabled: boolean): void {
+    this.updatePrefs({ includeStarterContent: enabled });
   }
 
   setSelectedTab(index: number): void {

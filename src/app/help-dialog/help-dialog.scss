@@ -89,7 +89,9 @@ mat-dialog-content {
   &:active {
     transform: translateY(0);
     background: var(--color-plasma);
-    code { color: white; }
+    code {
+      color: white;
+    }
   }
 }
 

@@ -171,8 +171,12 @@ mat-drawer-content.app-content {
 }
 
 @keyframes spin {
-  0% { transform: rotate(360deg); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .toolbar__prose-toggle {
@@ -214,7 +218,6 @@ mat-drawer-content.app-content {
   }
 
   &.preview-hidden {
-
     .split-pane__divider,
     .split-pane__preview {
       display: none;

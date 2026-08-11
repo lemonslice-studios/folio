@@ -1,6 +1,6 @@
 /* @theme einstein */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
   /*------------< COLOR PALETTE >---------------------------------*/
@@ -20,8 +20,7 @@
   --marpx-theme-font-family: 'Lora', sans-serif; 
   --marpx-theme-font-family: 'Charter ITC TT','Fira Sans', 'Faustina', 'Bookerly', 'Lora', sans-serif;
   */
-  --marpx-theme-font-family: 'Source Sans Pro', sans-serif; 
-
+  --marpx-theme-font-family: 'Source Sans Pro', sans-serif;
 
   /* Text colors */
   --marpx-theme-font-color: #edf2f5;
@@ -41,10 +40,10 @@
   --marpx-theme-highlight-color: var();
 
   /* Captions and reference texts */
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-figure-captiontext-color: var(--scarletRed-100);
 
-  --marpx-theme-table-captiontext: "Table ";
+  --marpx-theme-table-captiontext: 'Table ';
   --marpx-theme-table-captiontext-color: var(--scarletRed-100);
 
   /* Navigation and reference elements */
@@ -53,7 +52,7 @@
   --marpx-theme-footnote-mark-color: #ff0000;
 
   /* Branding */
-  --marpx-theme-brandlogo: " ";
+  --marpx-theme-brandlogo: ' ';
 
   /*------------< TITLE SLIDE PARAMETERS >-----------------------------*/
 

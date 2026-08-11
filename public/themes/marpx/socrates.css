@@ -1,28 +1,26 @@
 /* @theme socrates */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
-
   /*------------ Overall theme parameters ---------------------------------*/
 
-  --marpx-theme-font-family: "Fira Sans", Faustina, Bookerly, sans-serif;
-  --marpx-theme-figure-captiontext: "Fig. ";
-  --marpx-theme-table-captiontext: "Table ";
-  --marpx-theme-brandlogo: " ";
-  
+  --marpx-theme-font-family: 'Fira Sans', Faustina, Bookerly, sans-serif;
+  --marpx-theme-figure-captiontext: 'Fig. ';
+  --marpx-theme-table-captiontext: 'Table ';
+  --marpx-theme-brandlogo: ' ';
 
   --marpx-theme-color: #006a85;
   --marpx-theme-chapter-background-color: #5a79a1;
   --marpx-theme-background-color: #ffffff;
   --marpx-theme-font-color: #000000;
   --marpx-theme-bold-color: #f8150d;
-  
+
   --marpx-theme-subtitle-color: #5d616d;
   --marpx-theme-h1-bold-color: #ff3c00;
   --marpx-theme-h2-color: #4d7099;
   --marpx-theme-marker-color: rgb(0, 102, 255);
-  
+
   --marpx-theme-toc-color: #fc2003;
 
   --marpx-theme-footnote-mark-color: #ff0000;
@@ -37,7 +35,7 @@
   --marpx-title_academic-author-size: 95%;
   --marpx-title_academic-date-size: 90%;
   --marpx-title_academic-institute-size: 90%;
-  
+
   /* inter character space */
   --marpx-title_academic-letter-spacing: 0.125px;
   /* font weights */
@@ -82,15 +80,13 @@
 
   --marpx-table-font-size: 22px;
   --marpx-table-font-family: ;
-  
+
   /*------------ Parameters used in `TOC` ---------------------------------*/
   --marpx-color-toc-marker: rgb(175, 69, 27);
-
 }
 
 section {
-    
-    line-height: 1.3em;
+  line-height: 1.3em;
 }
 
 section code {

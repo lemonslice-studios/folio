@@ -23,18 +23,19 @@ Folio is a local-first, offline-capable Progressive Web App (PWA) for creating a
 
 ## Building and Running
 
-| Command | Description |
-|---|---|
-| `npm install` | Install dependencies |
-| `npm start` | Run dev server at `http://localhost:4200` |
-| `npm run build` | Production build to `dist/` |
-| `npm run watch` | Build in watch mode (development configuration) |
-| `npm test` | Run unit tests with Vitest |
-| `npx prettier --write .` | Format all files |
+| Command                  | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `npm install`            | Install dependencies                            |
+| `npm start`              | Run dev server at `http://localhost:4200`       |
+| `npm run build`          | Production build to `dist/`                     |
+| `npm run watch`          | Build in watch mode (development configuration) |
+| `npm test`               | Run unit tests with Vitest                      |
+| `npx prettier --write .` | Format all files                                |
 
 ## Development Conventions
 
 ### Angular & TypeScript
+
 - **Standalone Components**: Always use standalone components (default in Angular v21).
 - **Signals**: Use `signal`, `computed`, and `effect` for state and side effects. Prefer Signals over Observables for UI state.
 - **Change Detection**: Always use `ChangeDetectionStrategy.OnPush`.
@@ -43,15 +44,18 @@ Folio is a local-first, offline-capable Progressive Web App (PWA) for creating a
 - **Types**: Strict type checking; avoid `any`, use `unknown` if unsure.
 
 ### Styling & UI
+
 - **Material 3**: Use M3 Expressive tokens and CSS custom properties (e.g., `var(--surface)`).
 - **Responsive**: Split-pane layout for wide screens (≥ 840px), tabbed layout for narrow screens.
 - **Icons**: Use Material Symbols via `MatIconModule`.
 
 ### Quiet Tech Constraints
+
 - **Zero Network**: No runtime network calls after installation. No CDNs; all assets must be bundled.
 - **No Telemetry**: No analytics or tracking scripts.
 - **Performance**: No heavy background workers or battery-draining processes.
 
 ### Accessibility (A11y)
+
 - **Compliance**: Must pass all AXE checks and follow WCAG AA minimums.
 - **Focus**: Proper focus management and ARIA attributes for interactive elements.

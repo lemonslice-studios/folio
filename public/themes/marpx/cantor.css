@@ -1,12 +1,11 @@
 /* @theme cantor */
 
-@import "marpx";
+@import 'marpx';
 
 /* Charter */
-@import url("https://fonts.cdnfonts.com/css/charter-itc-tt");
+@import url('https://fonts.cdnfonts.com/css/charter-itc-tt');
 
 :root {
-
   --color-background1: hsl(0, 0%, 97%);
   --color-background2: hsl(0, 0%, 91%);
   --color-bold: #041a2c;
@@ -14,8 +13,7 @@
   --color-font: #2e2e2e;
   --color-marker: #f0a211;
 
-
-    /* Gray */
+  /* Gray */
   --gray-100: #ffffff;
   --gray-200: #f3f6fc;
   --gray-300: #f1f4f8;
@@ -58,17 +56,15 @@
   --khaki-d1100: #2e2626;
   --khaki-d1200: #d1002a;
 
-
   /* Green */
   --green-d100: #eeff00;
-
-
 
   /* MAIN GLOBAL PARAMETERS of THEME */
   --marpx-theme-font-size: 24pt;
   --marpx-theme-letter-spacing: inherit;
-  --marpx-theme-font-family: "Fira Sans", "Open Sans", serif;
-  --marpx-theme-font-family: 'Charter ITC TT','Fira Sans', 'Faustina', 'Bookerly', 'Lora', sans-serif;
+  --marpx-theme-font-family: 'Fira Sans', 'Open Sans', serif;
+  --marpx-theme-font-family:
+    'Charter ITC TT', 'Fira Sans', 'Faustina', 'Bookerly', 'Lora', sans-serif;
 
   --marpx-theme-background-color: var(--color-background1);
   --marpx-theme-font-color: var(--color-font);
@@ -81,13 +77,11 @@
   /* SECONDARY GLOBAL PARAMETERS of THEME */
   --marpx-theme-color: var(--color-font);
   --marpx-theme-figure-captiontext-color: var(--khaki-d1200);
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-highlight-color: var(--blueViolet-500);
-  --marpx-theme-table-captiontext: "Table. ";
+  --marpx-theme-table-captiontext: 'Table. ';
   --marpx-theme-table-captiontext-color: var(--khaki-d1200);
   --marpx-theme-toc-color: var(--blue-d500);
-
-
 
   /* CHAPTER */
   --marpx-theme-chapter-background-color: var(--blue-d300);
@@ -125,15 +119,12 @@
   --marpx-references-header-color: var(--blue-d500);
   --marpx-references-bold-color: var(--color-font-h1);
   --marpx-references-color: var(--color-font);
-  --marpx-references-font-family: arial, "source sans pro", arial;
+  --marpx-references-font-family: arial, 'source sans pro', arial;
 
   /* TABLE */
   --marpx-table-font-color: var(--color-font);
   --marpx-table-hover-background-color: var(--violet-100);
   --marpx-table-hover-color: var(--blueViolet-400);
-
-
-
 }
 
 /* Demais diferenças estruturais */
@@ -151,7 +142,6 @@ section code:not(pre code) {
   display: inline-block;
 }
 
-
 section.slide.white,
 section.white-slide {
   color: var(--color-font);
@@ -161,7 +151,6 @@ section.references a {
   color: var(--blue-d700);
   font-weight: 100;
   text-decoration: underline;
-
 }
 
 section.chapter {
@@ -174,9 +163,7 @@ section.chapter {
   /* background-image: url("./pattern01.jpg"); */
 }
 
-
 section.quote {
-  
   --marpx-quote-font-color: var(--blue-d100);
   --marpx-quote-background-color: var(--blue-d200);
   --marpx-quote-bold-color: var(--green-d100);
@@ -184,7 +171,6 @@ section.quote {
 }
 
 section.quote.dark {
-
   --marpx-quote_dark-font-color: white;
   background-image: linear-gradient(to top, var(--blue-d600), var(--blue-d900));
   /* background-image: url("./pattern01.jpg"); */

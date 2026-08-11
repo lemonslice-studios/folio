@@ -21,17 +21,17 @@ There is no separate lint command — format with Prettier (`npx prettier --writ
 
 ### Tech Stack
 
-| Concern | Library |
-|---|---|
-| Framework | Angular 21+ (standalone + Signals, no NgRx, no NgModules) |
-| Slides engine | `@marp-team/marp-core` — Markdown → HTML |
-| Editor | CodeMirror 6 (`@codemirror/*`) with custom Marp syntax theme |
-| Filesystem | `lightning-fs` — IndexedDB-backed POSIX-like fs |
-| Preferences | Raw `indexedDB` — single JSON value |
-| UI | Angular Material 3 (M3 Expressive) + Angular CDK |
-| Styles | SCSS + CSS custom properties (M3 tokens) |
-| PWA | `@angular/pwa` (Workbox service worker) |
-| Tests | Vitest + jsdom |
+| Concern       | Library                                                      |
+| ------------- | ------------------------------------------------------------ |
+| Framework     | Angular 21+ (standalone + Signals, no NgRx, no NgModules)    |
+| Slides engine | `@marp-team/marp-core` — Markdown → HTML                     |
+| Editor        | CodeMirror 6 (`@codemirror/*`) with custom Marp syntax theme |
+| Filesystem    | `lightning-fs` — IndexedDB-backed POSIX-like fs              |
+| Preferences   | Raw `indexedDB` — single JSON value                          |
+| UI            | Angular Material 3 (M3 Expressive) + Angular CDK             |
+| Styles        | SCSS + CSS custom properties (M3 tokens)                     |
+| PWA           | `@angular/pwa` (Workbox service worker)                      |
+| Tests         | Vitest + jsdom                                               |
 
 **Explicitly not used:** Tailwind, Dexie, RxJS state managers, NgRx, NgModules, second UI framework.
 
@@ -40,13 +40,13 @@ There is no separate lint command — format with Prettier (`npx prettier --writ
 A single root store service holds:
 
 ```typescript
-presentationList: Signal<string[]>
-currentFile: Signal<string | null>
-currentMarkdown: Signal<string>
-currentSlideIndex: Signal<number>
-slideCount: Signal<number>
-isDirty: Signal<boolean>
-prefs: Signal<AppPrefs>  // { lastOpenFile, preferredTheme, editorFontSize, darkMode }
+presentationList: Signal<string[]>;
+currentFile: Signal<string | null>;
+currentMarkdown: Signal<string>;
+currentSlideIndex: Signal<number>;
+slideCount: Signal<number>;
+isDirty: Signal<boolean>;
+prefs: Signal<AppPrefs>; // { lastOpenFile, preferredTheme, editorFontSize, darkMode }
 ```
 
 Use `effect()` for side effects (e.g., persist markdown to filesystem on change).

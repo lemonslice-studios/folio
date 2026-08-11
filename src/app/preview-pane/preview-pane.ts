@@ -174,11 +174,14 @@ export class PreviewPaneComponent {
       // document size — so it gets a much larger window.
       const isPaged = result.type === 'prose' && proseMode === 'paged';
       clearTimeout(this.reloadingTimeout);
-      this.reloadingTimeout = setTimeout(() => {
-        if (untracked(() => this.isPreviewLoading())) {
-          window.location.reload();
-        }
-      }, isPaged ? 15000 : 2000);
+      this.reloadingTimeout = setTimeout(
+        () => {
+          if (untracked(() => this.isPreviewLoading())) {
+            window.location.reload();
+          }
+        },
+        isPaged ? 15000 : 2000,
+      );
 
       iframe.nativeElement.srcdoc = nextSrcdoc;
     });

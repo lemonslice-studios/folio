@@ -13,10 +13,22 @@ export function escapeHtml(text: string): string {
 }
 
 const MARPX_THEMES = [
-  'cantor', 'church', 'copernicus', 'einstein',
-  'frankfurt', 'galileo', 'gauss', 'gropius',
-  'gödel', 'haskell', 'hobbes', 'lorca',
-  'marpx', 'newton', 'socrates', 'sparta'
+  'cantor',
+  'church',
+  'copernicus',
+  'einstein',
+  'frankfurt',
+  'galileo',
+  'gauss',
+  'gropius',
+  'gödel',
+  'haskell',
+  'hobbes',
+  'lorca',
+  'marpx',
+  'newton',
+  'socrates',
+  'sparta',
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -26,8 +38,8 @@ export class MarpService {
     math: 'katex',
     emoji: {
       shortcode: true,
-      unicode: true
-    }
+      unicode: true,
+    },
   });
 
   private mermaidContent = '';
@@ -35,7 +47,7 @@ export class MarpService {
   constructor() {
     configureMarkdownPlugins(this.marp.markdown);
     this.registerMarpXThemes();
-    loadMermaidScript().then(s => (this.mermaidContent = s));
+    loadMermaidScript().then((s) => (this.mermaidContent = s));
   }
 
   private async registerMarpXThemes(): Promise<void> {
@@ -63,7 +75,14 @@ export class MarpService {
    *                  false for live preview or standalone download.
    * @param standalone - true for HTML file download (inlines scripts, removes app-specific logic).
    */
-  buildSrcdoc(html: string, css: string = '', isPrint: boolean = false, appTheme: 'quiet' | 'clean' = 'quiet', standalone: boolean = false, title: string = 'Folio Presentation'): string {
+  buildSrcdoc(
+    html: string,
+    css: string = '',
+    isPrint: boolean = false,
+    appTheme: 'quiet' | 'clean' = 'quiet',
+    standalone: boolean = false,
+    title: string = 'Folio Presentation',
+  ): string {
     const hasMermaid = html.includes('class="mermaid"');
     // Inline mermaid whenever available: the sandboxed preview iframe bypasses
     // the service worker, so a src reference would fail offline.
@@ -76,7 +95,9 @@ export class MarpService {
     // Helper script to handle links within srcdoc.
     // 1. Internal hash links (footnotes) scroll into view.
     // 2. External links open in a new tab to avoid iframe navigation issues.
-    const linkHandlerScript = standalone ? '' : `
+    const linkHandlerScript = standalone
+      ? ''
+      : `
 <script>
 document.addEventListener('click', function(e) {
   var target = e.target;
@@ -118,13 +139,13 @@ ${hasMermaid ? mermaidTag : ''}
   };
   function init() {
     if (!window.mermaid || !${hasMermaid}) {
-      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ""}
+      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ''}
       return;
     }
     mermaid.initialize(MERMAID_CONFIG);
     mermaid.run({ querySelector: '.mermaid' }).then(function() {
-      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ""}
-      ${standalone ? "window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'mermaidReady' }, '*');" : ""}
+      ${isPrint ? "window.parent.postMessage({ folioIdentifier: 'folio-preview', type: 'printReady' }, '*');" : ''}
+      ${standalone ? "window.parent.postMessage({ folioIdentifier: 'folio-export', type: 'mermaidReady' }, '*');" : ''}
     });
   }
   if (document.readyState === 'loading') {
@@ -134,7 +155,9 @@ ${hasMermaid ? mermaidTag : ''}
   }
 })();
 </script>
-${standalone ? `
+${
+  standalone
+    ? `
 <script>
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'folio-get-rendered-html') {
@@ -145,8 +168,12 @@ window.addEventListener('message', function(e) {
   }
 });
 </script>
-` : ''}
-${isPrint ? `
+`
+    : ''
+}
+${
+  isPrint
+    ? `
 <script>
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'folio-print') {
@@ -156,13 +183,15 @@ window.addEventListener('message', function(e) {
   }
 });
 </script>
-` : ''}
+`
+    : ''
+}
 ${linkHandlerScript}`;
     } else if (standalone) {
       mermaidInit = ''; // Pure HTML/CSS export, no scripts needed
     } else {
       mermaidInit = `
-${(hasMermaid && !standalone) ? mermaidTag : ''}
+${hasMermaid && !standalone ? mermaidTag : ''}
 <script>
 (function () {
   var slides = document.querySelectorAll('svg[data-marpit-svg]');
@@ -259,10 +288,13 @@ ${(hasMermaid && !standalone) ? mermaidTag : ''}
 ${linkHandlerScript}`;
     }
 
-    const interactiveStyles = (isPrint || standalone) ? `
+    const interactiveStyles =
+      isPrint || standalone
+        ? `
   html, body { height: auto !important; overflow: visible !important; }
   svg[data-marpit-svg] { display: block !important; width: 100vw !important; height: auto !important; page-break-after: always; break-after: page; }
-` : `
+`
+        : `
   html, body, .marpit { width: 100%; height: 100%; overflow: hidden; }
   .marpit { display: flex; align-items: center; justify-content: center; }
   svg[data-marpit-svg] { display: none; flex-shrink: 0; }
@@ -285,13 +317,15 @@ ${linkHandlerScript}`;
   .task-list-item-checkbox { margin: 0 0.5em 0.25em -1.4em !important; vertical-align: middle !important; }
 `;
 
-    const themeStyles = standalone ? `
+    const themeStyles = standalone
+      ? `
   :root { color-scheme: light dark; }
   body { background-color: #fff; }
   @media (prefers-color-scheme: dark) {
     body { background-color: #000; }
   }
-` : '';
+`
+      : '';
 
     return `<!DOCTYPE html>
 <html ${htmlAttr}>
@@ -305,7 +339,7 @@ ${linkHandlerScript}`;
     background: transparent;
     font-family: 'Inter', system-ui, sans-serif;
     overscroll-behavior: none;
-    ${(isPrint || standalone) ? '' : 'touch-action: none;'}
+    ${isPrint || standalone ? '' : 'touch-action: none;'}
   }
   ${interactiveStyles}
   ${taskListStyles}

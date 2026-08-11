@@ -1,12 +1,10 @@
 /* @theme galileo */
 
-@import "marpx";
+@import 'marpx';
 
 /* Variáveis do tema que diferem do baseline */
 
 :root {
-
-
   /* Gray */
   --gray-100: #ffffff;
   --gray-200: #f3f6fc;
@@ -40,8 +38,6 @@
   --khaki-100: #fef7e0;
   --khaki-200: #fdca24;
 
-  
-
   --marpx-quote-background-color: var(--gray-300);
   --marpx-quote-bold-color: var(--blueViolet-100);
   --marpx-quote-paragraph-background-color: var(--gray-300);
@@ -63,7 +59,7 @@
   --marpx-theme-chapter-h2-font-color: #000f92;
   --marpx-theme-color: var(--blueViolet-50);
   --marpx-theme-figure-captiontext-color: var(--blueViolet-50);
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-font-color: var(--gray-100);
   --marpx-theme-font-family: Faustina, Bookerly, Lora, sans-serif;
   --marpx-theme-font-size: 24pt;
@@ -90,7 +86,6 @@
   --marpx-title_academic-title-size: 125%;
 
   --marpx-title-header-color: var(--khaki-200);
-
 }
 
 /* Demais diferenças estruturais */
@@ -109,7 +104,6 @@ section code:not(pre code) {
   display: inline-block;
 }
 
-
 section.slide.white,
 section.white-slide {
   color: var(--gray-1000);
@@ -117,7 +111,6 @@ section.white-slide {
 
 section.references a {
   color: #93b0ee;
-
 }
 
 section.chapter {

@@ -6,7 +6,7 @@ import { CheatItem } from '../editor-pane/cheat-bar/cheat-bar';
 export class EditorService {
   private readonly insertSubject = new Subject<string | CheatItem>();
   private readonly focusSubject = new Subject<'start' | 'end' | undefined>();
-  
+
   /** Observable that emits whenever a snippet should be inserted at the cursor. */
   readonly insert$ = this.insertSubject.asObservable();
 

@@ -1,6 +1,6 @@
 /* @theme gropius */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
   /*------------< COLOR PALETTE >---------------------------------*/
@@ -31,9 +31,9 @@
   --marpx-theme-highlight-color: var(--yellow-300);
 
   /* Captions and reference texts */
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-figure-captiontext-color: var(--blueViolet-100);
-  --marpx-theme-table-captiontext: "Table ";
+  --marpx-theme-table-captiontext: 'Table ';
   --marpx-theme-table-captiontext-color: var(--blueViolet-100);
 
   /* Navigation and reference elements */
@@ -42,7 +42,7 @@
   --marpx-theme-footnote-mark-color: #ff0000;
 
   /* Branding */
-  --marpx-theme-brandlogo: " ";
+  --marpx-theme-brandlogo: ' ';
 
   /*------------< TITLE SLIDE PARAMETERS >-----------------------------*/
 
@@ -97,7 +97,6 @@
   --marpx-references-background-color: var(--gray-100);
 }
 
-
 section {
   line-height: 1.2em;
 }
@@ -114,31 +113,28 @@ section code {
 }
 
 box {
-
-  border: 0px solid black;      /* cria a borda */
-  padding: 15px;                  /* espaçamento interno */
-  margin: 15px auto;              /* espaçamento externo */
-  display: inline-block;          /* garante que a caixa se ajuste ao conteúdo */
-  border-radius: 10px;            /* cantos arredondados (opcional) */
-  background-color: #cfebf7d0;  /* cor de fundo (opcional) */
-  text-align: center;             /* centraliza o conteúdo dentro da caixa */
+  border: 0px solid black; /* cria a borda */
+  padding: 15px; /* espaçamento interno */
+  margin: 15px auto; /* espaçamento externo */
+  display: inline-block; /* garante que a caixa se ajuste ao conteúdo */
+  border-radius: 10px; /* cantos arredondados (opcional) */
+  background-color: #cfebf7d0; /* cor de fundo (opcional) */
+  text-align: center; /* centraliza o conteúdo dentro da caixa */
   box-shadow: 0 8px 15px rgba(8, 8, 8, 0.192);
 }
 
 bbox {
-
-  border: 1px solid black;  /* cria a borda */
-  padding: 25px;              /* espaçamento interno */
-  margin: 50px auto;          /* espaçamento externo */
-  display: inline-block;      /* garante que a caixa se ajuste ao conteúdo */
-  border-radius: 10px;        /* cantos arredondados (opcional) */
-  background-color: #ffffff;/* cor de fundo (opcional) */
-  text-align: center;         /* centraliza o conteúdo dentro da caixa */
+  border: 1px solid black; /* cria a borda */
+  padding: 25px; /* espaçamento interno */
+  margin: 50px auto; /* espaçamento externo */
+  display: inline-block; /* garante que a caixa se ajuste ao conteúdo */
+  border-radius: 10px; /* cantos arredondados (opcional) */
+  background-color: #ffffff; /* cor de fundo (opcional) */
+  text-align: center; /* centraliza o conteúdo dentro da caixa */
   box-shadow: 0 7px 15px rgba(0, 0, 0, 0.08);
 }
 
 .box {
-
   border: 1px solid black;
   /* cria a borda */
   padding: 10px;

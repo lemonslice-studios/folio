@@ -204,10 +204,10 @@ Page count returned via postMessage from inside Paged.js `after()` callback, rec
 ```typescript
 fromEvent<MessageEvent>(window, 'message')
   .pipe(
-    filter(e => e.source === this.iframeRef()?.nativeElement.contentWindow),
+    filter((e) => e.source === this.iframeRef()?.nativeElement.contentWindow),
     takeUntilDestroyed(),
   )
-  .subscribe(e => {
+  .subscribe((e) => {
     if (typeof e.data?.slideIndex === 'number') this.store.goToSlide(e.data.slideIndex);
     if (typeof e.data?.pageCount === 'number') this.store.setSlideCount(e.data.pageCount);
   });
@@ -220,8 +220,8 @@ Slide nav buttons and the Present FAB are hidden for prose:
 ```html
 <!-- preview-pane.html -->
 @if (store.documentType() === 'slides') {
-  <nav class="slide-nav" aria-label="Slide navigation"> … </nav>
-  <button mat-fab class="present-fab" …> … </button>
+<nav class="slide-nav" aria-label="Slide navigation">…</nav>
+<button mat-fab class="present-fab" …>…</button>
 }
 ```
 
@@ -272,9 +272,7 @@ Add to `ngsw-config.json` alongside `mermaid.min.js`:
     {
       "name": "app-assets",
       "resources": {
-        "files": [
-          "/js/paged.polyfill.min.js"
-        ]
+        "files": ["/js/paged.polyfill.min.js"]
       }
     }
   ]
@@ -285,10 +283,10 @@ Add to `ngsw-config.json` alongside `mermaid.min.js`:
 
 Paged.js ships two integration paths:
 
-| Mode | How | Use case |
-|---|---|---|
-| **Polyfill** (`paged.polyfill.js`) | Drop `<script>` into page; runs automatically on `DOMContentLoaded` | Simple — matches Folio's srcdoc iframe pattern |
-| **Previewer API** (`import { Previewer }`) | Programmatic; pass DOM content + CSS | Useful when you control the DOM before rendering |
+| Mode                                       | How                                                                 | Use case                                         |
+| ------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------ |
+| **Polyfill** (`paged.polyfill.js`)         | Drop `<script>` into page; runs automatically on `DOMContentLoaded` | Simple — matches Folio's srcdoc iframe pattern   |
+| **Previewer API** (`import { Previewer }`) | Programmatic; pass DOM content + CSS                                | Useful when you control the DOM before rendering |
 
 The polyfill mode is the right choice here: it mirrors how Mermaid is integrated (`<script src="js/mermaid.min.js">`), it requires no build-time bundling of Paged.js into the Angular app, and it keeps the prose rendering entirely self-contained within the srcdoc iframe.
 
@@ -306,7 +304,7 @@ The polyfill mode is the right choice here: it mirrors how Mermaid is integrated
 Paged.js does heavy DOM fragmentation — more expensive than a Marp re-render. The debounce is gated on document type:
 
 ```typescript
-timer(this.store.documentType() === 'prose' ? 600 : 300)
+timer(this.store.documentType() === 'prose' ? 600 : 300);
 ```
 
 This keeps slide mode snappy while giving Paged.js enough settling time.
@@ -315,12 +313,12 @@ This keeps slide mode snappy while giving Paged.js enough settling time.
 
 ## AppStore changes
 
-| Signal / computed | Change |
-|---|---|
-| `presentationList` | Rename → `fileList` (files are no longer all presentations) |
-| `slideCount` / `setSlideCount` | Kept as-is for now; semantically means "page count" for prose |
-| `currentSlideIndex` / `goToSlide` | Kept; used only in slides mode — prose ignores it |
-| `documentType` | **New** `computed<'slides' \| 'prose'>()` derived from `currentMarkdown` |
+| Signal / computed                 | Change                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `presentationList`                | Rename → `fileList` (files are no longer all presentations)              |
+| `slideCount` / `setSlideCount`    | Kept as-is for now; semantically means "page count" for prose            |
+| `currentSlideIndex` / `goToSlide` | Kept; used only in slides mode — prose ignores it                        |
+| `documentType`                    | **New** `computed<'slides' \| 'prose'>()` derived from `currentMarkdown` |
 
 Full rename of `presentationList` → `fileList` is a separate, mechanical refactor. It can land independently without blocking prose mode.
 
@@ -333,7 +331,7 @@ A new sample file `Welcome Prose.md` is created the first time a user creates a 
 ```markdown
 # My First Document
 
-Write your content here. Use standard Markdown — headings, lists, **bold**, *italic*, footnotes[^1], tables, and code blocks all work.
+Write your content here. Use standard Markdown — headings, lists, **bold**, _italic_, footnotes[^1], tables, and code blocks all work.
 
 ---
 

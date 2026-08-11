@@ -49,19 +49,25 @@
   width: max-content;
   max-width: calc(100% - 2rem);
   pointer-events: none;
-  
+
   // Entrance animation
   animation: dock-entrance 0.2s ease-out;
 }
 
 @keyframes dock-entrance {
-  from { opacity: 0; transform: translate(-50%, 12px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .utility-dock {
   @extend .utility-dock;
-  
+
   .nav-group {
     display: flex;
     align-items: center;
@@ -97,13 +103,13 @@
   height: 40px !important;
   border-radius: 20px !important;
   background-color: var(--color-volt) !important;
-  color: #18181F !important;
+  color: #18181f !important;
   font-weight: 600 !important;
   padding: 0 1.125rem 0 0.875rem !important;
 
   mat-icon {
     margin-right: 8px;
-    color: #18181F !important;
+    color: #18181f !important;
   }
 }
 

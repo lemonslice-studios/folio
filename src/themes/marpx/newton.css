@@ -1,6 +1,6 @@
 /* @theme newton */
 
-@import "marpx";
+@import 'marpx';
 
 /* Variáveis do tema que diferem do baseline */
 :root {
@@ -23,14 +23,13 @@
 
   /* Elementos específicos */
   --marpx-theme-chapter-background-color: var(--khaki-900);
-  --marpx-theme-chapter-background-color: #123A53;
+  --marpx-theme-chapter-background-color: #123a53;
 
   --marpx-theme-subtitle-color: var(--blue-600);
   --marpx-theme-highlight-color: var(--yellow-300);
 
-
   /* Legendas e rótulos */
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-figure-captiontext-color: var(--blueViolet-50);
   --marpx-theme-table-captiontext-color: var(--vermilion-300);
 
@@ -46,7 +45,6 @@
   --marpx-title_academic-institute-size: 85%;
   --marpx-title_academic-letter-spacing: -0.07px;
   --marpx-title_academic-background-color: var(--gray-1100);
-
 
   --marpx-title_academic-title-color: var(--blue-550);
   --marpx-title_academic-subtitle-color: #a1a1a7;

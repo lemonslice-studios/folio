@@ -1,6 +1,6 @@
 /* @theme gödel */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
   /*------------< COLOR PALETTE >---------------------------------*/
@@ -10,8 +10,7 @@
   /*------------< CORE THEME PARAMETERS >---------------------------------*/
 
   /* General theme settings */
-  --marpx-theme-font-family: "Fira Sans Condensed", Faustina, Bookerly, Lora,
-    sans-serif;
+  --marpx-theme-font-family: 'Fira Sans Condensed', Faustina, Bookerly, Lora, sans-serif;
   --marpx-theme-color: #31406b;
   --marpx-theme-background-color: #eeeeee;
 
@@ -30,9 +29,9 @@
   --marpx-color-footnote-mark: #ff0000;
 
   /* Captions and branding */
-  --marpx-theme-figure-captiontext: "Fig. ";
-  --marpx-theme-table-captiontext: "Table ";
-  --marpx-theme-brandlogo: " ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
+  --marpx-theme-table-captiontext: 'Table ';
+  --marpx-theme-brandlogo: ' ';
 
   /*------------< TABLE OF CONTENTS PARAMETERS >---------------------------------*/
   --marpx-theme-toc-color: #4562bb;

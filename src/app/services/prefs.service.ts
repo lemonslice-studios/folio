@@ -14,6 +14,7 @@ export interface AppPrefs {
   lastSyncTime: number | null;
   lastSyncError: string | null;
   geminiApiKey: string | null;
+  includeStarterContent: boolean;
 }
 
 const DEFAULT_PREFS: AppPrefs = {
@@ -30,6 +31,7 @@ const DEFAULT_PREFS: AppPrefs = {
   lastSyncTime: null,
   lastSyncError: null,
   geminiApiKey: null,
+  includeStarterContent: true,
 };
 
 @Injectable({ providedIn: 'root' })

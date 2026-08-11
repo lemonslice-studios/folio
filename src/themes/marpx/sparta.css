@@ -1,19 +1,18 @@
 /* @theme sparta */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
   /* ===================================================================== */
   /*                       OVERALL THEME PARAMETERS                        */
   /* ===================================================================== */
 
-  --marpx-theme-font-family: "Fira Sans", Faustina, Lora, Bookerly, "Open Sans",
-    sans-serif;
-  --marpx-theme-brandlogo: " ";
+  --marpx-theme-font-family: 'Fira Sans', Faustina, Lora, Bookerly, 'Open Sans', sans-serif;
+  --marpx-theme-brandlogo: ' ';
 
   /* Caption texts */
-  --marpx-theme-figure-captiontext: "Fig. ";
-  --marpx-theme-table-captiontext: "Tab. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
+  --marpx-theme-table-captiontext: 'Tab. ';
 
   /* Base colors */
   --marpx-theme-color: #002b36;

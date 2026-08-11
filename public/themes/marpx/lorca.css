@@ -1,16 +1,14 @@
 /* @theme lorca */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
-
   /*------------ Overall theme parameters ---------------------------------*/
 
-  --marpx-theme-font-family: "Fira Sans", Faustina, Bookerly, sans-serif;
-  --marpx-theme-figure-captiontext: "Fig. ";
-  --marpx-theme-table-captiontext: "Table ";
-  --marpx-theme-brandlogo: " ";
-  
+  --marpx-theme-font-family: 'Fira Sans', Faustina, Bookerly, sans-serif;
+  --marpx-theme-figure-captiontext: 'Fig. ';
+  --marpx-theme-table-captiontext: 'Table ';
+  --marpx-theme-brandlogo: ' ';
 
   --marpx-theme-color: #006a85;
   --marpx-theme-chapter-background-color: #808080;
@@ -37,7 +35,7 @@
   --marpx-title_academic-author-size: 95%;
   --marpx-title_academic-date-size: 90%;
   --marpx-title_academic-institute-size: 90%;
-  
+
   /* inter character space */
   --marpx-title_academic-letter-spacing: 0.125px;
   /* font weights */
@@ -82,15 +80,13 @@
 
   --marpx-table-font-size: 22px;
   --marpx-table-font-family: ;
-  
+
   /*------------ Parameters used in `TOC` ---------------------------------*/
   --marpx-color-toc-marker: rgb(175, 69, 27);
-
 }
 
 section {
-    
-    line-height: 1.3em;
+  line-height: 1.3em;
 }
 
 section code {
@@ -108,7 +104,7 @@ section code {
 
 /* Red circle with "page / total" on the right */
 section::after {
-  content: attr(data-marpit-pagination) " / " attr(data-marpit-pagination-total);
+  content: attr(data-marpit-pagination) ' / ' attr(data-marpit-pagination-total);
   position: absolute;
   right: 32px;
   bottom: 20px;
@@ -122,7 +118,7 @@ section::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .18);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
   left: auto !important;
   /* override base theme’s left positioning */
   z-index: 20;

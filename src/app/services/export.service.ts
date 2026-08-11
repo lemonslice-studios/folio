@@ -24,7 +24,16 @@ export class ExportService {
       fullHtml = this.marpService.buildSrcdoc(html, css, false, this.store.appTheme(), true, title);
     } else {
       const { html } = this.proseService.render(markdown);
-      fullHtml = this.proseService.buildSrcdoc(html, false, 'paged', 'system', this.store.appTheme(), this.store.prefs().fontFamily, true, title);
+      fullHtml = this.proseService.buildSrcdoc(
+        html,
+        false,
+        'paged',
+        'system',
+        this.store.appTheme(),
+        this.store.prefs().fontFamily,
+        true,
+        title,
+      );
     }
 
     // SVG Embedding for Standalone Exports
@@ -90,9 +99,18 @@ export class ExportService {
       fullHtml = this.marpService.buildSrcdoc(html, css, true, this.store.appTheme(), false, title);
     } else {
       const { html } = this.proseService.render(markdown);
-      fullHtml = this.proseService.buildSrcdoc(html, true, this.store.proseViewMode(), 'system', this.store.appTheme(), this.store.prefs().fontFamily, false, title);
+      fullHtml = this.proseService.buildSrcdoc(
+        html,
+        true,
+        this.store.proseViewMode(),
+        'system',
+        this.store.appTheme(),
+        this.store.prefs().fontFamily,
+        false,
+        title,
+      );
     }
-    
+
     const printFrame = document.createElement('iframe');
     // Sandboxed like the preview; allow-modals is needed for window.print(),
     // which the frame invokes itself on receiving the 'folio-print' message
@@ -134,7 +152,7 @@ export class ExportService {
     window.addEventListener('message', onPrintMessage);
 
     printFrame.srcdoc = fullHtml;
-    
+
     // Fallback: if mermaid isn't present or signals are never sent, print after a delay
     printFrame.onload = () => setTimeout(doPrint, 1500);
   }

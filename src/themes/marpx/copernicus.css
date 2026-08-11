@@ -1,14 +1,14 @@
 /* @theme copernicus */
 
-@import "marpx";
+@import 'marpx';
 
 :root {
   /*------------ Overall theme parameters ---------------------------------*/
 
-  --marpx-theme-font-family: "Fira Sans", Faustina, Bookerly, sans-serif;
-  --marpx-theme-figure-captiontext: "Fig. ";
-  --marpx-theme-table-captiontext: "Table ";
-  --marpx-theme-brandlogo: " ";
+  --marpx-theme-font-family: 'Fira Sans', Faustina, Bookerly, sans-serif;
+  --marpx-theme-figure-captiontext: 'Fig. ';
+  --marpx-theme-table-captiontext: 'Table ';
+  --marpx-theme-brandlogo: ' ';
   --marpx-theme-marker-color: orangered;
   --marpx-theme-color: #002b36;
   --marpx-theme-chapter-background-color: #e6b737;
@@ -85,10 +85,9 @@
 
   --marpx-table-font-size: 22px;
   --marpx-table-font-family: ;
-  
+
   /*------------ Parameters used in `TOC` ---------------------------------*/
   --marpx-color-toc-marker: rgb(50, 14, 253);
-
 }
 
 section {

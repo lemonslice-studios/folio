@@ -23,9 +23,11 @@ export function configureMarkdownPlugins(md: MarkdownIt): void {
     .use(container, 'container');
 
   // Add target="_blank" to external links
-  const defaultLinkRender = md.renderer.rules.link_open || ((tokens: any[], idx: number, options: any, env: any, self: any) => {
-    return self.renderToken(tokens, idx, options);
-  });
+  const defaultLinkRender =
+    md.renderer.rules.link_open ||
+    ((tokens: any[], idx: number, options: any, env: any, self: any) => {
+      return self.renderToken(tokens, idx, options);
+    });
 
   md.renderer.rules.link_open = (tokens: any[], idx: number, options: any, env: any, self: any) => {
     const hrefIndex = tokens[idx].attrIndex('href');

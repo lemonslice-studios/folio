@@ -10,6 +10,22 @@ import { PrefsService } from './services/prefs.service';
 import { ExportService } from './services/export.service';
 import * as platformWarning from './services/platform-warning';
 
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
 describe('shouldShowApplePlatformWarning', () => {
   it('returns true for Safari on macOS', () => {
     expect(
@@ -138,7 +154,9 @@ describe('App', () => {
     await fixture.whenStable();
 
     expect(dialogOpenSpy).toHaveBeenCalled();
-    expect(prefsServiceMock.save).toHaveBeenCalledWith(expect.objectContaining({ safariWarningDismissed: true }));
+    expect(prefsServiceMock.save).toHaveBeenCalledWith(
+      expect.objectContaining({ safariWarningDismissed: true }),
+    );
   });
 
   it('does not show the warning dialog when the browser is unaffected', async () => {

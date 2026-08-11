@@ -1,12 +1,11 @@
 /* @theme hobbes */
 
-@import "marpx";
+@import 'marpx';
 
 /* Font: Bitter */
 @import url('https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
-
   --color-background1: #dcded3;
   --color-background2: #131920;
   --color-bold: #041a2c;
@@ -44,11 +43,9 @@
   /* Green */
   --green-d100: #eeff00;
 
-
-
   /* MAIN GLOBAL PARAMETERS of THEME */
   --marpx-theme-font-size: 24pt;
-  --marpx-theme-letter-spacing: .01px;
+  --marpx-theme-letter-spacing: 0.01px;
   --marpx-theme-font-family: Bitter, Faustina, Bookerly, Lora, serif;
   --marpx-theme-background-color: var(--color-background1);
   --marpx-theme-font-color: var(--color-font);
@@ -62,9 +59,9 @@
   /* SECONDARY GLOBAL PARAMETERS of THEME */
   --marpx-theme-color: var(--color-font);
   --marpx-theme-figure-captiontext-color: var(--khaki-d1200);
-  --marpx-theme-figure-captiontext: "Fig. ";
+  --marpx-theme-figure-captiontext: 'Fig. ';
   --marpx-theme-highlight-color: var(--blueViolet-500);
-  --marpx-theme-table-captiontext: "Table. ";
+  --marpx-theme-table-captiontext: 'Table. ';
   --marpx-theme-table-captiontext-color: var(--khaki-d1200);
   --marpx-theme-toc-color: var(--blue-d500);
 
@@ -110,7 +107,6 @@
   --marpx-table-font-color: var(--color-font);
   --marpx-table-hover-background-color: var(--violet-100);
   --marpx-table-hover-color: var(--blueViolet-400);
-
 }
 
 /* Demais diferenças estruturais */
@@ -128,7 +124,6 @@ section code:not(pre code) {
   display: inline-block;
 }
 
-
 section.slide.white,
 section.white-slide {
   color: var(--color-font);
@@ -138,7 +133,6 @@ section.references a {
   color: var(--blue-d700);
   font-weight: 100;
   text-decoration: underline;
-
 }
 
 section.chapter {
@@ -154,9 +148,7 @@ section.chapter {
   /* background-image: url("./pattern01.jpg"); */
 }
 
-
 section.quote {
-
   --marpx-quote-font-color: var(--blue-d100);
   --marpx-quote-background-color: var(--blue-d200);
   --marpx-quote-bold-color: var(--green-d100);
@@ -164,18 +156,14 @@ section.quote {
 }
 
 section.quote.dark {
-
   --marpx-quote_dark-font-color: white;
   background-image: linear-gradient(to top, var(--blue-d600), var(--blue-d900));
   /* background-image: url("./pattern01.jpg"); */
 }
 
-
 box {
-
-  border: 0.5px solid black;    /* cria a borda */
-  background-color: #d9ff0025;  /* cor de fundo (opcional) */
-  text-align: center;             /* centraliza o conteúdo dentro da caixa */
+  border: 0.5px solid black; /* cria a borda */
+  background-color: #d9ff0025; /* cor de fundo (opcional) */
+  text-align: center; /* centraliza o conteúdo dentro da caixa */
   box-shadow: 0 8px 15px rgba(8, 8, 8, 0.37);
-  
 }

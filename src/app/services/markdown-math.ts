@@ -25,7 +25,8 @@ export function mathPlugin(md: MarkdownIt): void {
       const max = state.eMarks[startLine];
 
       if (pos + 2 > max) return false;
-      if (state.src.charCodeAt(pos) !== 0x24 /* $ */ || state.src.charCodeAt(pos + 1) !== 0x24) return false;
+      if (state.src.charCodeAt(pos) !== 0x24 /* $ */ || state.src.charCodeAt(pos + 1) !== 0x24)
+        return false;
 
       // Opening $$
       const openDelim = state.src.slice(pos, max);
@@ -50,7 +51,11 @@ export function mathPlugin(md: MarkdownIt): void {
       while (nextLine < endLine) {
         pos = state.bMarks[nextLine] + state.tShift[nextLine];
         const lineMax = state.eMarks[nextLine];
-        if (pos < lineMax && state.src.charCodeAt(pos) === 0x24 && state.src.charCodeAt(pos + 1) === 0x24) {
+        if (
+          pos < lineMax &&
+          state.src.charCodeAt(pos) === 0x24 &&
+          state.src.charCodeAt(pos + 1) === 0x24
+        ) {
           found = true;
           break;
         }
@@ -60,7 +65,9 @@ export function mathPlugin(md: MarkdownIt): void {
       if (!found) return false;
       if (silent) return true;
 
-      const content = state.getLines(startLine + 1, nextLine, state.tShift[startLine], false).trim();
+      const content = state
+        .getLines(startLine + 1, nextLine, state.tShift[startLine], false)
+        .trim();
       const token = state.push('math_block', 'math', 0);
       token.content = content;
       token.map = [startLine, nextLine + 1];

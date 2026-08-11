@@ -26,20 +26,14 @@ import { AiPromptDialogComponent, AiPromptResult } from '../ai-prompt-dialog/ai-
 
 @Component({
   selector: 'app-editor-pane',
-  imports: [
-    CheatBarComponent,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatTooltipModule,
-  ],
+  imports: [CheatBarComponent, MatButtonModule, MatIconModule, MatDialogModule, MatTooltipModule],
   template: `
     <div #editorHost class="editor-host"></div>
 
     @if (!isFocusHidden()) {
       <app-cheat-bar (insert)="onCheatInsert($event)" />
     }
-    
+
     @if (store.prefs().geminiApiKey && !isFocusHidden()) {
       <button mat-fab class="ai-fab" (click)="openAiPrompt()" matTooltip="Ask Gemini">
         <mat-icon>auto_awesome</mat-icon>
@@ -69,11 +63,11 @@ export class EditorPaneComponent {
 
   private readonly extensions = [
     ...createFolioExtensions(
-      md => this.store.setMarkdown(md),
-      idx => this.store.goToSlide(idx)
+      (md) => this.store.setMarkdown(md),
+      (idx) => this.store.goToSlide(idx),
     ),
     // Add scroll margins to keep the cursor from hitting the very bottom (better mobile UX)
-    EditorView.scrollMargins.of(() => ({ bottom: 100 }))
+    EditorView.scrollMargins.of(() => ({ bottom: 100 })),
   ];
 
   constructor() {
@@ -94,7 +88,7 @@ export class EditorPaneComponent {
         this.editorView?.requestMeasure();
       });
 
-    this.editorService.insert$.pipe(takeUntilDestroyed()).subscribe(val => {
+    this.editorService.insert$.pipe(takeUntilDestroyed()).subscribe((val) => {
       if (typeof val === 'string') {
         this.doInsert(val);
       } else {
@@ -102,7 +96,7 @@ export class EditorPaneComponent {
       }
     });
 
-    this.editorService.focus$.pipe(takeUntilDestroyed()).subscribe(pos => {
+    this.editorService.focus$.pipe(takeUntilDestroyed()).subscribe((pos) => {
       const view = this.editorView;
       if (!view) return;
 
@@ -118,7 +112,10 @@ export class EditorPaneComponent {
     // Observe focus-mode class on document to hide floating controls
     ((): void => {
       const update = () => {
-        const h = !!(document.documentElement.classList.contains('focus-mode') || (document.body && document.body.classList.contains('focus-mode')));
+        const h = !!(
+          document.documentElement.classList.contains('focus-mode') ||
+          (document.body && document.body.classList.contains('focus-mode'))
+        );
         this.isFocusHidden.set(h);
       };
 
@@ -126,7 +123,8 @@ export class EditorPaneComponent {
       const obs = new MutationObserver(() => update());
       try {
         obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        if (document.body)
+          obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
       } catch (e) {
         // ignore
       }
@@ -137,10 +135,10 @@ export class EditorPaneComponent {
       const md = this.store.currentMarkdown();
       const view = this.editorView;
       if (!view || view.state.doc.toString() === md) return;
-      
+
       view.dispatch({
         changes: { from: 0, to: view.state.doc.length, insert: md },
-        annotations: Transaction.remote.of(true)
+        annotations: Transaction.remote.of(true),
       });
     });
 
@@ -206,17 +204,18 @@ export class EditorPaneComponent {
 
     view.dispatch({
       changes: { from, to, insert: insertion },
-      selection: from === to
-        ? { anchor: from + prefix.length }
-        : { 
-            anchor: from + prefix.length, 
-            head: from + prefix.length + selectedText.length 
-          },
+      selection:
+        from === to
+          ? { anchor: from + prefix.length }
+          : {
+              anchor: from + prefix.length,
+              head: from + prefix.length + selectedText.length,
+            },
       scrollIntoView: true,
       userEvent: 'input.type',
     });
-    
-    // Defer focus slightly to ensure the menu closing transition 
+
+    // Defer focus slightly to ensure the menu closing transition
     // doesn't steal focus back from the editor on mobile.
     setTimeout(() => view.focus(), 0);
   }
@@ -228,7 +227,7 @@ export class EditorPaneComponent {
     // Detect 'key: value' pattern (directives like theme, paginate, etc.)
     // We only target alphabetic keys that don't start with underscore (slide-local)
     const kvMatch = snippet.match(/^([a-zA-Z]+):\s*(.*)$/);
-    
+
     if (kvMatch) {
       this.insertIntoFrontMatter(kvMatch[1], kvMatch[2]);
     } else {
@@ -255,14 +254,14 @@ export class EditorPaneComponent {
       // Front matter exists
       const fmContent = match[1];
       const keyRegex = new RegExp(`^${key}:\\s*.*$`, 'm');
-      
+
       if (keyRegex.test(fmContent)) {
         // Key exists, replace it
         const newFmContent = fmContent.replace(keyRegex, `${key}: ${value}`);
         const newFullContent = content.replace(fmRegex, `---\n${newFmContent}\n---`);
         view.dispatch({
           changes: { from: 0, to: content.length, insert: newFullContent },
-          scrollIntoView: true
+          scrollIntoView: true,
         });
       } else {
         // Key doesn't exist, append before the closing ---
@@ -270,7 +269,7 @@ export class EditorPaneComponent {
         const insertPos = closingPos - 4; // index before \n---
         view.dispatch({
           changes: { from: insertPos, to: insertPos, insert: `\n${key}: ${value}` },
-          scrollIntoView: true
+          scrollIntoView: true,
         });
       }
     } else {
@@ -280,7 +279,7 @@ export class EditorPaneComponent {
       const newFm = `---\n${isMarpKey ? 'marp: true\n' : ''}${key}: ${value}\n---\n\n`;
       view.dispatch({
         changes: { from: 0, to: 0, insert: newFm },
-        scrollIntoView: true
+        scrollIntoView: true,
       });
     }
     setTimeout(() => view.focus(), 0);

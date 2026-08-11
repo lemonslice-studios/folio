@@ -17,8 +17,10 @@
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none; // hide scrollbar on Firefox
-  &::-webkit-scrollbar { display: none; }
-  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   // Entrance animation
   animation: dock-entrance 0.2s ease-out;
 }
@@ -48,7 +50,9 @@
   color: var(--on-surface) !important;
   flex-shrink: 0;
   // 100ms Plasma fill flash on press
-  transition: background 100ms ease-out, color 100ms ease-out !important;
+  transition:
+    background 100ms ease-out,
+    color 100ms ease-out !important;
 
   &:active {
     background: var(--color-plasma) !important;

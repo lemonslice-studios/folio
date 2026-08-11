@@ -5,7 +5,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AppStore, SAMPLE_MARKDOWN, SAMPLE_PROSE } from '../store/app-store';
+import {
+  AppStore,
+  MINIMAL_SLIDES_MARKDOWN,
+  SAMPLE_MARKDOWN,
+  SAMPLE_PROSE,
+} from '../store/app-store';
 import { SettingsDialogComponent } from '../settings-dialog/settings-dialog';
 import { FsService } from '../services/fs.service';
 import { EditorService } from '../services/editor.service';
@@ -36,17 +41,17 @@ export class FileListDrawerComponent {
   readonly closeDrawer = output<void>();
 
   async onNewSlides(): Promise<void> {
-    const filename = await this.store.createFile(
-      'Untitled Slides.slides.md',
-      SAMPLE_MARKDOWN,
-      true,
-    );
+    const includeStarter = this.store.prefs().includeStarterContent;
+    const content = includeStarter ? SAMPLE_MARKDOWN : MINIMAL_SLIDES_MARKDOWN;
+    const filename = await this.store.createFile('Untitled Slides.slides.md', content, true);
     this.showNewFileSnackBar(filename, true);
     this.closeDrawer.emit();
   }
 
   async onNewProse(): Promise<void> {
-    const filename = await this.store.createFile('Untitled Document.md', SAMPLE_PROSE, false);
+    const includeStarter = this.store.prefs().includeStarterContent;
+    const content = includeStarter ? SAMPLE_PROSE : '';
+    const filename = await this.store.createFile('Untitled Document.md', content, false);
     this.showNewFileSnackBar(filename, false);
     this.closeDrawer.emit();
   }

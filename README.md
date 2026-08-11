@@ -14,10 +14,10 @@ Built with **Angular 21**, **Angular Material 3 (M3 Expressive)**, and a Signal-
 
 Folio automatically detects what kind of document you're writing from the frontmatter — no type picker, no extra UI.
 
-| Document | Frontmatter | Preview |
-|---|---|---|
-| **Slides** | `marp: true` | Marp slide deck — full-screen presentable |
-| **Prose** | _(none, or no `marp: true`)_ | Paginated flow text via Paged.js — `---` becomes a page break |
+| Document   | Frontmatter                  | Preview                                                       |
+| ---------- | ---------------------------- | ------------------------------------------------------------- |
+| **Slides** | `marp: true`                 | Marp slide deck — full-screen presentable                     |
+| **Prose**  | _(none, or no `marp: true`)_ | Paginated flow text via Paged.js — `---` becomes a page break |
 
 Both modes share the same editor, the same file management, and the same export workflow. Switching modes is as simple as adding or removing `marp: true`.
 
@@ -33,15 +33,15 @@ npm start                         # dev server → http://localhost:4200
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `npm start` | Dev server at `http://localhost:4200` (HMR enabled) |
-| `npm run build` | Production build → `dist/` |
-| `npm run build -- --configuration github` | Build for GitHub Pages (sub-path base href) |
-| `node scripts/download-themes.mjs` | Refresh MarpX theme collection from GitHub |
-| `node scripts/download-pagedjs.mjs` | Download Paged.js polyfill |
-| `npm test` | Run unit tests with Vitest |
-| `npx prettier --write .` | Format all files |
+| Command                                   | Description                                         |
+| ----------------------------------------- | --------------------------------------------------- |
+| `npm start`                               | Dev server at `http://localhost:4200` (HMR enabled) |
+| `npm run build`                           | Production build → `dist/`                          |
+| `npm run build -- --configuration github` | Build for GitHub Pages (sub-path base href)         |
+| `node scripts/download-themes.mjs`        | Refresh MarpX theme collection from GitHub          |
+| `node scripts/download-pagedjs.mjs`       | Download Paged.js polyfill                          |
+| `npm test`                                | Run unit tests with Vitest                          |
+| `npx prettier --write .`                  | Format all files                                    |
 
 ---
 
@@ -107,22 +107,22 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 
 ## Stack
 
-| Concern | Library | Status |
-|---|---|---|
-| Framework | Angular 21 — standalone components, Signals | ✅ |
-| Slides engine | `@marp-team/marp-core` | ✅ |
-| Prose pagination | `pagedjs` — Paged Media CSS polyfill | ✅ |
-| Editor | CodeMirror 6 (`@codemirror/*`) | ✅ |
-| UI | Angular Material 3 (M3 Expressive) + Angular CDK | ✅ |
-| Styles | SCSS + CSS custom properties (M3 tokens) | ✅ |
-| Filesystem | `lightning-fs` — IndexedDB-backed POSIX fs | ✅ |
-| Preferences | Raw IndexedDB — single JSON value | ✅ |
-| PWA | `@angular/pwa` (Workbox service worker) | ✅ |
-| Themes | MarpX Collection (16 themes) | ✅ |
-| Cloud Sync | Google Drive API v3 + GIS | ✅ |
-| AI Editing | Google Gemini (`gemini-flash-lite-latest`) | ✅ |
-| Prose math | KaTeX — MathML output, no CSS dependency | ✅ |
-| Syntax highlighting | highlight.js — custom light/dark token theme | ✅ |
+| Concern             | Library                                          | Status |
+| ------------------- | ------------------------------------------------ | ------ |
+| Framework           | Angular 21 — standalone components, Signals      | ✅     |
+| Slides engine       | `@marp-team/marp-core`                           | ✅     |
+| Prose pagination    | `pagedjs` — Paged Media CSS polyfill             | ✅     |
+| Editor              | CodeMirror 6 (`@codemirror/*`)                   | ✅     |
+| UI                  | Angular Material 3 (M3 Expressive) + Angular CDK | ✅     |
+| Styles              | SCSS + CSS custom properties (M3 tokens)         | ✅     |
+| Filesystem          | `lightning-fs` — IndexedDB-backed POSIX fs       | ✅     |
+| Preferences         | Raw IndexedDB — single JSON value                | ✅     |
+| PWA                 | `@angular/pwa` (Workbox service worker)          | ✅     |
+| Themes              | MarpX Collection (16 themes)                     | ✅     |
+| Cloud Sync          | Google Drive API v3 + GIS                        | ✅     |
+| AI Editing          | Google Gemini (`gemini-flash-lite-latest`)       | ✅     |
+| Prose math          | KaTeX — MathML output, no CSS dependency         | ✅     |
+| Syntax highlighting | highlight.js — custom light/dark token theme     | ✅     |
 
 ---
 
@@ -132,13 +132,13 @@ Folio bundles the [MarpX](https://github.com/cunhapaulo/MarpX) theme collection.
 
 Rendering and external integrations are split between focused services:
 
-| Service | Responsibility |
-|---|---|
-| `MarpService` | Marp Core rendering, MarpX theme registration, slide srcdoc |
-| `ProseService` | markdown-it rendering, emoji, math, syntax highlighting, task lists, prose srcdoc |
-| `GoogleDriveService` | Google Identity Services OAuth 2.0 flow, Drive API REST calls |
-| `FsService` | lightning-fs POSIX wrapper for IndexedDB |
-| `AppStore` | Centralized state, auto-save effect, and robust multi-device sync logic |
+| Service              | Responsibility                                                                    |
+| -------------------- | --------------------------------------------------------------------------------- |
+| `MarpService`        | Marp Core rendering, MarpX theme registration, slide srcdoc                       |
+| `ProseService`       | markdown-it rendering, emoji, math, syntax highlighting, task lists, prose srcdoc |
+| `GoogleDriveService` | Google Identity Services OAuth 2.0 flow, Drive API REST calls                     |
+| `FsService`          | lightning-fs POSIX wrapper for IndexedDB                                          |
+| `AppStore`           | Centralized state, auto-save effect, and robust multi-device sync logic           |
 
 Shared markdown-it plugins (mark, footnote, deflist, task-lists, container, Mermaid fence) live in `configure-markdown.ts` and are applied to both the Marp internal `markdown-it` instance and the prose standalone instance.
 
@@ -150,17 +150,17 @@ Shared markdown-it plugins (mark, footnote, deflist, task-lists, container, Merm
 
 ## Milestones
 
-| # | Milestone | Status |
-|---|---|---|
-| M1 | Shell layout — split-pane (wide) / tabbed (narrow), toolbar | ✅ Done |
-| M2 | Marp rendering — live Markdown → iframe preview, slide nav, fullscreen | ✅ Done |
-| M3 | CodeMirror editor — syntax theme, `---` decoration, cheat bar | ✅ Done |
-| M4 | Storage — lightning-fs, file list, create / rename / delete | ✅ Done |
-| M5 | PWA — offline install, service worker, bundled fonts | ✅ Done |
-| M6 | Export — `.md`, self-contained HTML, print-to-PDF | ✅ Done |
-| M7 | **Prose mode** — frontmatter detection, Paged.js pagination, `---` as page break | ✅ Done |
-| M8 | Polish — dark mode, smart snippets, lavender "post-it" theme | ✅ Done |
-| M9 | **AI Integration** — Gemini-powered rewriting, summarization, and document creation | ✅ Done |
+| #   | Milestone                                                                           | Status  |
+| --- | ----------------------------------------------------------------------------------- | ------- |
+| M1  | Shell layout — split-pane (wide) / tabbed (narrow), toolbar                         | ✅ Done |
+| M2  | Marp rendering — live Markdown → iframe preview, slide nav, fullscreen              | ✅ Done |
+| M3  | CodeMirror editor — syntax theme, `---` decoration, cheat bar                       | ✅ Done |
+| M4  | Storage — lightning-fs, file list, create / rename / delete                         | ✅ Done |
+| M5  | PWA — offline install, service worker, bundled fonts                                | ✅ Done |
+| M6  | Export — `.md`, self-contained HTML, print-to-PDF                                   | ✅ Done |
+| M7  | **Prose mode** — frontmatter detection, Paged.js pagination, `---` as page break    | ✅ Done |
+| M8  | Polish — dark mode, smart snippets, lavender "post-it" theme                        | ✅ Done |
+| M9  | **AI Integration** — Gemini-powered rewriting, summarization, and document creation | ✅ Done |
 
 ---
 
@@ -179,5 +179,6 @@ Folio follows **Quiet Tech** constraints — every feature must satisfy:
 This project is released under the **MIT License**. See [LICENSE](LICENSE) for the full text.
 
 For information regarding data safety and application terms of service, see:
+
 - [Privacy Policy](PRIVACY.md)
 - [Terms of Service](APPTOS.md)

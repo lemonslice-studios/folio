@@ -36,15 +36,11 @@ ${currentContent}`;
       contents: [
         {
           role: 'user',
-          parts: [
-            { text: prompt }
-          ]
-        }
+          parts: [{ text: prompt }],
+        },
       ],
       systemInstruction: {
-        parts: [
-          { text: systemPrompt }
-        ]
+        parts: [{ text: systemPrompt }],
       },
       generationConfig: {
         temperature: 0.7,

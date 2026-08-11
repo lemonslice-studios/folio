@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { AppStore } from '../store/app-store';
 
@@ -25,6 +26,7 @@ import { AppStore } from '../store/app-store';
     MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCheckboxModule,
     FormsModule,
   ],
   templateUrl: './settings-dialog.html',
@@ -39,6 +41,9 @@ export class SettingsDialogComponent {
   protected readonly currentFontFamily = computed(() => this.store.prefs().fontFamily);
   protected readonly currentColorScheme = computed(() => this.store.colorScheme());
   protected readonly currentEditorFontSize = computed(() => this.store.prefs().editorFontSize);
+  protected readonly includeStarterContent = computed(
+    () => this.store.prefs().includeStarterContent,
+  );
 
   protected close(): void {
     this.dialogRef.close();

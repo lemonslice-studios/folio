@@ -18,7 +18,7 @@
                 <span class="item-description">{{ item.hint }}</span>
               </div>
               <button class="snippet-button" (click)="insert(item)" matTooltip="Insert into editor">
-                <code>{{ item.snippet || (item.prefix + '...' + item.suffix) }}</code>
+                <code>{{ item.snippet || item.prefix + '...' + item.suffix }}</code>
               </button>
             </div>
           }
@@ -29,5 +29,7 @@
 </mat-dialog-content>
 
 <div class="dialog-footer">
-  <p class="footer-hint">Click any code snippet to insert it into your editor at the current cursor position.</p>
+  <p class="footer-hint">
+    Click any code snippet to insert it into your editor at the current cursor position.
+  </p>
 </div>

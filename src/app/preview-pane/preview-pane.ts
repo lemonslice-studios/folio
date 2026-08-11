@@ -169,10 +169,16 @@ export class PreviewPaneComponent {
 
       // Failsafe: if the iframe doesn't report back, do a full page reload.
       // This is a workaround for iframe/renderer hangs. Slides/flow post
-      // 'ready' at DOMContentLoaded, but paged mode only reports after
-      // Paged.js has re-fragmented the whole document — which scales with
-      // document size — so it gets a much larger window.
+      // 'ready' at DOMContentLoaded, so a short fixed window is enough. Paged
+      // mode only reports after Paged.js has re-fragmented the whole
+      // document, which scales with page count, so its window scales too —
+      // using the last known page count as an estimate (the new count isn't
+      // known until the reflow this timer is guarding against finishes).
       const isPaged = result.type === 'prose' && proseMode === 'paged';
+      const pagedFailsafeMs = Math.min(
+        60000,
+        15000 + (Math.max(1, untracked(() => this.store.slideCount())) - 1) * 800,
+      );
       clearTimeout(this.reloadingTimeout);
       this.reloadingTimeout = setTimeout(
         () => {
@@ -180,7 +186,7 @@ export class PreviewPaneComponent {
             window.location.reload();
           }
         },
-        isPaged ? 15000 : 2000,
+        isPaged ? pagedFailsafeMs : 2000,
       );
 
       iframe.nativeElement.srcdoc = nextSrcdoc;

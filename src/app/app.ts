@@ -372,10 +372,9 @@ export class App {
           document.head.appendChild(metaThemeColor);
         }
 
-        // We'll use the primary accent color (--color-volt) as the theme color —
-        // this is the same color used by the FAB buttons (e.g. the Present dock button).
+        // We'll use the primary accent color (--color-plasma) as the theme color.
         const style = getComputedStyle(html);
-        const color = style.getPropertyValue('--color-volt').trim();
+        const color = style.getPropertyValue('--color-plasma').trim();
         if (color) {
           metaThemeColor.setAttribute('content', color);
         }

@@ -173,8 +173,8 @@ describe('App', () => {
     expect(dialogOpenSpy).not.toHaveBeenCalled();
   });
 
-  it('updates theme-color meta tag with --color-volt', async () => {
-    document.documentElement.style.setProperty('--color-volt', '#c8ff00');
+  it('updates theme-color meta tag with --color-plasma', async () => {
+    document.documentElement.style.setProperty('--color-plasma', '#7c4dff');
     try {
       const fixture = TestBed.createComponent(App);
       await fixture.whenStable();
@@ -182,9 +182,9 @@ describe('App', () => {
 
       const meta = document.querySelector('meta[name="theme-color"]');
       expect(meta).toBeTruthy();
-      expect(meta?.getAttribute('content')).toBe('#c8ff00');
+      expect(meta?.getAttribute('content')).toBe('#7c4dff');
     } finally {
-      document.documentElement.style.removeProperty('--color-volt');
+      document.documentElement.style.removeProperty('--color-plasma');
     }
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "Folio",
   "short_name": "Folio",
-  "theme_color": "#C8FF00",
+  "theme_color": "#7C4DFF",
   "background_color": "#111116",
   "display": "standalone",
   "scope": "./",

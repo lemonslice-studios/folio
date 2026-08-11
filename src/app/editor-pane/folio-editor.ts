@@ -11,7 +11,12 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirro
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { markdown } from '@codemirror/lang-markdown';
 import { tags } from '@lezer/highlight';
-import { autocompletion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import {
+  autocompletion,
+  CompletionContext,
+  CompletionResult,
+  snippetCompletion,
+} from '@codemirror/autocomplete';
 import { EMOJI_SHORTCODES } from './emoji-shortcodes';
 
 // ── Completion Data ─────────────────────────────────────────────────────────
@@ -91,27 +96,33 @@ const CODE_FENCE_LANGUAGES = [
   { label: 'diff', detail: 'Diff / Patch' },
 ];
 
-const SNIPPETS = [
-  { label: '# Header 1', apply: '# ', detail: 'Main title' },
-  { label: '## Header 2', apply: '## ', detail: 'Section title' },
-  { label: '### Header 3', apply: '### ', detail: 'Subsection title' },
-  { label: '--- New Slide', apply: '\n---\n', detail: 'Slide separator' },
-  { label: '![bg] Background', apply: '![bg](url)', detail: 'Full slide image' },
-  { label: '**Bold**', apply: '**text**', detail: 'Strong emphasis' },
-  { label: '*Italic*', apply: '*text*', detail: 'Emphasis' },
-  { label: '`Inline code`', apply: '`code`', detail: 'Monospace highlight' },
-  { label: '* Bullet list', apply: '* ', detail: 'Unordered list' },
-  { label: '- [ ] Task list', apply: '- [ ] ', detail: 'Checklist' },
-  { label: '$ Math Inline', apply: '$formula$', detail: 'KaTeX formula' },
-  { label: '$$ Math Block', apply: '$$\nformula\n$$', detail: 'Block formula' },
-  { label: '== Highlight ==', apply: '==text==', detail: 'Mark text' },
-  { label: '[^1] Footnote', apply: '[^1]', detail: 'Add reference' },
-  { label: '``` Code block', apply: '```', detail: 'Fenced code block' },
+export interface SnippetItem {
+  label: string;
+  template: string;
+  detail: string;
+}
+
+export const SNIPPETS: SnippetItem[] = [
+  { label: '# Header 1', template: '# ${heading}', detail: 'Main title' },
+  { label: '## Header 2', template: '## ${heading}', detail: 'Section title' },
+  { label: '### Header 3', template: '### ${heading}', detail: 'Subsection title' },
+  { label: '--- New Slide', template: '\n---\n', detail: 'Slide separator' },
+  { label: '![bg] Background', template: '![bg](${url})', detail: 'Full slide image' },
+  { label: '**Bold**', template: '**${text}**', detail: 'Strong emphasis' },
+  { label: '*Italic*', template: '*${text}*', detail: 'Emphasis' },
+  { label: '`Inline code`', template: '`${code}`', detail: 'Monospace highlight' },
+  { label: '* Bullet list', template: '* ${item}', detail: 'Unordered list' },
+  { label: '- [ ] Task list', template: '- [ ] ${task}', detail: 'Checklist' },
+  { label: '$ Math Inline', template: '$${formula}$', detail: 'KaTeX formula' },
+  { label: '$$ Math Block', template: '$$\n${formula}\n$$', detail: 'Block formula' },
+  { label: '== Highlight ==', template: '==${text}==', detail: 'Mark text' },
+  { label: '[^1] Footnote', template: '[^${1}]', detail: 'Add reference' },
+  { label: '``` Code block', template: '```${lang}\n${}\n```', detail: 'Fenced code block' },
 ];
 
 // ── Autocomplete Logic ──────────────────────────────────────────────────────
 
-function marpCompletionSource(context: CompletionContext): CompletionResult | null {
+export function marpCompletionSource(context: CompletionContext): CompletionResult | null {
   const fullText = context.state.doc.toString();
   const line = context.state.doc.lineAt(context.pos);
   const lineTextBefore = line.text.slice(0, context.pos - line.from);
@@ -147,12 +158,13 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   if (tagMatch) {
     return {
       from: line.from + lineTextBefore.lastIndexOf(tagMatch[1]),
-      options: MARPX_TAGS.map((t) => ({
-        label: t.label,
-        type: 'type',
-        detail: 'MarpX Tag',
-        apply: t.label + '></' + t.label + '>',
-      })),
+      options: MARPX_TAGS.map((t) =>
+        snippetCompletion(`${t.label}>$\${}$</${t.label}>`, {
+          label: t.label,
+          type: 'type',
+          detail: 'MarpX Tag',
+        }),
+      ),
       filter: true,
     };
   }
@@ -197,13 +209,14 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
     const langStart = line.from + fenceMatch[1].length;
     return {
       from: langStart,
-      options: CODE_FENCE_LANGUAGES.map((l) => ({
-        label: l.label,
-        type: 'keyword',
-        detail: l.detail,
-        apply: l.label + '\n\n```',
-        boost: l.label === 'mermaid' ? 1 : 0,
-      })),
+      options: CODE_FENCE_LANGUAGES.map((l) =>
+        snippetCompletion(`${l.label}\n\${}\n\`\`\``, {
+          label: l.label,
+          type: 'keyword',
+          detail: l.detail,
+          boost: l.label === 'mermaid' ? 1 : 0,
+        }),
+      ),
       filter: true,
     };
   }
@@ -229,18 +242,22 @@ function marpCompletionSource(context: CompletionContext): CompletionResult | nu
   if (context.explicit || (snippetPrefix && snippetPrefix.from !== snippetPrefix.to)) {
     const isSlides = isInFrontMatter || fullText.includes('marp: true');
     const options = SNIPPETS.filter((s) => {
-      if (!isSlides && s.apply.includes('bg')) return false;
+      if (!isSlides && s.template.includes('bg')) return false;
       return true;
     }).map((s) => {
+      let item = s;
       if (!isSlides && s.label === '![bg] Background') {
-        return { ...s, label: '![alt] Image', apply: '![alt](url)', detail: 'Standard image' };
+        item = {
+          label: '![alt] Image',
+          template: '![${alt}](${url})',
+          detail: 'Standard image',
+        };
       }
-      return {
-        label: s.label,
+      return snippetCompletion(item.template, {
+        label: item.label,
         type: 'text',
-        apply: s.apply,
-        detail: s.detail,
-      };
+        detail: item.detail,
+      });
     });
 
     return {

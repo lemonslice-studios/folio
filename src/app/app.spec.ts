@@ -8,6 +8,7 @@ import { MarpService } from './services/marp.service';
 import { ProseService } from './services/prose.service';
 import { PrefsService } from './services/prefs.service';
 import { ExportService } from './services/export.service';
+import { AppStore } from './store/app-store';
 import * as platformWarning from './services/platform-warning';
 
 if (typeof window !== 'undefined' && !window.matchMedia) {
@@ -120,6 +121,7 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
+        AppStore,
         { provide: FsService, useValue: fsServiceMock },
         { provide: MarpService, useValue: marpServiceMock },
         { provide: ProseService, useValue: proseServiceMock },
@@ -148,6 +150,9 @@ describe('App', () => {
   });
 
   it('shows the warning dialog the first time on affected Apple browsers', async () => {
+    const store = TestBed.inject(AppStore);
+    (store as any).prefs.set({ ...store.prefs(), safariWarningDismissed: false });
+
     const fixture = TestBed.createComponent(App);
     (fixture.componentInstance as any).shouldShowSafariWarning = () => true;
 
@@ -160,11 +165,26 @@ describe('App', () => {
   });
 
   it('does not show the warning dialog when the browser is unaffected', async () => {
+    vi.spyOn(App.prototype as any, 'shouldShowSafariWarning').mockImplementation(() => false);
     const fixture = TestBed.createComponent(App);
-    (fixture.componentInstance as any).shouldShowSafariWarning = () => false;
 
     await fixture.whenStable();
 
     expect(dialogOpenSpy).not.toHaveBeenCalled();
+  });
+
+  it('updates theme-color meta tag with --color-plasma', async () => {
+    document.documentElement.style.setProperty('--color-plasma', '#7c4dff');
+    try {
+      const fixture = TestBed.createComponent(App);
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      expect(meta).toBeTruthy();
+      expect(meta?.getAttribute('content')).toBe('#7c4dff');
+    } finally {
+      document.documentElement.style.removeProperty('--color-plasma');
+    }
   });
 });

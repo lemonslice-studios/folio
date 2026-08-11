@@ -81,7 +81,9 @@ export class App {
   private readonly snackBar = inject(MatSnackBar);
   private readonly exportService = inject(ExportService);
   private readonly dialog = inject(MatDialog);
-  private readonly shouldShowSafariWarning = shouldShowApplePlatformWarning;
+  protected shouldShowSafariWarning(): boolean {
+    return shouldShowApplePlatformWarning();
+  }
 
   readonly isWide = toSignal(
     this.breakpointObserver.observe('(min-width: 840px)').pipe(map((r) => r.matches)),
@@ -370,9 +372,9 @@ export class App {
           document.head.appendChild(metaThemeColor);
         }
 
-        // We'll use the surface-container color as the theme color
+        // We'll use the primary accent color (--color-plasma) as the theme color
         const style = getComputedStyle(html);
-        const color = style.getPropertyValue('--surface-container').trim();
+        const color = style.getPropertyValue('--color-plasma').trim();
         if (color) {
           metaThemeColor.setAttribute('content', color);
         }

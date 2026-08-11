@@ -63,5 +63,31 @@ describe('folio-editor helpers', () => {
       expect(boldOpt).toBeDefined();
       expect(typeof boldOpt?.apply).toBe('function');
     });
+
+    it('triggers image snippet on ! and ![ in prose mode', () => {
+      const state1 = EditorState.create({ doc: '!' });
+      const context1 = new CompletionContext(state1, 1, false);
+      const res1 = marpCompletionSource(context1);
+      expect(res1).not.toBeNull();
+      const img1 = res1?.options.find((o) => o.label === '![alt] Image');
+      expect(img1).toBeDefined();
+
+      const state2 = EditorState.create({ doc: '![' });
+      const context2 = new CompletionContext(state2, 2, false);
+      const res2 = marpCompletionSource(context2);
+      expect(res2).not.toBeNull();
+      const img2 = res2?.options.find((o) => o.label === '![alt] Image');
+      expect(img2).toBeDefined();
+    });
+
+    it('triggers image snippet on ! and ![ in slide mode', () => {
+      const doc = '---\nmarp: true\n---\n!';
+      const state = EditorState.create({ doc });
+      const context = new CompletionContext(state, doc.length, false);
+      const res = marpCompletionSource(context);
+      expect(res).not.toBeNull();
+      const img = res?.options.find((o) => o.label === '![bg] Background');
+      expect(img).toBeDefined();
+    });
   });
 });

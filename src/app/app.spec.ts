@@ -131,7 +131,11 @@ describe('App', () => {
       ],
     }).compileComponents();
 
-    dialogOpenSpy = vi.spyOn(TestBed.inject(MatDialog), 'open').mockReturnValue({
+    // Spy on the prototype rather than a TestBed.inject()'d instance: standalone
+    // components importing MatDialogModule can resolve MatDialog through a
+    // different injector than TestBed.inject() does, yielding a different
+    // instance and letting the real (unmocked) dialog.open() run silently.
+    dialogOpenSpy = vi.spyOn(MatDialog.prototype, 'open').mockReturnValue({
       afterClosed: () => of(undefined),
     } as never);
   });

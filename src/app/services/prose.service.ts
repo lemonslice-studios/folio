@@ -15,7 +15,6 @@ export type ColorScheme = 'system' | 'light' | 'dark';
 export class ProseService {
   private readonly md = new MarkdownIt({
     html: true,
-    breaks: true,
     linkify: true,
     typographer: true,
     highlight: (str: string, lang: string) => {

@@ -171,13 +171,22 @@ export class PreviewPaneComponent {
       // This is a workaround for iframe/renderer hangs. Slides/flow post
       // 'ready' at DOMContentLoaded, so a short fixed window is enough. Paged
       // mode only reports after Paged.js has re-fragmented the whole
-      // document, which scales with page count, so its window scales too —
-      // using the last known page count as an estimate (the new count isn't
-      // known until the reflow this timer is guarding against finishes).
+      // document, which scales with document size, so its window scales too
+      // — uncapped, since clamping it would fire the reload before a large
+      // but still-progressing render finishes, which is worse than waiting.
+      // We estimate size two ways and take the larger resulting window:
+      // the last known page count (best signal, but unavailable/stale on the
+      // very first paged render of a document) and the source line count
+      // (always known up front, so it still scales correctly on that first
+      // render — e.g. a long single-page text document with no prior count).
+      // Both terms start at the same 15000ms base, which doubles as the
+      // floor for small documents.
       const isPaged = result.type === 'prose' && proseMode === 'paged';
-      const pagedFailsafeMs = Math.min(
-        60000,
-        15000 + (Math.max(1, untracked(() => this.store.slideCount())) - 1) * 800,
+      const knownPageCount = Math.max(1, untracked(() => this.store.slideCount()));
+      const lineCount = untracked(() => this.store.currentMarkdown()).split('\n').length;
+      const pagedFailsafeMs = Math.max(
+        15000 + (knownPageCount - 1) * 800,
+        15000 + Math.floor(lineCount / 20) * 500,
       );
       clearTimeout(this.reloadingTimeout);
       this.reloadingTimeout = setTimeout(
